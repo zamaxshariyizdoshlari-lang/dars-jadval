@@ -1,0 +1,3866 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Zamaxshariy Izdoshlari – Dars Jadvali Tizimi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════
+   DIZAYN O'ZGARUVCHILARI — Zamaxshariy Izdoshlari ranglari
+══════════════════════════════════════════════════════ */
+:root{
+  --or:#FF6E00;   /* asosiy to'q sariq-qizil */
+  --or2:#FF8C2A;  /* ochroq versiyasi */
+  --or3:#FFF0E0;  /* juda och fon */
+  --or4:#FFE4C4;  /* o'rta och fon */
+  --br:#3D1800;   /* to'q jigarrang (sidebar) */
+  --br2:#6B3000;  /* o'rta jigarrang */
+  --br3:#8B4513;  /* och jigarrang */
+  --g50:#F9FAFB;--g100:#F3F4F6;--g200:#E5E7EB;--g300:#D1D5DB;
+  --g400:#9CA3AF;--g500:#6B7280;--g700:#374151;--g900:#111827;
+  --red:#DC2626;--rp:#FEF2F2;--rp2:#FCA5A5;--rp3:#FEE2E2;
+  --grn:#16A34A;--gp:#F0FDF4;--gp2:#86EFAC;
+  --yel:#B45309;--yp:#FFFBEB;--yp2:#FDE68A;
+  --blu:#1D4ED8;--bp:#EFF6FF;--bp2:#BFDBFE;
+  --pur:#7C3AED;--pp:#F5F3FF;--pp2:#DDD6FE;
+  --teal:#0D9488;--tp:#F0FDFA;
+  --sb:242px;     /* sidebar kengligi */
+  --hh:48px;      /* topbar balandligi */
+  /* Tungi rejim o'zgaruvchilari */
+  --dm-bg:#0F172A;--dm-card:#1E293B;--dm-border:#334155;
+  --dm-text:#F1F5F9;--dm-sub:#94A3B8;--dm-hover:#273549;
+}
+/* ── Tungi rejim ── */
+body.dark{background:var(--dm-bg);color:var(--dm-text)}
+body.dark .main{background:var(--dm-bg)}
+body.dark .card{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .topbar{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .ch{border-color:var(--dm-border)}
+body.dark .ch-t{color:#e2e8f0}
+body.dark input[type=text],body.dark input[type=number],body.dark input[type=time],body.dark select,body.dark textarea{background:var(--dm-card);border-color:var(--dm-border);color:var(--dm-text)}
+body.dark .wl-tbl td{border-color:var(--dm-border)}
+body.dark .wl-tbl td:first-child{background:var(--dm-card)}
+body.dark .wl-tbl tr:nth-child(even) td{background:var(--dm-hover)}
+body.dark .wl-tbl tr:nth-child(even) td:first-child{background:var(--dm-hover)}
+body.dark .wl-inp,.dark .wl-sel{background:var(--dm-card);border-color:var(--dm-border);color:var(--dm-text)}
+body.dark .slot.emp{background:var(--dm-hover);border-color:var(--dm-border)}
+body.dark .tt td{border-color:var(--dm-border)}
+body.dark .stat{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .stbl td{border-color:var(--dm-border)}
+body.dark .stbl tr:hover td{background:var(--dm-hover)}
+body.dark .tcard{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .lb-card{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .vtbl td{border-color:var(--dm-border)}
+body.dark .vtbl tr:nth-child(even) td{background:var(--dm-hover)}
+body.dark .modal{background:var(--dm-card)}
+body.dark .mh{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .mf{border-color:var(--dm-border)}
+body.dark .sep{border-color:var(--dm-border)}
+body.dark .pop{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .popt{color:var(--dm-text)}
+body.dark .popt:hover{background:var(--dm-hover)}
+body.dark .search-box{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .search-box input{color:var(--dm-text);background:transparent}
+body.dark #search-results{background:var(--dm-card);border-color:var(--dm-border)}
+body.dark .tabs{background:var(--dm-border)}
+body.dark .tab.on{background:var(--dm-card);color:#e2e8f0}
+body.dark .dchk{border-color:var(--dm-border);color:var(--dm-sub)}
+body.dark .pcell{background:#2d1a00;color:#ffb366}
+body.dark .alert.ai{background:#1e3a5f;color:#93c5fd}
+body.dark .alert.as{background:#14532d;color:#86efac}
+body.dark .alert.aw{background:#451a03;color:#fde68a}
+body.dark .alert.ae{background:#450a0a;color:#fca5a5}
+body.dark .b-gh{background:var(--dm-card);color:var(--dm-sub);border-color:var(--dm-border)}
+body.dark .b-gh:hover{background:var(--dm-hover)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:var(--g900);font-size:13px;line-height:1.5}
+/* ── Asosiy tartib ── */
+#app{display:flex;min-height:100vh}
+/* Sidebar */
+.sb{width:var(--sb);min-width:var(--sb);background:var(--br);display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:200;overflow-y:auto;scrollbar-width:thin}
+.sb-brand{padding:13px 13px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-brand h1{font-size:11.5px;font-weight:800;color:var(--or);line-height:1.4}
+.sb-brand p{font-size:9px;color:rgba(255,255,255,.3);margin-top:1px}
+.sb-nav{flex:1;padding:5px 0}
+.sb-sec{padding:7px 12px 2px;font-size:8.5px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.24);letter-spacing:.09em}
+.sbi{display:flex;align-items:center;gap:6px;padding:7px 12px;color:rgba(255,255,255,.58);font-size:11.5px;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:all .12s;user-select:none}
+.sbi:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.9)}
+.sbi.on{background:rgba(255,110,0,.18);color:var(--or);border-left-color:var(--or);font-weight:600}
+.sbi svg{width:13px;height:13px;flex-shrink:0}
+.sbi .badge-count{margin-left:auto;background:var(--red);color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:700}
+.sb-foot{padding:7px 12px;border-top:1px solid rgba(255,255,255,.07);font-size:9px;color:rgba(255,255,255,.16);text-align:center}
+/* Asosiy panel */
+.main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:var(--hh);background:#fff;border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 16px;gap:8px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.tp-t{font-size:13px;font-weight:800;color:var(--br);flex-shrink:0}
+.tp-s{font-size:10px;color:var(--g400)}
+.sp{flex:1}
+.pg{padding:14px;flex:1}
+.page{display:none}.page.on{display:block}
+/* ── Tugmalar ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:none;outline:none;transition:all .12s;user-select:none;white-space:nowrap;line-height:1.4}
+.btn svg{width:12px;height:12px;flex-shrink:0}
+.b-or{background:var(--or);color:#fff}.b-or:hover{background:var(--or2)}
+.b-br{background:var(--br);color:#fff}.b-br:hover{background:var(--br2)}
+.b-gh{background:transparent;color:var(--g500);border:1px solid var(--g200)}.b-gh:hover{background:var(--g50)}
+.b-red{background:var(--rp);color:var(--red)}.b-red:hover{background:var(--rp2);color:#fff}
+.b-grn{background:var(--gp);color:var(--grn)}.b-grn:hover{background:var(--gp2)}
+.b-yel{background:var(--yp);color:var(--yel)}.b-yel:hover{background:var(--yp2)}
+.b-blu{background:var(--bp);color:var(--blu)}.b-blu:hover{background:var(--bp2)}
+.b-pur{background:var(--pp);color:var(--pur)}.b-pur:hover{background:var(--pp2)}
+.b-teal{background:var(--tp);color:var(--teal)}.b-teal:hover{opacity:.85}
+.b-sm{padding:3px 7px;font-size:10.5px}
+.b-lg{padding:8px 14px;font-size:12.5px}
+.b-xl{padding:10px 18px;font-size:13.5px;font-weight:700}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+/* ── Formalar ── */
+.fl{font-size:10.5px;font-weight:700;color:var(--g500);display:block;margin-bottom:2px}
+input[type=text],input[type=number],input[type=time],select,textarea{width:100%;padding:5px 8px;border:1px solid var(--g200);border-radius:7px;font-size:12px;outline:none;background:#fff;color:var(--g900);transition:border .12s}
+input:focus,select:focus{border-color:var(--or);box-shadow:0 0 0 2px rgba(255,110,0,.1)}
+input[type=checkbox]{width:13px;height:13px;accent-color:var(--or);cursor:pointer;flex-shrink:0}
+input[type=radio]{width:13px;height:13px;accent-color:var(--or);cursor:pointer;flex-shrink:0}
+input[type=color]{width:34px;height:27px;padding:2px;border:1px solid var(--g200);border-radius:5px;cursor:pointer}
+.fg{display:grid;gap:9px}.fg2{grid-template-columns:1fr 1fr}.fg3{grid-template-columns:1fr 1fr 1fr}.fg4{grid-template-columns:1fr 1fr 1fr 1fr}
+/* ── Kartalar ── */
+.card{background:#fff;border-radius:11px;border:1px solid var(--g200);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-hover{transition:box-shadow .2s}.card-hover:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.ch{padding:9px 13px;border-bottom:1px solid var(--g200);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ch-t{font-size:12.5px;font-weight:700;color:var(--br);flex:1;min-width:0}
+.cb{padding:13px}
+/* ── Modal ── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:flex;align-items:center;justify-content:center;padding:12px}
+.ov.off{display:none}
+.modal{background:#fff;border-radius:13px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.28)}
+.modal-lg{max-width:780px}
+.mh{padding:11px 14px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.mh h3{font-size:13px;font-weight:700;color:var(--br)}
+.mc{background:none;border:none;cursor:pointer;font-size:16px;color:var(--g400);padding:2px 5px;border-radius:4px}.mc:hover{color:var(--g900)}
+.mb{padding:13px}.mf{padding:9px 14px;border-top:1px solid var(--g200);display:flex;justify-content:flex-end;gap:7px}
+/* ── Belgilar ── */
+.bdg{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:20px;font-size:10px;font-weight:700}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block}
+.pc{background:#FEF3C7;color:#92400E}.pe{background:#EDE9FE;color:#5B21B6}.pf{background:#F0FDF4;color:#166534}
+.sm{background:#DBEAFE;color:#1E40AF}.sa{background:#FCE7F3;color:#9D174D}.sn{background:var(--g100);color:var(--g500)}
+.bdg-red{background:var(--rp);color:var(--red)}.bdg-grn{background:var(--gp);color:var(--grn)}.bdg-yel{background:var(--yp);color:var(--yel)}
+/* ── Yorliqlar (tabs) ── */
+.tabs{display:flex;gap:2px;background:var(--g100);padding:2px;border-radius:8px;width:fit-content}
+.tab{padding:4px 11px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--g500);transition:all .12s;border:none;background:none;user-select:none}
+.tab.on{background:#fff;color:var(--br);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+/* ── Statistika kartachalari ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.stat{background:#fff;border-radius:10px;border:1px solid var(--g200);padding:9px 11px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.sv{font-size:22px;font-weight:800;color:var(--or);line-height:1}
+.sl{font-size:9.5px;color:var(--g400);margin-top:2px;font-weight:500}
+/* ── Xabar qutilari ── */
+.alert{padding:7px 11px;border-radius:7px;font-size:11.5px;font-weight:500;display:flex;align-items:flex-start;gap:6px;line-height:1.45}
+.ai{background:var(--bp);color:var(--blu)}.as{background:var(--gp);color:var(--grn)}
+.aw{background:var(--yp);color:var(--yel)}.ae{background:var(--rp);color:var(--red)}
+/* ── Toast bildirish ── */
+#tc{position:fixed;bottom:14px;right:14px;z-index:9999;display:flex;flex-direction:column-reverse;gap:5px;pointer-events:none}
+.toast{background:var(--br);color:#fff;padding:7px 13px;border-radius:8px;font-size:11.5px;box-shadow:0 4px 18px rgba(0,0,0,.18);animation:tIn .17s ease;max-width:300px;pointer-events:all}
+.ts{background:var(--grn)}.tw{background:var(--yel)}.te{background:var(--red)}
+@keyframes tIn{from{transform:translateX(36px);opacity:0}to{transform:none;opacity:1}}
+/* ── Yuklama yuklamasi matritsasi ── */
+.wl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.wl-tbl{border-collapse:collapse;font-size:11px;white-space:nowrap}
+.wl-tbl th{padding:5px 7px;background:var(--br);color:#fff;border:1px solid var(--br2);font-weight:700;text-align:center}
+.wl-tbl th:first-child{position:sticky;left:0;z-index:3;min-width:130px}
+.wl-tbl td{border:1px solid var(--g200);padding:1px 2px;text-align:center;vertical-align:top}
+.wl-tbl td:first-child{position:sticky;left:0;background:#fff;font-weight:600;font-size:11px;padding:4px 7px;text-align:left;z-index:2;border-right:2px solid var(--g200);vertical-align:middle}
+.wl-tbl tr:nth-child(even) td{background:var(--g50)}
+.wl-tbl tr:nth-child(even) td:first-child{background:var(--g50)}
+.wl-cell{display:flex;flex-direction:column;gap:2px;padding:3px;min-width:120px}
+.wl-inp{width:100%;border:1px solid var(--g200);border-radius:4px;text-align:center;padding:3px 4px;font-size:11px;background:#fff}
+.wl-inp:focus{border-color:var(--or);outline:none;box-shadow:0 0 0 2px rgba(255,110,0,.1)}
+.wl-sel{width:100%;border:1px solid var(--g200);border-radius:4px;padding:2px 3px;font-size:10.5px;background:#fff}
+.wl-sel:focus{border-color:var(--or);outline:none}
+.wl-para{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--g500);padding:1px 0}
+/* ── Jadval panjarasai ── */
+.tt-outer{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tt{border-collapse:collapse;table-layout:fixed;min-width:100%}
+.tt th{padding:4px 3px;font-size:10px;font-weight:700;color:#fff;background:var(--br);text-align:center;white-space:nowrap;border:1px solid rgba(255,255,255,.12);position:sticky;top:0;z-index:5}
+.tt th:first-child{min-width:80px;background:var(--br2)}
+.tt td{border:1px solid var(--g200);padding:1px;vertical-align:top}
+.pcell{padding:4px 5px;font-size:10px;font-weight:700;color:var(--br);background:var(--or3);text-align:center;line-height:1.3;white-space:nowrap;vertical-align:middle!important}
+.pcell small{display:block;font-size:8.5px;font-weight:400;color:var(--br3);margin-top:1px}
+.lunch-row td{background:linear-gradient(135deg,#FFFDE7,#FFF176);text-align:center;font-size:9.5px;font-weight:700;color:#7B6000;padding:4px;border:1px solid #F9E400}
+.slot{min-height:44px;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;padding:3px 5px;position:relative;gap:1px;transition:filter .1s,box-shadow .1s}
+.slot.emp{background:var(--g50);border:1px dashed var(--g300);color:var(--g400);align-items:center;justify-content:center;font-size:16px}
+.slot.emp:hover{background:#fff;border-color:var(--or);color:var(--or)}
+.slot.fill{border:1px solid transparent}
+.slot.fill:hover{filter:brightness(.9)}
+.slot.lim{background:var(--g200);opacity:.4;cursor:default;align-items:center;justify-content:center;font-size:9px;color:var(--g500)}
+.slot.locked{cursor:not-allowed!important}
+.slot.locked::before{content:'\1F512';position:absolute;top:2px;right:18px;font-size:9px;opacity:.7}
+.slot.conf{animation:blink .5s infinite;border:2px solid var(--red)!important}
+/* Qidiruv natijasi yoritish */
+.slot.highlighted{box-shadow:0 0 0 3px #FFD700!important;z-index:2;position:relative}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.3)}55%{box-shadow:0 0 0 3px rgba(220,38,38,.2)}}
+.s-sub{font-weight:700;font-size:10.5px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.s-tch{font-size:9.5px;opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s-del{position:absolute;top:1px;right:1px;width:12px;height:12px;border-radius:50%;background:rgba(0,0,0,.2);color:#fff;display:none;align-items:center;justify-content:center;font-size:8px;cursor:pointer}
+.slot:not(.locked):hover .s-del{display:flex}
+.dbl{display:inline-flex;align-items:center;padding:0 3px;border-radius:3px;font-size:8px;font-weight:700;background:rgba(0,0,0,.15);vertical-align:middle;margin-left:2px}
+/* ── Qulf tugmasi ── */
+.lock-btn{display:flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:3px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);cursor:pointer;font-size:9px;position:absolute;bottom:2px;right:2px;transition:background .1s;color:#fff;user-select:none;line-height:1}
+.lock-btn:hover{background:rgba(255,255,255,.35)}
+.lock-btn.locked-icon{background:rgba(255,200,0,.45);border-color:rgba(255,200,0,.7)}
+/* ── Qalqib chiquvchi menyu ── */
+.pop-bg{position:fixed;inset:0;z-index:400}
+.pop{position:fixed;z-index:401;background:#fff;border-radius:10px;border:1px solid var(--g200);box-shadow:0 8px 32px rgba(0,0,0,.15);width:228px;padding:9px;max-height:380px;overflow-y:auto}
+.pop h4{font-size:10.5px;font-weight:700;color:var(--br);margin-bottom:5px;line-height:1.3}
+.popt{display:flex;align-items:center;gap:5px;padding:5px 7px;border-radius:5px;cursor:pointer;font-size:11px;color:var(--g900);transition:background .1s}
+.popt:hover{background:var(--or3)}
+.popt.dis{opacity:.3;cursor:not-allowed;pointer-events:none}
+.popt-sep{height:1px;background:var(--g200);margin:3px 0}
+/* ── Cheklash matritsasi ── */
+.mx{border-collapse:collapse}
+.mx th{padding:3px 6px;font-size:10px;font-weight:700;color:var(--g500);text-align:center;background:var(--g50);white-space:nowrap}
+.mx td{padding:2px}
+.mxpl{font-size:10px;font-weight:700;color:var(--br);padding:2px 7px;white-space:nowrap;text-align:right;min-width:68px;line-height:1.3}
+.mxpl small{display:block;font-size:8.5px;color:var(--g400);font-weight:400}
+.mxc{width:40px;height:26px;border-radius:4px;border:1px solid var(--g200);background:#fff;cursor:pointer;transition:all .1s;display:flex;align-items:center;justify-content:center;margin:auto;font-size:9px}
+.mxc:hover{border-color:var(--or)}
+.mxc.bl{background:var(--br);border-color:var(--br);color:rgba(255,255,255,.85)}
+.mxc.bl::after{content:'\2715';font-size:9px}
+/* ── Xatolik jurnali ── */
+.fail-box{background:var(--rp);border:1px solid var(--rp2);border-radius:11px;padding:10px 13px;margin-bottom:11px}
+.fail-box h4{font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px}
+.fail-row{display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:4px 8px;padding:3px 0;border-bottom:1px solid rgba(220,38,38,.1);font-size:10.5px;color:var(--red)}
+.fail-row:last-child{border-bottom:none}
+/* ── Progress bar ── */
+.prog{height:5px;background:var(--g200);border-radius:3px;overflow:hidden}
+.prf{height:100%;border-radius:3px;transition:width .3s}
+/* ── Yuklanish balansi ── */
+.lb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-bottom:14px}
+.lb-card{background:#fff;border-radius:9px;border:1px solid var(--g200);padding:9px 12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+/* ── Jadval yaratish banneri ── */
+.gbanner{background:linear-gradient(135deg,var(--br),var(--br2));border-radius:11px;padding:14px;display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.gico{width:42px;height:42px;background:rgba(255,110,0,.22);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gtxt{flex:1;color:#fff}.gtxt h2{font-size:13px;font-weight:700}.gtxt p{font-size:10px;opacity:.65;margin-top:1px}
+/* ── Ko'rinish jadvali ── */
+.vtbl{border-collapse:collapse;width:100%}
+.vtbl th{padding:6px 9px;font-size:10.5px;font-weight:700;background:var(--or3);color:var(--br);border:1px solid var(--g200)}
+.vtbl td{padding:5px 9px;border:1px solid var(--g200);font-size:11px;vertical-align:middle}
+.vtbl tr:nth-child(even) td{background:var(--g50)}
+/* ── Sozlamalar kunlari ── */
+.dchks{display:flex;flex-wrap:wrap;gap:5px}
+.dchk{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--g200);cursor:pointer;font-size:11.5px;font-weight:600;color:var(--g500);transition:all .12s;user-select:none}
+.dchk.on{background:var(--or3);border-color:var(--or);color:var(--or)}
+.dchk input{display:none}
+/* ── Fanlar jadvali ── */
+.stbl{width:100%;border-collapse:collapse}
+.stbl th{padding:6px 10px;font-size:10.5px;font-weight:700;color:var(--g500);text-align:left;background:var(--g50);border-bottom:1px solid var(--g200)}
+.stbl td{padding:5px 10px;border-bottom:1px solid var(--g200);font-size:11.5px;vertical-align:middle}
+.stbl tr:hover td{background:var(--g50)}
+/* ── O'qituvchilar kartachalari ── */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:9px}
+.tcard{background:#fff;border-radius:11px;border:1px solid var(--g200);overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:box-shadow .2s}
+.tcard:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.tc-top{padding:10px 12px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--g100)}
+.ava{width:37px;height:37px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+/* ── Mojaro ko'rsatgichi ── */
+.conflict-indicator{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:700;background:var(--rp3);color:var(--red);border:1px solid var(--rp2)}
+/* ── Audit jurnal ── */
+.audit-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--g100)}
+.audit-item:last-child{border-bottom:none}
+.audit-time{font-size:9.5px;color:var(--g400);white-space:nowrap;min-width:56px}
+.audit-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.audit-text{font-size:11.5px;flex:1}
+/* ── Analitika paneli ── */
+.chart-bar-wrap{display:flex;align-items:flex-end;gap:4px;height:80px}
+.chart-bar{border-radius:4px 4px 0 0;min-width:24px;flex:1;transition:height .3s;position:relative;cursor:pointer}
+.chart-bar:hover{opacity:.85}
+.chart-bar span{position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);font-size:9px;white-space:nowrap;background:var(--br);color:#fff;padding:1px 4px;border-radius:3px;pointer-events:none;opacity:0;transition:opacity .1s}
+.chart-bar:hover span{opacity:1}
+.chart-label{font-size:9px;color:var(--g400);text-align:center;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ── Qidiruv paneli ── */
+.search-box{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--g200);border-radius:8px;padding:5px 10px;transition:border .12s}
+.search-box:focus-within{border-color:var(--or);box-shadow:0 0 0 2px rgba(255,110,0,.1)}
+.search-box input{border:none;outline:none;flex:1;font-size:12px;background:transparent}
+.search-box svg{color:var(--g400);width:14px;height:14px;flex-shrink:0}
+/* ── Parallel sinflar ── */
+.parallel-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--g100)}
+.parallel-row:last-child{border-bottom:none}
+/* ── O'qituvchi jadval kartochkasi ── */
+.t-schedule-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:4px}
+.t-sched-cell{border-radius:6px;padding:4px 6px;font-size:10px;font-weight:600;border:1px solid transparent;cursor:default}
+/* ── Solishtirish paneli ── */
+.diff-added{background:#DCFCE7;border-left:3px solid var(--grn)}
+.diff-removed{background:#FEE2E2;border-left:3px solid var(--red)}
+.diff-changed{background:#FEF3C7;border-left:3px solid var(--yel)}
+/* ── Chop shabloni ── */
+@media print{
+  .sb,.topbar,#tc,.btn,.pop-bg,.pop,.ov,#print-hide{display:none!important}
+  .main{margin-left:0!important}
+  .card{box-shadow:none!important;border:1px solid #ddd!important}
+  .slot.fill{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pcell{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tt th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:11px}
+}
+/* ── Undo/Redo ko'rsatgichi ── */
+.undo-bar{display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--g50);border-radius:8px;border:1px solid var(--g200);font-size:11px;color:var(--g600)}
+/* ── Qo'shimcha ── */
+.sep{border:none;border-top:1px solid var(--g200);margin:10px 0}
+.row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.empty{text-align:center;padding:36px 18px;color:var(--g400)}
+.empty svg{width:36px;height:36px;margin:0 auto 7px;opacity:.3;display:block}
+.tooltip-wrap{position:relative;display:inline-flex}
+.tooltip-wrap .tt-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--br);color:#fff;padding:3px 8px;border-radius:5px;font-size:10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:100}
+.tooltip-wrap:hover .tt-tip{opacity:1}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--g300);border-radius:6px}
+/* ── Mobil sidebar ── */
+@media(max-width:660px){
+  .sb{transform:translateX(-100%);transition:transform .25s}
+  .sb.mob-open{transform:translateX(0)}
+  .main{margin-left:0}
+  .fg2,.fg3,.fg4{grid-template-columns:1fr}
+  .mob-overlay{display:block!important}
+}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199}
+/* ── Mobil menu tugmasi ── */
+#mob-menu-btn{display:none}
+@media(max-width:660px){#mob-menu-btn{display:flex}}
+/* ── Copy-paste highlight ── */
+.slot.copy-src{box-shadow:0 0 0 3px #3B82F6!important;z-index:3}
+.slot.copy-ready{box-shadow:0 0 0 3px #10B981!important;animation:pulse-grn .6s infinite}
+@keyframes pulse-grn{0%,100%{box-shadow:0 0 0 2px #10B98160}50%{box-shadow:0 0 0 4px #10B98190}}
+/* ── Swap mode ── */
+.slot.swap-src{box-shadow:0 0 0 3px #A855F7!important;z-index:3}
+/* ── Sessiya vaqt ── */
+#session-timer{font-size:9.5px;color:rgba(255,255,255,.35);padding:3px 12px;border-top:1px solid rgba(255,255,255,.06)}
+/* ── Gen history ── */
+.gen-hist-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--g100);font-size:11.5px}
+.gen-hist-item:last-child{border-bottom:none}
+/* ── Compare view ── */
+.compare-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* ── Partial gen checkboxes ── */
+.pgen-list{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.pgen-item{display:flex;align-items:center;gap:4px;padding:3px 9px;border:1px solid var(--g200);border-radius:6px;font-size:11.5px;cursor:pointer;user-select:none}
+.pgen-item.on{background:var(--or3);border-color:var(--or);color:var(--or)}
+.pgen-item input{display:none}
+/* ── Qidirish tarixi ── */
+.sh-item{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:11.5px}
+.sh-item:hover{background:var(--or3)}
+/* ── Tema tugmasi ── */
+.theme-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--g200);background:transparent;cursor:pointer;font-size:13px;line-height:1;transition:background .12s}
+.theme-btn:hover{background:var(--g100)}
+/* ── Statistika animatsiya ── */
+.stat{transition:transform .15s}
+.stat:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+/* ── Chop har sinf ── */
+@media print{
+  .print-class-break{page-break-before:always}
+  .print-header{font-size:14px;font-weight:800;color:#000;margin-bottom:8px}
+}
+/* ── Algoritm rejim ── */
+.algo-mode-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--g200);background:#fff;font-size:11px;font-weight:600;cursor:pointer;color:var(--g500);transition:all .12s}
+.algo-mode-btn.on{background:var(--or);color:#fff;border-color:var(--or)}
+/* ── Drag handle ── */
+.drag-handle{cursor:grab;opacity:.3;font-size:14px;line-height:1}
+.drag-handle:hover{opacity:.7}
+/* ── Status bar ── */
+#status-bar{position:fixed;bottom:0;left:var(--sb);right:0;height:22px;background:var(--br);color:rgba(255,255,255,.5);display:flex;align-items:center;padding:0 14px;gap:12px;font-size:9.5px;z-index:50;pointer-events:none}
+#status-bar span{display:flex;align-items:center;gap:4px}
+@media(max-width:660px){#status-bar{left:0}}
+</style>
+</head>
+<body>
+<div id="app">
+<!-- ══════════════════════════════════════════════════════
+     SIDEBAR — Navigatsiya paneli
+══════════════════════════════════════════════════════ -->
+<aside class="sb">
+  <div class="sb-brand">
+    <h1>Zamaxshariy Izdoshlari</h1>
+    <p>Xususiy Maktab &#183; Admin Panel v2.0</p>
+  </div>
+  <nav class="sb-nav" id="sb-nav">
+    <div class="sb-sec">Umumiy</div>
+    <div class="sbi on" data-p="dash">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Bosh sahifa</div>
+    <div class="sbi" data-p="analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analitika</div>
+    <div class="sbi" data-p="conflicts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Mojarolar <span class="badge-count" id="conflict-count">0</span></div>
+    <div class="sbi" data-p="audit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>O&#700;zgarishlar tarixi</div>
+    <div class="sb-sec">Sozlamalar</div>
+    <div class="sbi" data-p="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Maktab sozlamalari</div>
+    <div class="sb-sec">Ma&#700;lumotlar</div>
+    <div class="sbi" data-p="subjects">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Fanlar bazasi</div>
+    <div class="sbi" data-p="teachers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>O&#700;qituvchilar</div>
+    <div class="sbi" data-p="classes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Sinflar</div>
+    <div class="sbi" data-p="workload">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>Soat yuklamasi</div>
+    <div class="sb-sec">Jadval</div>
+    <div class="sbi" data-p="timetable">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Jadval yaratish</div>
+    <div class="sbi" data-p="view">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Ko&#700;rish &amp; Eksport</div>
+    <div class="sbi" data-p="reports">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>Hisobotlar</div>
+    <div class="sbi" onclick="openCompare()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="18" x2="15" y2="18"/><line x1="9" y1="12" x2="15" y2="12"/><polyline points="3 9 9 18 9 6"/><polyline points="15 6 15 18 21 9"/></svg>Sinf solishtirish</div>
+    <div class="sbi" onclick="openGenLog()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Gen tarixi</div>
+  </nav>
+  <div id="session-timer">&#9201; Sessiya: <span id="sess-display">00:00</span></div>
+  <div class="sb-foot">&#169; 2025 Zamaxshariy Izdoshlari</div>
+</aside>
+
+<!-- ══════════════════════════════════════════════════════
+     ASOSIY PANEL
+══════════════════════════════════════════════════════ -->
+<main class="main">
+  <header class="topbar">
+    <!-- Mobil sidebar ochish tugmasi -->
+    <button id="mob-menu-btn" class="theme-btn" onclick="toggleMobSidebar()" style="margin-right:4px">&#9776;</button>
+    <span class="tp-t" id="pg-t">Bosh sahifa</span>
+    <span class="tp-s" id="pg-s"></span>
+    <div class="sp"></div>
+    <!-- Undo/Redo tugmalari -->
+    <div class="row" style="gap:4px" id="print-hide">
+      <button class="btn b-gh b-sm" id="undo-btn" onclick="doUndo()" title="Bekor qilish (Ctrl+Z)">&#8630;</button>
+      <button class="btn b-gh b-sm" id="redo-btn" onclick="doRedo()" title="Qaytarish (Ctrl+Y)">&#8631;</button>
+    </div>
+    <!-- Jadval asboblari -->
+    <div class="row" style="gap:4px" id="print-hide">
+      <button class="btn b-gh b-sm" id="copy-mode-btn" onclick="toggleCopyMode()" title="Nusxalash rejimi (C)">&#128203;</button>
+      <button class="btn b-gh b-sm" id="swap-mode-btn" onclick="toggleSwapMode()" title="Almashtirish rejimi (S)">&#8644;</button>
+      <button class="btn b-gh b-sm" onclick="quickValidate()" title="Mojarolarni tekshirish">&#9888;</button>
+    </div>
+    <!-- Qidiruv -->
+    <div class="search-box" style="width:190px" id="global-search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="global-search" placeholder="Ctrl+F qidiruv..." oninput="handleGlobalSearch(this.value)" onkeydown="if(event.key==='Escape'){this.value='';clearSearch()}"/>
+    </div>
+    <!-- Tungi rejim -->
+    <button class="theme-btn" id="theme-btn" onclick="toggleDark()" title="Tungi/Kunduzgi rejim">&#127763;</button>
+    <div id="pg-acts" style="display:flex;gap:5px"></div>
+  </header>
+  <!-- Mobil overlay -->
+  <div class="mob-overlay" id="mob-overlay" onclick="toggleMobSidebar()"></div>
+  <!-- Qidiruv natijalari overlay -->
+  <div id="search-results" style="display:none;position:fixed;top:var(--hh);right:16px;z-index:300;background:#fff;border-radius:10px;border:1px solid var(--g200);box-shadow:0 8px 32px rgba(0,0,0,.14);width:320px;max-height:380px;overflow-y:auto;padding:8px"></div>
+
+  <div class="pg">
+    <!-- Sahifalar -->
+    <div class="page on" id="page-dash"></div>
+    <div class="page" id="page-analytics"></div>
+    <div class="page" id="page-conflicts"></div>
+    <div class="page" id="page-audit"></div>
+    <div class="page" id="page-settings"></div>
+    <div class="page" id="page-subjects">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:700;color:var(--br)">Fanlar bazasi</span>
+        <button class="btn b-or" onclick="openSM()">+ Fan qo&#700;shish</button>
+      </div>
+      <div id="subj-pane"></div>
+    </div>
+    <div class="page" id="page-teachers">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <div class="tabs" id="t-tabs">
+          <button class="tab on" onclick="tTab('list')">O&#700;qituvchilar</button>
+          <button class="tab" onclick="tTab('matrix')">Bandlik matritsasi</button>
+          <button class="tab" onclick="tTab('schedule')">Shaxsiy jadval</button>
+        </div>
+        <button class="btn b-or" onclick="openTM()">+ O&#700;qituvchi qo&#700;shish</button>
+      </div>
+      <div id="lb-wrap" class="lb-grid" style="margin-bottom:12px"></div>
+      <div id="t-list"></div>
+      <div id="t-matrix" style="display:none"></div>
+      <div id="t-schedule" style="display:none"></div>
+    </div>
+    <div class="page" id="page-classes">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:700;color:var(--br)">Sinflar</span>
+        <button class="btn b-or" onclick="openCM()">+ Sinf qo&#700;shish</button>
+      </div>
+      <div id="cgrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:9px"></div>
+    </div>
+    <div class="page" id="page-workload">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <div>
+          <span style="font-size:13px;font-weight:700;color:var(--br)">Soat Yuklamasi Matritsasi</span>
+          <span style="font-size:10px;color:var(--g400);margin-left:6px">Kalit: sinf_fan &#183; O&#700;qituvchi &#183; Soat &#183; Para</span>
+        </div>
+        <div class="row">
+          <button class="btn b-gh b-sm" onclick="clearWL()">&#8635; Tozalash</button>
+          <button class="btn b-or" onclick="saveWL()">&#128190; Saqlash</button>
+        </div>
+      </div>
+      <div class="alert ai" style="margin-bottom:9px">Har fan&#215;sinf kesmasi: haftalik soat + o&#700;qituvchi (faqat shu fanni o&#700;qita oladiganlar) + para</div>
+      <div class="card"><div class="cb" style="padding:0;overflow-x:auto"><div id="wl-wrap"></div></div></div>
+    </div>
+    <div class="page" id="page-timetable">
+      <div class="gbanner">
+        <div class="gico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6E00" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div class="gtxt"><h2>3-bosqich Backtracking + Reshuffle + Lock</h2><p>Asosiy&#8594;Qo&#700;shimcha&#8594;Zaxira &#183; Kunlik limit &#183; Para &#183; Kunora &#183; Gap minimizatsiya</p></div>
+        <div class="row" style="flex-shrink:0;gap:5px" id="print-hide">
+          <button class="btn b-or b-lg" id="gen-btn" onclick="runGen()">&#9889; Yaratish</button>
+          <button class="btn b-pur b-sm" onclick="openPartialGen()" title="Faqat tanlangan sinflar/fanlar">&#9889; Tanlangan</button>
+          <button class="btn b-blu b-sm" onclick="openGenLog()" title="Generatsiya tarixi">&#128202;</button>
+          <button class="btn b-red" onclick="clearTT()">&#128465;</button>
+        </div>
+      </div>
+      <div id="gen-log"></div>
+      <div class="row" style="margin-bottom:9px" id="print-hide">
+        <span style="font-size:11px;font-weight:600;color:var(--g500)">Kun:</span>
+        <div class="tabs" id="tt-days"></div>
+        <div class="sp"></div>
+        <!-- Yoritish qidirish -->
+        <div class="search-box" style="width:170px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="tt-search" placeholder="O&#700;qituvchi yoki fan..." oninput="highlightInGrid(this.value)"/>
+        </div>
+      </div>
+      <div class="card" style="overflow:hidden"><div class="tt-outer" id="tt-wrap"></div></div>
+    </div>
+    <div class="page" id="page-view">
+      <div class="tabs" id="v-tabs" style="margin-bottom:10px">
+        <button class="tab on" onclick="setVM('master')">Umumiy</button>
+        <button class="tab" onclick="setVM('class')">Sinf bo&#700;yicha</button>
+        <button class="tab" onclick="setVM('teacher')">O&#700;qituvchi bo&#700;yicha</button>
+      </div>
+      <div id="v-filter" class="row" style="margin-bottom:9px"></div>
+      <div class="row" style="margin-bottom:12px" id="print-hide">
+        <button class="btn b-br" onclick="expPDF()">&#128196; PDF</button>
+        <button class="btn b-grn" onclick="expXLS()">&#128202; Excel</button>
+        <button class="btn b-yel" onclick="printView()">&#128424; Chop</button>
+        <button class="btn b-blu" onclick="expViewJSON()">&#128190; JSON</button>
+      </div>
+      <div id="v-body"></div>
+    </div>
+    <div class="page" id="page-reports"></div>
+  </div>
+</main>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODALLAR
+══════════════════════════════════════════════════════ -->
+<!-- O'qituvchi modal -->
+<div class="ov off" id="m-t">
+  <div class="modal" style="max-width:560px">
+    <div class="mh"><h3 id="m-t-ti">O&#700;qituvchi qo&#700;shish</h3><button class="mc" onclick="closeM('m-t')">&#10005;</button></div>
+    <div class="mb">
+      <div class="fg fg2" style="margin-bottom:10px">
+        <div><label class="fl">Ism Familiya *</label><input id="t-n" type="text" placeholder="Aziz Karimov"/></div>
+        <div class="row" style="align-items:flex-end;gap:8px">
+          <div><label class="fl">Rang</label><input id="t-c" type="color" value="#FF6E00" style="width:50px;height:31px"/></div>
+          <div style="flex:1"><label class="fl">Pacing</label>
+            <select id="t-p"><option value="alt">&#128260; Kunora (almashinib)</option><option value="cons">&#128197; Ketma-ket kunlar</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="fg fg2" style="margin-bottom:10px">
+        <div><label class="fl">Haftalik max soat (yuklanish limiti)</label><input id="t-mh" type="number" min="1" max="50" value="35" placeholder="35"/></div>
+        <div><label class="fl">Biriktirilgan fan soni</label><span id="t-subj-count" style="font-size:12px;color:var(--g400);display:block;padding-top:7px">0 ta fan</span></div>
+      </div>
+      <div>
+        <div class="row" style="justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:11.5px;font-weight:700;color:var(--br)">O&#700;qita oladigan fanlar</span>
+          <button class="btn b-gh b-sm" onclick="addTSubjRow()">+ Fan qo&#700;shish</button>
+        </div>
+        <div id="t-subj-rows"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-gh" onclick="closeM('m-t')">Bekor</button>
+      <button class="btn b-or" onclick="saveTeacher()">Saqlash</button>
+    </div>
+    <input type="hidden" id="t-eid"/>
+  </div>
+</div>
+<!-- Sinf modal -->
+<div class="ov off" id="m-c">
+  <div class="modal" style="max-width:400px">
+    <div class="mh"><h3>Sinf</h3><button class="mc" onclick="closeM('m-c')">&#10005;</button></div>
+    <div class="mb">
+      <div class="fg" style="gap:9px">
+        <div><label class="fl">Sinf nomi *</label><input id="c-n" type="text" placeholder="5A"/></div>
+        <div><label class="fl">Kunlik max dars soati <span style="color:var(--g400)">(bo&#700;sh = umumiy sozlamadan)</span></label>
+          <input id="c-mp" type="number" min="1" max="14" placeholder="Umumiy sozlamadan"/>
+        </div>
+        <div>
+          <label class="fl">Parallel sinflar (bir vaqtda bir xil fan o&#700;tilmaydigan sinflar)</label>
+          <div id="c-parallel-wrap" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px"></div>
+          <p style="font-size:10px;color:var(--g400);margin-top:3px">Belgilangan sinflar bilan bir vaqtda bir xil o&#700;qituvchi qo&#700;yilmaydi</p>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-gh" onclick="closeM('m-c')">Bekor</button>
+      <button class="btn b-or" onclick="saveClass()">Saqlash</button>
+    </div>
+    <input type="hidden" id="c-eid"/>
+  </div>
+</div>
+<!-- Fan modal -->
+<div class="ov off" id="m-s">
+  <div class="modal" style="max-width:440px">
+    <div class="mh"><h3 id="m-s-ti">Fan qo&#700;shish</h3><button class="mc" onclick="closeM('m-s')">&#10005;</button></div>
+    <div class="mb">
+      <div class="fg fg2" style="gap:9px;margin-bottom:9px">
+        <div><label class="fl">Fan nomi *</label><input id="s-n" type="text" placeholder="Matematika"/></div>
+        <div><label class="fl">Rang</label><input id="s-c" type="color" value="#3B82F6" style="width:100%;height:31px"/></div>
+      </div>
+      <div class="fg fg2" style="gap:9px;margin-bottom:9px">
+        <div><label class="fl">Ustuvorlik</label>
+          <select id="s-pri"><option value="core">&#11088; Asosiy (Majburiy)</option><option value="elec">&#128216; Qo&#700;shimcha (Ixtiyoriy)</option><option value="fill">&#9702; Zaxira (To&#700;ldiruvchi)</option></select>
+        </div>
+        <div><label class="fl">Qism (shift)</label>
+          <select id="s-sh"><option value="any">&#128260; Ahamiyatsiz (Istalgan)</option><option value="mor">&#9728;&#65039; 1-qism (Ertalab)</option><option value="aft">&#127748; 2-qism (Tushdan keyin)</option></select>
+        </div>
+      </div>
+      <div>
+        <label class="fl">Afzal vaqt oralig&#700;i (ixtiyoriy)</label>
+        <div class="fg fg2" style="gap:9px">
+          <div><label class="fl" style="font-size:9.5px">Eng erta period</label><input id="s-pmin" type="number" min="1" max="12" placeholder="Masalan: 1"/></div>
+          <div><label class="fl" style="font-size:9.5px">Eng oxirgi period</label><input id="s-pmax" type="number" min="1" max="12" placeholder="Masalan: 4"/></div>
+        </div>
+        <p style="font-size:10px;color:var(--g400);margin-top:3px">Algoritm ushbu diapazonga joylashtirishga harakat qiladi</p>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-gh" onclick="closeM('m-s')">Bekor</button>
+      <button class="btn b-or" onclick="saveSubject()">Saqlash</button>
+    </div>
+    <input type="hidden" id="s-eid"/>
+  </div>
+</div>
+
+<!-- Qalqib chiquvchi menyu -->
+<div id="pop-bg" style="display:none" class="pop-bg" onclick="closePop()"></div>
+<div class="pop" id="pop" style="display:none"></div>
+<!-- Toast bildirish -->
+<div id="tc"></div>
+
+<!-- Yarim avtomatik modal -->
+<div class="ov off" id="m-pgen">
+  <div class="modal" style="max-width:480px">
+    <div class="mh"><h3>&#9889; Tanlangan uchun jadval yaratish</h3><button class="mc" onclick="closeM('m-pgen')">&#10005;</button></div>
+    <div class="mb">
+      <p style="font-size:11.5px;color:var(--g500);margin-bottom:10px">Faqat tanlangan sinflar yoki fanlar uchun jadval yangilaydi. Qulflangan kataklar o'zgarmaydi.</p>
+      <div class="fg fg2" style="gap:12px">
+        <div>
+          <label class="fl">Sinflarni tanlang</label>
+          <div class="pgen-list" id="pgen-classes"></div>
+        </div>
+        <div>
+          <label class="fl">Fanlarni tanlang (ustuvorlik)</label>
+          <div class="pgen-list" id="pgen-subjects"></div>
+        </div>
+      </div>
+      <div class="alert aw" style="margin-top:10px">Faqat tanlangan sinf+fan kesmalari qayta joylashtiriladi</div>
+    </div>
+    <div class="mf">
+      <button class="btn b-gh" onclick="closeM('m-pgen')">Bekor</button>
+      <button class="btn b-or" onclick="runPartialGen()">&#9889; Tanlanganlarga yaratish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Solishtirish modal -->
+<div class="ov off" id="m-compare">
+  <div class="modal modal-lg">
+    <div class="mh"><h3>&#9878; Ikki sinfni solishtirish</h3><button class="mc" onclick="closeM('m-compare')">&#10005;</button></div>
+    <div class="mb">
+      <div class="fg fg2" style="gap:12px;margin-bottom:10px">
+        <div><label class="fl">1-sinf</label><select id="cmp-a" onchange="renderCompare()"><option value="">— tanlang —</option></select></div>
+        <div><label class="fl">2-sinf</label><select id="cmp-b" onchange="renderCompare()"><option value="">— tanlang —</option></select></div>
+      </div>
+      <div id="cmp-body"></div>
+    </div>
+    <div class="mf"><button class="btn b-gh" onclick="closeM('m-compare')">Yopish</button></div>
+  </div>
+</div>
+
+<!-- Algoritm natijalar tarixi modal -->
+<div class="ov off" id="m-genlog">
+  <div class="modal" style="max-width:540px">
+    <div class="mh"><h3>&#128202; Generatsiya tarixi</h3><button class="mc" onclick="closeM('m-genlog')">&#10005;</button></div>
+    <div class="mb" id="genlog-body"></div>
+    <div class="mf">
+      <button class="btn b-red b-sm" onclick="DB.genHistory=[];save();renderGenLog()">&#128465; Tozalash</button>
+      <button class="btn b-gh" onclick="closeM('m-genlog')">Yopish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status bar -->
+<div id="status-bar">
+  <span id="sb-mode">&#128310; Normal rejim</span>
+  <span id="sb-placed">&#128197; 0 dars</span>
+  <span id="sb-conflicts">&#10003; Mojaro yo'q</span>
+  <span id="sb-session">&#9201; 00:00</span>
+  <span style="margin-left:auto" id="sb-saved">&#128190; Saqlangan</span>
+</div>
+
+<script>
+'use strict';
+/* ══════════════════════════════════════════════════════════
+   KONSTANTALAR — O'zgarmas qiymatlar
+══════════════════════════════════════════════════════════ */
+const ALL_DAYS    = ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+const ALL_DAYS_S  = ['Dush','Sesh','Chor','Pay','Juma','Shan'];
+const LUNCH       = {s:'12:35', e:'13:15'};
+// Standart dars vaqtlari (8 period: 4 ertalab + 4 tushdan keyin)
+const DEF_TIMES   = [
+  {s:'08:30',e:'09:15'},{s:'09:20',e:'10:05'},{s:'10:10',e:'10:55'},{s:'11:00',e:'11:45'},
+  {s:'13:20',e:'14:05'},{s:'14:10',e:'14:55'},{s:'15:00',e:'15:45'},{s:'15:50',e:'16:35'}
+];
+// Ranglar palitrasi — har o'qituvchiga avtomatic rang
+const COLORS = ['#FF6E00','#6366F1','#10B981','#EC4899','#F59E0B','#EF4444','#06B6D4','#84CC16','#A855F7','#3B82F6','#14B8A6','#F97316','#8B5CF6','#0EA5E9'];
+let _ci = 0;
+function nextColor(){ return COLORS[_ci++ % COLORS.length]; }
+
+/* ══════════════════════════════════════════════════════════
+   MA'LUMOTLAR MODELI
+   ─────────────────────────────────────────────────────────
+   Subject:  {id, name, color, priority:'core'|'elec'|'fill',
+              shift:'mor'|'aft'|'any', prefPMin, prefPMax}
+   Teacher:  {id, name, color, pacing:'alt'|'cons',
+              constraints:{d_p:true}, subjectIds:[], maxHours}
+   Class:    {id, name, maxPerDay, parallelIds:[]}
+   wlMap:    {classId+'_'+subjectId → {weeklyHours,teacherId,isPara}}
+             MUHIM: har sinf-fan juftligi uchun ALOHIDA o'qituvchi!
+   timetable:[{classId,day,period,subjectId,teacherId,isPara,locked}]
+   locks:    Set<"classId_day_period">
+   settings: {workDays[],maxPeriods,periodCount,morEnd,periodTimes[]}
+   history:  [] — undo/redo stack
+   audit:    [] — barcha o'zgarishlar jurnali
+══════════════════════════════════════════════════════════ */
+let DB = {
+  subjects:  [],
+  teachers:  [],
+  classes:   [],
+  wlMap:     {},
+  timetable: [],
+  locks:     new Set(),
+  settings: {
+    workDays: [0,1,2,3,4],
+    maxPeriods: 7,
+    periodCount: 8,
+    morEnd: 4,
+    periodTimes: JSON.parse(JSON.stringify(DEF_TIMES))
+  },
+  audit: []  // o'zgarishlar jurnali
+};
+
+// Undo/Redo stack
+let _history   = [];  // o'tgan holatlar
+let _future    = [];  // qaytarish uchun holatlar
+let _nid       = 1;
+const MAX_UNDO = 30;  // maksimal undo bosqichi
+
+function uid(){ return 'u' + (Date.now() % 99999999) + (++_nid); }
+function wlKey(cid, sid){ return cid + '_' + sid; }
+
+/* ── Ma'lumotlar saqlash va yuklash ── */
+function dbSerialize(){
+  return JSON.stringify({
+    DB: { ...DB, locks: [...DB.locks] },
+    _nid
+  });
+}
+function save(){
+  try { localStorage.setItem('zi6', dbSerialize()); } catch(e){}
+}
+function load(){
+  try {
+    const r = localStorage.getItem('zi6');
+    if (!r) return;
+    const p = JSON.parse(r);
+    const d = p.DB;
+    DB = {
+      subjects:  d.subjects  || [],
+      teachers:  d.teachers  || [],
+      classes:   d.classes   || [],
+      wlMap:     d.wlMap     || {},
+      timetable: d.timetable || [],
+      locks:     new Set(Array.isArray(d.locks) ? d.locks : []),
+      settings:  d.settings  || {workDays:[0,1,2,3,4],maxPeriods:7,periodCount:8,morEnd:4,periodTimes:JSON.parse(JSON.stringify(DEF_TIMES))},
+      audit:     d.audit     || []
+    };
+    _nid = p._nid || 1;
+    // Ko'chirma: eski ma'lumotlarga yangi maydonlar
+    if (!DB.settings.periodTimes) DB.settings.periodTimes = JSON.parse(JSON.stringify(DEF_TIMES));
+    while (DB.settings.periodTimes.length < DB.settings.periodCount)
+      DB.settings.periodTimes.push({s:'',e:''});
+    if (!DB.settings.morEnd) DB.settings.morEnd = 4;
+    DB.teachers.forEach(t => {
+      if (!t.constraints) t.constraints = {};
+      if (!t.subjectIds)  t.subjectIds  = [];
+      if (!t.maxHours)    t.maxHours    = 35;
+    });
+    DB.classes.forEach(c => {
+      if (!c.parallelIds) c.parallelIds = [];
+    });
+    DB.subjects.forEach(s => {
+      if (s.prefPMin === undefined) s.prefPMin = null;
+      if (s.prefPMax === undefined) s.prefPMax = null;
+    });
+  } catch(e){ console.warn('Ma\'lumot yuklashda xato:', e); }
+}
+
+/* ── Undo/Redo tizimi ── */
+function saveSnapshot(action){
+  // Joriy holatni tarix stack'iga yozamiz
+  const snap = dbSerialize();
+  _history.push({ snap, action: action || 'O\'zgarish' });
+  if (_history.length > MAX_UNDO) _history.shift();
+  _future = []; // redo stack'ni tozalaymiz
+  updateUndoButtons();
+}
+function doUndo(){
+  if (!_history.length){ toast('Bekor qilish mumkin emas', 'warn'); return; }
+  _future.push(dbSerialize()); // joriy holatni redo'ga
+  const prev = _history.pop();
+  try {
+    const p = JSON.parse(prev.snap);
+    DB = { ...p.DB, locks: new Set(Array.isArray(p.DB.locks) ? p.DB.locks : []) };
+    _nid = p._nid || 1;
+  } catch(e){ toast('Xato', 'err'); return; }
+  save();
+  updateUndoButtons();
+  rerenderCurrent();
+  toast('↩ Bekor qilindi: ' + prev.action, 'warn');
+}
+function doRedo(){
+  if (!_future.length){ toast('Qaytarish mumkin emas', 'warn'); return; }
+  _history.push(dbSerialize()); // joriy holatni undo'ga
+  const next = _future.pop();
+  try {
+    const p = JSON.parse(next);
+    DB = { ...p.DB, locks: new Set(Array.isArray(p.DB.locks) ? p.DB.locks : []) };
+    _nid = p._nid || 1;
+  } catch(e){ toast('Xato', 'err'); return; }
+  save();
+  updateUndoButtons();
+  rerenderCurrent();
+  toast('↪ Qaytarildi', 'ok');
+}
+function updateUndoButtons(){
+  const u = document.getElementById('undo-btn');
+  const r = document.getElementById('redo-btn');
+  if (u) u.disabled = !_history.length;
+  if (r) r.disabled = !_future.length;
+}
+
+/* ── Audit jurnali ── */
+function addAudit(action, detail, type='info'){
+  DB.audit.unshift({
+    ts: Date.now(),
+    action, detail,
+    type // 'info','warn','err','ok'
+  });
+  if (DB.audit.length > 200) DB.audit = DB.audit.slice(0, 200);
+  // Sidebar'dagi mojaro sonini yangilaymiz
+  updateConflictBadge();
+}
+
+/* ══════════════════════════════════════════════════════════
+   NAVIGATSIYA
+══════════════════════════════════════════════════════════ */
+const PG = {
+  dash:      ['Bosh sahifa',        'Umumiy statistika va holat'],
+  analytics: ['Analitika',          'Grafik va taqsimlash tahlili'],
+  conflicts: ['Mojarolar',          'Jadval ziddiyatlari va xatoliklar'],
+  audit:     ['O\'zgarishlar tarixi','Barcha o\'zgarishlar jurnali'],
+  settings:  ['Maktab Sozlamalari', 'Dars kunlari · Shift · Vaqt jadvali'],
+  subjects:  ['Fanlar Bazasi',      'Ustuvorlik · Shift · Afzal vaqt'],
+  teachers:  ['O\'qituvchilar',     'Yuklanish balansi va bandlik matritsasi'],
+  classes:   ['Sinflar',            'Sinflar va parallel guruhlar'],
+  workload:  ['Soat Yuklamasi',     'sinf_fan kalit matritsasi'],
+  timetable: ['Jadval Yaratish',    '3-bosqich Backtracking + Reshuffle + Lock'],
+  view:      ['Ko\'rish & Eksport', 'Umumiy · Sinf · O\'qituvchi ko\'rinishi'],
+  reports:   ['Hisobotlar',         'O\'qituvchi va sinf hisobotlari']
+};
+let CUR = 'dash';
+
+function nav(p){
+  document.querySelectorAll('.page').forEach(e => e.classList.remove('on'));
+  document.querySelectorAll('.sbi[data-p]').forEach(e => e.classList.remove('on'));
+  document.getElementById('page-' + p)?.classList.add('on');
+  document.querySelector('.sbi[data-p="' + p + '"]')?.classList.add('on');
+  CUR = p;
+  const [t, s] = PG[p] || ['',''];
+  document.getElementById('pg-t').textContent = t;
+  document.getElementById('pg-s').textContent = s;
+  // Demо tugmasi barcha sahifalarda
+  document.getElementById('pg-acts').innerHTML =
+    '<button class="btn b-gh b-sm" onclick="seedDemo()">&#127922; Demo</button>';
+  // Sahifani render qilamiz
+  const renders = {
+    dash: rDash, analytics: rAnalytics, conflicts: rConflicts,
+    audit: rAudit, settings: rSettings, subjects: rSubjects,
+    teachers: rTeachers, classes: rClasses, workload: rWorkload,
+    timetable: rTTPage, view: rView, reports: rReports
+  };
+  renders[p]?.();
+}
+
+// Sidebar navigatsiya
+document.getElementById('sb-nav').addEventListener('click', e => {
+  const item = e.target.closest('[data-p]');
+  if (item) nav(item.dataset.p);
+});
+
+// Joriy sahifani qayta chizish (undo/redo uchun)
+function rerenderCurrent(){ nav(CUR); }
+
+/* ══════════════════════════════════════════════════════════
+   TOAST BILDIRISH
+══════════════════════════════════════════════════════════ */
+function toast(msg, type=''){
+  const c = document.getElementById('tc');
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type==='ok'?'ts' : type==='warn'?'tw' : type==='err'?'te' : '');
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+/* ══════════════════════════════════════════════════════════
+   MODAL BOSHQARUVI
+══════════════════════════════════════════════════════════ */
+function openM(id){ document.getElementById(id).classList.remove('off'); }
+function closeM(id){ document.getElementById(id).classList.add('off'); }
+
+/* ══════════════════════════════════════════════════════════
+   YORDAMCHI FUNKSIYALAR
+══════════════════════════════════════════════════════════ */
+// Rang kontrast hisoblash (qoʻng'ir yoki oq matn)
+function contrast(hex){
+  if (!hex || hex.length < 7) return '#000';
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000 > 148 ? '#1a1a1a' : '#fff';
+}
+function hex2rgba(hex, a){
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+// Sozlamalar yordamchilari
+function getWD(){ return [...DB.settings.workDays].sort((a,b)=>a-b); }
+function getPC(){ return DB.settings.periodCount || 8; }
+function getME(){ return DB.settings.morEnd || 4; }
+function clsMax(cid){
+  const c = DB.classes.find(x=>x.id===cid);
+  return (c && c.maxPerDay && c.maxPerDay>0) ? c.maxPerDay : DB.settings.maxPeriods || 7;
+}
+function pTime(p){
+  const t = DB.settings.periodTimes[p-1];
+  return (t && t.s && t.e) ? t.s + '\u2013' + t.e : '';
+}
+// Shift tekshiruvi
+function shiftOK(sid, p){
+  const s = DB.subjects.find(x=>x.id===sid);
+  if (!s || s.shift==='any') return true;
+  return s.shift==='mor' ? p<=getME() : p>getME();
+}
+// Afzal vaqt oralig'ini tekshirish (majburiy emas, bonus)
+function prefOK(sid, p){
+  const s = DB.subjects.find(x=>x.id===sid);
+  if (!s) return true;
+  if (s.prefPMin && p < s.prefPMin) return false;
+  if (s.prefPMax && p > s.prefPMax) return false;
+  return true;
+}
+// Kunlik fan limiti
+function dailyCap(wh, isPara){
+  if (wh <= 3) return 1;
+  if (!isPara) return 1;
+  return 2; // Para: faqat 2 ketma-ket soat
+}
+
+/* ── Jadval qidirish funksiyalari ── */
+function getEntry(cid, day, per){
+  return DB.timetable.find(e => e.classId===cid && e.day===day && e.period===per) || null;
+}
+function tBusy(tid, day, per, excCid){
+  return DB.timetable.some(e =>
+    e.teacherId===tid && e.day===day && e.period===per && e.classId!==excCid
+  );
+}
+function isBlocked(tid, day, per){
+  const t = DB.teachers.find(x=>x.id===tid);
+  return !!(t && t.constraints && t.constraints[day+'_'+per]);
+}
+function dayLoad(cid, day){
+  return DB.timetable.filter(e => e.classId===cid && e.day===day).length;
+}
+function subjDayCount(sid, cid, day){
+  return DB.timetable.filter(e => e.subjectId===sid && e.classId===cid && e.day===day).length;
+}
+function tDaysSet(tid){
+  const s = new Set();
+  DB.timetable.filter(e => e.teacherId===tid).forEach(e => s.add(e.day));
+  return s;
+}
+function isLocked(cid, day, per){ return DB.locks.has(cid+'_'+day+'_'+per); }
+function lockKey(cid, day, per){ return cid+'_'+day+'_'+per; }
+// Parallel sinflar tekshiruvi
+function parallelConflict(cid, tid, day, per){
+  const cls = DB.classes.find(x=>x.id===cid);
+  if (!cls || !cls.parallelIds || !cls.parallelIds.length) return false;
+  return cls.parallelIds.some(pid =>
+    DB.timetable.some(e =>
+      e.classId===pid && e.day===day && e.period===per && e.teacherId===tid
+    )
+  );
+}
+// Sertifikatlangan o'qituvchilar
+function certTeachers(sid){
+  return DB.teachers.filter(t => (t.subjectIds||[]).includes(sid));
+}
+function wlGet(cid, sid){ return DB.wlMap[wlKey(cid,sid)] || null; }
+
+/* ── Belgi nomlari ── */
+const PL = {core:'⭐ Asosiy', elec:'📘 Qoʻshimcha', fill:'◦ Zaxira'};
+const SL = {mor:'☀️ 1-qism', aft:'🌆 2-qism', any:'🔄 Ahamiyatsiz'};
+
+/* ══════════════════════════════════════════════════════════
+   MOJAROLARNI ANIQLASH VA HISOBLASH
+══════════════════════════════════════════════════════════ */
+function findAllConflicts(){
+  const conflicts = [];
+  const wd = getWD(), pc = getPC();
+  // 1. O'qituvchi bir vaqtda ikkita sinfda
+  wd.forEach(di => {
+    for(let p=1; p<=pc; p++){
+      const entries = DB.timetable.filter(e => e.day===di && e.period===p);
+      const byTeacher = {};
+      entries.forEach(e => {
+        if (!e.teacherId) return;
+        if (!byTeacher[e.teacherId]) byTeacher[e.teacherId] = [];
+        byTeacher[e.teacherId].push(e);
+      });
+      Object.entries(byTeacher).forEach(([tid, list]) => {
+        if (list.length > 1){
+          const t = DB.teachers.find(x=>x.id===tid);
+          list.forEach((e, i) => {
+            if (i > 0) conflicts.push({
+              type: 'double_booking',
+              msg: `${t?.name||'?'} bir vaqtda ikkita sinfda: ${ALL_DAYS[di]} ${p}-soat`,
+              classId: e.classId, day: di, period: p, teacherId: tid,
+              severity: 'error'
+            });
+          });
+        }
+      });
+    }
+  });
+  // 2. Bloklangan vaqtga dars qo'yilgan
+  DB.timetable.forEach(e => {
+    if (isBlocked(e.teacherId, e.day, e.period)){
+      const t = DB.teachers.find(x=>x.id===e.teacherId);
+      const s = DB.subjects.find(x=>x.id===e.subjectId);
+      const cls = DB.classes.find(x=>x.id===e.classId);
+      conflicts.push({
+        type: 'blocked_slot',
+        msg: `${t?.name||'?'} ${ALL_DAYS[e.day]} ${e.period}-soatda band (blok) lekin ${s?.name||'?'} ${cls?.name||'?'}ga qo'yilgan`,
+        classId: e.classId, day: e.day, period: e.period, teacherId: e.teacherId,
+        severity: 'error'
+      });
+    }
+  });
+  // 3. Shift qoidasi buzilgan
+  DB.timetable.forEach(e => {
+    const s = DB.subjects.find(x=>x.id===e.subjectId);
+    if (s && s.shift !== 'any' && !shiftOK(e.subjectId, e.period)){
+      const cls = DB.classes.find(x=>x.id===e.classId);
+      conflicts.push({
+        type: 'shift_violation',
+        msg: `${s.name} ${SL[s.shift]} da bo'lishi kerak, lekin ${e.period}-soatda qo'yilgan (${cls?.name||'?'})`,
+        classId: e.classId, day: e.day, period: e.period, subjectId: e.subjectId,
+        severity: 'warn'
+      });
+    }
+  });
+  // 4. Kunlik cap buzilgan
+  const capMap = {};
+  DB.timetable.forEach(e => {
+    const key = `${e.subjectId}_${e.classId}_${e.day}`;
+    if (!capMap[key]) capMap[key] = [];
+    capMap[key].push(e);
+  });
+  Object.entries(capMap).forEach(([key, ents]) => {
+    const [sid, cid, dayStr] = key.split('_');
+    const w = DB.wlMap[wlKey(cid, sid)];
+    if (!w) return;
+    const cap = dailyCap(w.weeklyHours, w.isPara);
+    if (ents.length > cap){
+      const s = DB.subjects.find(x=>x.id===sid);
+      const cls = DB.classes.find(x=>x.id===cid);
+      conflicts.push({
+        type: 'daily_cap',
+        msg: `${s?.name||'?'} ${cls?.name||'?'}da ${ALL_DAYS[parseInt(dayStr)]}da ${ents.length} soat (limit: ${cap})`,
+        classId: cid, day: parseInt(dayStr), subjectId: sid,
+        severity: 'error'
+      });
+    }
+  });
+  // 5. O'qituvchi haftalik limit oshgan
+  DB.teachers.forEach(t => {
+    const assigned = Object.values(DB.wlMap).filter(w=>w.teacherId===t.id).reduce((a,w)=>a+w.weeklyHours,0);
+    if (assigned > (t.maxHours||35)){
+      conflicts.push({
+        type: 'overload',
+        msg: `${t.name} haftalik yuklanish: ${assigned}/${t.maxHours||35} soat (oshib ketdi)`,
+        teacherId: t.id,
+        severity: 'warn'
+      });
+    }
+  });
+  return conflicts;
+}
+
+function updateConflictBadge(){
+  const conflicts = findAllConflicts();
+  const badge = document.getElementById('conflict-count');
+  if (badge) badge.textContent = conflicts.length;
+}
+
+/* ══════════════════════════════════════════════════════════
+   GLOBAL QIDIRUV
+══════════════════════════════════════════════════════════ */
+function handleGlobalSearch(q){
+  const res = document.getElementById('search-results');
+  if (!q.trim()){ res.style.display='none'; return; }
+  const ql = q.toLowerCase();
+  const results = [];
+  // O'qituvchilar
+  DB.teachers.filter(t=>t.name.toLowerCase().includes(ql)).forEach(t=>{
+    results.push({type:'teacher', icon:'👤', label:t.name, sub:'O\'qituvchi', color:t.color, action:`nav('teachers')`});
+  });
+  // Fanlar
+  DB.subjects.filter(s=>s.name.toLowerCase().includes(ql)).forEach(s=>{
+    results.push({type:'subject', icon:'📚', label:s.name, sub:PL[s.priority], color:s.color, action:`nav('subjects')`});
+  });
+  // Sinflar
+  DB.classes.filter(c=>c.name.toLowerCase().includes(ql)).forEach(c=>{
+    results.push({type:'class', icon:'🏫', label:c.name+' sinfi', sub:'Sinf', color:null, action:`nav('classes')`});
+  });
+  // Jadval da qidirish
+  DB.timetable.forEach(e=>{
+    const s = DB.subjects.find(x=>x.id===e.subjectId);
+    const t = DB.teachers.find(x=>x.id===e.teacherId);
+    const c = DB.classes.find(x=>x.id===e.classId);
+    const match = [s?.name,t?.name,c?.name].filter(Boolean).some(n=>n.toLowerCase().includes(ql));
+    if (match) results.push({
+      type:'timetable', icon:'📅',
+      label:`${s?.name||'?'} — ${c?.name||'?'}`,
+      sub:`${ALL_DAYS[e.day]} ${e.period}-soat · ${t?.name||'?'}`,
+      color: t?.color||s?.color||null,
+      action:`nav('timetable');setTimeout(()=>{document.getElementById('tt-search').value='${(t?.name||'').replace(/'/g,"\\'")}';highlightInGrid('${(t?.name||'').replace(/'/g,"\\'")}')},300)`
+    });
+  });
+  if (!results.length){
+    res.innerHTML='<div style="text-align:center;padding:16px;font-size:11.5px;color:var(--g400)">Hech narsa topilmadi</div>';
+    res.style.display='block'; return;
+  }
+  const unique = results.slice(0, 12);
+  res.innerHTML = unique.map(r=>`
+    <div onclick="${r.action};document.getElementById('global-search').value='';document.getElementById('search-results').style.display='none'"
+      style="display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;cursor:pointer;transition:background .1s"
+      onmouseover="this.style.background='var(--or3)'" onmouseout="this.style.background=''"
+    >
+      <span style="font-size:15px">${r.icon}</span>
+      ${r.color?`<span class="dot" style="background:${r.color};width:7px;height:7px;flex-shrink:0"></span>`:''}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.label}</div>
+        <div style="font-size:10px;color:var(--g400)">${r.sub}</div>
+      </div>
+    </div>`).join('');
+  res.style.display='block';
+}
+function clearSearch(){
+  document.getElementById('search-results').style.display='none';
+}
+// Tashqi click qidiruvni yopadi
+document.addEventListener('click', e=>{
+  const res=document.getElementById('search-results');
+  const box=document.getElementById('global-search-box');
+  if (!box?.contains(e.target) && !res?.contains(e.target)) clearSearch();
+});
+
+/* ── Jadvalda yoritish (highlight) ── */
+function highlightInGrid(q){
+  // Barcha slotlar dan highlight olib tashlaymiz
+  document.querySelectorAll('.slot.highlighted').forEach(s=>s.classList.remove('highlighted'));
+  if (!q.trim()) return;
+  const ql = q.toLowerCase();
+  // Jadval katakchalarini ko'rib chiqamiz
+  DB.timetable.forEach(e => {
+    const t  = DB.teachers.find(x=>x.id===e.teacherId);
+    const s2 = DB.subjects.find(x=>x.id===e.subjectId);
+    const c  = DB.classes.find(x=>x.id===e.classId);
+    const match = [t?.name, s2?.name, c?.name].filter(Boolean).some(n=>n.toLowerCase().includes(ql));
+    if (match){
+      // Bu katak elementini topib highlight qilamiz
+      // slotni topish uchun onclick atributiga qaraymiz
+      document.querySelectorAll('.slot.fill').forEach(el=>{
+        if (el.onclick && el.onclick.toString().includes(`'${e.classId}',${e.day},${e.period}`)){
+          el.classList.add('highlighted');
+        }
+      });
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOSH SAHIFA
+══════════════════════════════════════════════════════════ */
+function rDash(){
+  const allWl   = Object.values(DB.wlMap);
+  const totalH  = allWl.reduce((a,w)=>a+w.weeklyHours,0);
+  const placed  = DB.timetable.length;
+  const pct     = totalH>0 ? Math.round(placed/totalH*100) : 0;
+  const wd      = getWD().map(i=>ALL_DAYS[i]).join(', ') || '—';
+  const conflicts= findAllConflicts();
+  const errors  = conflicts.filter(c=>c.severity==='error').length;
+  const warns   = conflicts.filter(c=>c.severity==='warn').length;
+
+  // Har bir fan uchun progress
+  let rows = allWl.slice(0,10).map(w => {
+    const k    = Object.keys(DB.wlMap).find(k=>DB.wlMap[k]===w) || '';
+    const parts= k.split('_');
+    const cid  = parts[0], sid = parts.slice(1).join('_');
+    const subj = DB.subjects.find(x=>x.id===sid);
+    const cls  = DB.classes.find(x=>x.id===cid);
+    const t    = DB.teachers.find(x=>x.id===w.teacherId);
+    const p2   = DB.timetable.filter(e=>e.subjectId===sid&&e.classId===cid).length;
+    const p3   = w.weeklyHours>0 ? Math.round(p2/w.weeklyHours*100) : 0;
+    return `<div style="margin-bottom:5px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:1px">
+        <span style="font-size:10.5px"><b>${subj?.name||'?'}</b>
+          <span style="color:var(--g400)">${cls?.name||'?'} · ${t?.name||'—'}</span>
+        </span>
+        <span style="font-size:10px;color:var(--g400)">${p2}/${w.weeklyHours}</span>
+      </div>
+      <div class="prog"><div class="prf" style="width:${p3}%;background:${t?.color||subj?.color||'var(--or)'}"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('page-dash').innerHTML = `
+  <div class="stats">
+    <div class="stat"><div class="sv">${DB.teachers.length}</div><div class="sl">O'qituvchilar</div></div>
+    <div class="stat"><div class="sv">${DB.subjects.length}</div><div class="sl">Fanlar</div></div>
+    <div class="stat"><div class="sv">${DB.classes.length}</div><div class="sl">Sinflar</div></div>
+    <div class="stat"><div class="sv">${allWl.length}</div><div class="sl">Yuklamalar</div></div>
+    <div class="stat"><div class="sv">${placed}</div><div class="sl">Joylashtirilgan</div></div>
+    <div class="stat"><div class="sv" style="font-size:18px">${pct}%</div><div class="sl">Jadval to'lishi</div></div>
+    <div class="stat"><div class="sv" style="color:${errors?'var(--red)':'var(--grn)'}">${errors}</div><div class="sl">Xato mojarolar</div></div>
+    <div class="stat"><div class="sv" style="color:${warns?'var(--yel)':'var(--grn)'}">${warns}</div><div class="sl">Ogohlantirishlar</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="card">
+      <div class="ch"><span class="ch-t">⚡ Tizim holati</span></div>
+      <div class="cb">
+        <div class="alert ${allWl.length>0 && !errors ? 'as' : allWl.length>0 ? 'aw' : 'ae'}" style="margin-bottom:8px">
+          ${allWl.length>0 && !errors
+            ? '✅ Jadval yaratishga tayyor'
+            : allWl.length>0
+              ? `⚠️ ${errors} xato, ${warns} ogohlantirish mavjud`
+              : '⚠️ Yuklamani sozlang'}
+        </div>
+        <div style="font-size:11px;color:var(--g500);line-height:2">
+          📅 Dars kunlari: <b>${wd}</b><br>
+          ⏱ Kunlik max: <b>${DB.settings.maxPeriods} soat</b><br>
+          ☀️ 1-qism: 1–${getME()}-soat · 🌆 2-qism: ${getME()+1}–${getPC()}-soat<br>
+          🔒 Qulflangan: <b>${DB.locks.size} katak</b><br>
+          ↩ Undo tarixi: <b>${_history.length} ta</b>
+        </div>
+        <div class="sep"></div>
+        <div class="row">
+          <button class="btn b-or" onclick="nav('timetable')">🗓 Jadval yaratish</button>
+          <button class="btn b-blu" onclick="nav('analytics')">📊 Analitika</button>
+          ${errors||warns ? `<button class="btn b-red" onclick="nav('conflicts')">⚠️ Mojarolar (${conflicts.length})</button>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ch-t">📋 Jadval holati</span></div>
+      <div class="cb">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:11px;font-weight:600">Umumiy progress</span>
+          <b style="font-size:11.5px;color:var(--or)">${pct}%</b>
+        </div>
+        <div class="prog" style="height:6px;margin-bottom:10px">
+          <div class="prf" style="width:${pct}%;background:var(--or)"></div>
+        </div>
+        ${rows || '<p style="font-size:11px;color:var(--g400)">Yuklamalar yo\'q</p>'}
+      </div>
+    </div>
+    <!-- So'nggi o'zgarishlar -->
+    <div class="card">
+      <div class="ch">
+        <span class="ch-t">📝 So'nggi o'zgarishlar</span>
+        <button class="btn b-gh b-sm" onclick="nav('audit')">Barcha</button>
+      </div>
+      <div class="cb" style="padding:8px 12px">
+        ${DB.audit.slice(0,5).map(a=>`
+          <div class="audit-item">
+            <span class="audit-time">${fmtTime(a.ts)}</span>
+            <span class="audit-icon" style="background:${a.type==='ok'?'var(--gp)':a.type==='err'?'var(--rp)':'var(--yp)'}">
+              ${a.type==='ok'?'✓':a.type==='err'?'✕':'⚡'}
+            </span>
+            <span class="audit-text">${a.action}</span>
+          </div>`).join('') || '<p style="font-size:11px;color:var(--g400)">Hech qanday o\'zgarish yo\'q</p>'}
+      </div>
+    </div>
+    <!-- O'qituvchi yuklanish umumiy ko'rinish -->
+    <div class="card">
+      <div class="ch">
+        <span class="ch-t">👥 O'qituvchilar yuklanishi</span>
+        <button class="btn b-gh b-sm" onclick="nav('analytics')">Batafsil</button>
+      </div>
+      <div class="cb">
+        ${DB.teachers.slice(0,5).map(t=>{
+          const assigned = Object.values(DB.wlMap).filter(w=>w.teacherId===t.id).reduce((a,w)=>a+w.weeklyHours,0);
+          const max = t.maxHours||35;
+          const pct2 = max>0 ? Math.min(100,Math.round(assigned/max*100)) : 0;
+          return `<div style="margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:1px">
+              <span style="font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px">
+                <span class="dot" style="background:${t.color}"></span>${t.name}
+              </span>
+              <span style="font-size:10px;color:var(--g400)">${assigned}/${max}h</span>
+            </div>
+            <div class="prog">
+              <div class="prf" style="width:${pct2}%;background:${pct2>90?'var(--red)':pct2>70?'var(--yel)':t.color}"></div>
+            </div>
+          </div>`;
+        }).join('') || '<p style="font-size:11px;color:var(--g400)">O\'qituvchi yo\'q</p>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+// Vaqtni formatlash yordamchisi
+function fmtTime(ts){
+  const d = new Date(ts);
+  const h = String(d.getHours()).padStart(2,'0');
+  const m = String(d.getMinutes()).padStart(2,'0');
+  return h+':'+m;
+}
+function fmtDate(ts){
+  const d = new Date(ts);
+  return `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')} ${fmtTime(ts)}`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ANALITIKA SAHIFASI
+══════════════════════════════════════════════════════════ */
+function rAnalytics(){
+  const wd    = getWD();
+  const allWl = Object.values(DB.wlMap);
+  const me    = getME();
+
+  // O'qituvchi yuklanish chart
+  const tData = DB.teachers.map(t=>{
+    const assigned = allWl.filter(w=>w.teacherId===t.id).reduce((a,w)=>a+w.weeklyHours,0);
+    const placed   = DB.timetable.filter(e=>e.teacherId===t.id).length;
+    return {...t, assigned, placed};
+  });
+  const maxAssigned = Math.max(...tData.map(t=>t.assigned), 1);
+
+  const tBars = tData.map(t=>`
+    <div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:40px">
+      <div class="chart-bar" style="height:${Math.round(t.assigned/maxAssigned*70)}px;background:${t.color};width:100%;max-width:44px">
+        <span>${t.assigned}h</span>
+      </div>
+      <div class="chart-label" title="${t.name}">${t.name.split(' ')[0]}</div>
+    </div>`).join('');
+
+  // Fanlar ustuvorlik taqsimlash
+  const coreH  = allWl.filter(w=>DB.subjects.find(s=>s.id===Object.keys(DB.wlMap).find(k=>DB.wlMap[k]===w)?.split('_').slice(1).join('_'))?.priority==='core').reduce((a,w)=>a+w.weeklyHours,0);
+  const elecH  = allWl.filter(w=>DB.subjects.find(s=>s.id===Object.keys(DB.wlMap).find(k=>DB.wlMap[k]===w)?.split('_').slice(1).join('_'))?.priority==='elec').reduce((a,w)=>a+w.weeklyHours,0);
+  const fillH  = allWl.filter(w=>DB.subjects.find(s=>s.id===Object.keys(DB.wlMap).find(k=>DB.wlMap[k]===w)?.split('_').slice(1).join('_'))?.priority==='fill').reduce((a,w)=>a+w.weeklyHours,0);
+  const totalPH= coreH+elecH+fillH || 1;
+
+  // 1-qism vs 2-qism
+  const morPlaced = DB.timetable.filter(e=>e.period<=me).length;
+  const aftPlaced = DB.timetable.filter(e=>e.period>me).length;
+  const totalPl   = morPlaced + aftPlaced || 1;
+
+  // Har kun uchun joylashtirilgan soatlar
+  const dayStats = getWD().map(di=>{
+    const cnt = DB.timetable.filter(e=>e.day===di).length;
+    return {day:ALL_DAYS_S[di], cnt};
+  });
+  const maxDay = Math.max(...dayStats.map(d=>d.cnt),1);
+
+  document.getElementById('page-analytics').innerHTML = `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <!-- O'qituvchi yuklanish grafigi -->
+    <div class="card">
+      <div class="ch"><span class="ch-t">📊 O'qituvchi haftalik yuklanish</span></div>
+      <div class="cb">
+        <div class="chart-bar-wrap">${tBars||'<p style="font-size:11px;color:var(--g400)">Ma\'lumot yo\'q</p>'}</div>
+        <p style="font-size:9.5px;color:var(--g400);margin-top:6px">Haftalik yuklamasiz soatlar soni</p>
+      </div>
+    </div>
+    <!-- Kunlik taqsimlash -->
+    <div class="card">
+      <div class="ch"><span class="ch-t">📅 Kunlik joylashtirilgan soatlar</span></div>
+      <div class="cb">
+        <div class="chart-bar-wrap">
+          ${dayStats.map(d=>`
+            <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+              <div class="chart-bar" style="height:${Math.round(d.cnt/maxDay*70)}px;background:var(--or);width:100%;max-width:44px">
+                <span>${d.cnt}</span>
+              </div>
+              <div class="chart-label">${d.day}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <!-- Ustuvorlik taqsimlash -->
+    <div class="card">
+      <div class="ch"><span class="ch-t">📈 Ustuvorlik taqsimlash</span></div>
+      <div class="cb">
+        ${[
+          {label:'⭐ Asosiy', h:coreH, color:'#FEF3C7', text:'#92400E'},
+          {label:'📘 Qo\'shimcha', h:elecH, color:'#EDE9FE', text:'#5B21B6'},
+          {label:'◦ Zaxira', h:fillH, color:'#F0FDF4', text:'#166534'}
+        ].map(row=>`
+          <div style="margin-bottom:9px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+              <span style="font-size:11.5px;font-weight:600">${row.label}</span>
+              <span style="font-size:11px;color:var(--g400)">${row.h}h · ${Math.round(row.h/totalPH*100)}%</span>
+            </div>
+            <div class="prog" style="height:8px">
+              <div class="prf" style="width:${Math.round(row.h/totalPH*100)}%;background:${row.text}"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <!-- Shift taqsimlash -->
+    <div class="card">
+      <div class="ch"><span class="ch-t">☀️🌆 Shift taqsimlash</span></div>
+      <div class="cb">
+        <div style="margin-bottom:9px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+            <span style="font-size:11.5px;font-weight:600">☀️ 1-qism (ertalab)</span>
+            <span style="font-size:11px;color:var(--g400)">${morPlaced} · ${Math.round(morPlaced/totalPl*100)}%</span>
+          </div>
+          <div class="prog" style="height:8px"><div class="prf" style="width:${Math.round(morPlaced/totalPl*100)}%;background:var(--blu)"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+            <span style="font-size:11.5px;font-weight:600">🌆 2-qism (tushdan keyin)</span>
+            <span style="font-size:11px;color:var(--g400)">${aftPlaced} · ${Math.round(aftPlaced/totalPl*100)}%</span>
+          </div>
+          <div class="prog" style="height:8px"><div class="prf" style="width:${Math.round(aftPlaced/totalPl*100)}%;background:var(--or)"></div></div>
+        </div>
+        <div class="sep"></div>
+        <p style="font-size:10.5px;color:var(--g500)">Jami: ${DB.timetable.length} dars joylashtirilgan</p>
+      </div>
+    </div>
+    <!-- Sinf qamrovliligi -->
+    <div class="card">
+      <div class="ch"><span class="ch-t">🏫 Sinf qamrovliligi</span></div>
+      <div class="cb">
+        ${DB.classes.map(c=>{
+          const cwls   = Object.entries(DB.wlMap).filter(([k])=>k.startsWith(c.id+'_'));
+          const total  = cwls.reduce((s,[,w])=>s+w.weeklyHours, 0);
+          const placed = DB.timetable.filter(e=>e.classId===c.id).length;
+          const pct2   = total>0 ? Math.round(placed/total*100) : 0;
+          return `<div style="margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:1px">
+              <span style="font-size:11.5px;font-weight:700">${c.name}</span>
+              <span style="font-size:10px;color:var(--g400)">${placed}/${total}h · ${pct2}%</span>
+            </div>
+            <div class="prog">
+              <div class="prf" style="width:${pct2}%;background:var(--or)"></div>
+            </div>
+          </div>`;
+        }).join('') || '<p style="font-size:11px;color:var(--g400)">Sinf yo\'q</p>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOJAROLAR SAHIFASI
+══════════════════════════════════════════════════════════ */
+function rConflicts(){
+  const conflicts = findAllConflicts();
+  const errors  = conflicts.filter(c=>c.severity==='error');
+  const warns   = conflicts.filter(c=>c.severity==='warn');
+  let html = '';
+  if (!conflicts.length){
+    html = `<div class="alert as" style="margin-bottom:12px">✅ Hech qanday mojaro topilmadi! Jadval to'g'ri tuzilgan.</div>`;
+  } else {
+    if (errors.length){
+      html += `<div class="fail-box" style="margin-bottom:12px">
+        <h4>🔴 Xato mojarolar (${errors.length} ta) — hal qilinishi shart</h4>
+        ${errors.map(c=>`
+          <div class="fail-row" style="grid-template-columns:auto 1fr">
+            <span style="font-size:14px">${c.type==='double_booking'?'👥':c.type==='blocked_slot'?'🚫':c.type==='daily_cap'?'📆':'❌'}</span>
+            <span>${c.msg}</span>
+          </div>`).join('')}
+      </div>`;
+    }
+    if (warns.length){
+      html += `<div style="background:var(--yp);border:1px solid var(--yp2);border-radius:11px;padding:10px 13px;margin-bottom:12px">
+        <h4 style="font-size:12px;font-weight:700;color:var(--yel);margin-bottom:6px">🟡 Ogohlantirishlar (${warns.length} ta) — e'tibor bering</h4>
+        ${warns.map(c=>`
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 8px;padding:3px 0;border-bottom:1px solid rgba(180,83,9,.1);font-size:10.5px;color:var(--yel)">
+            <span style="font-size:14px">${c.type==='overload'?'⚖️':c.type==='shift_violation'?'🌓':'⚠️'}</span>
+            <span>${c.msg}</span>
+          </div>`).join('')}
+      </div>`;
+    }
+  }
+  html += `<div class="row">
+    <button class="btn b-or" onclick="nav('timetable')">🗓 Jadvalga o'tish</button>
+    <button class="btn b-gh" onclick="rConflicts()">🔄 Qayta tekshirish</button>
+  </div>`;
+  document.getElementById('page-conflicts').innerHTML = html;
+  updateConflictBadge();
+}
+
+/* ══════════════════════════════════════════════════════════
+   AUDIT JURNALI SAHIFASI
+══════════════════════════════════════════════════════════ */
+function rAudit(){
+  const items = DB.audit;
+  let html = `<div class="row" style="justify-content:space-between;margin-bottom:12px">
+    <span style="font-size:13px;font-weight:700;color:var(--br)">O'zgarishlar tarixi (${items.length} ta)</span>
+    <button class="btn b-red b-sm" onclick="if(confirm('Tarixni tozalash?')){DB.audit=[];save();rAudit()}">🗑 Tozalash</button>
+  </div>`;
+  if (!items.length){
+    html += '<div class="empty"><h3>Tarix bo\'sh</h3><p>Hali hech qanday o\'zgarish qayd etilmagan</p></div>';
+  } else {
+    html += '<div class="card"><div class="cb" style="padding:8px 13px">';
+    html += items.map(a=>`
+      <div class="audit-item">
+        <span class="audit-time" style="min-width:80px">${fmtDate(a.ts)}</span>
+        <span class="audit-icon" style="background:${a.type==='ok'?'var(--gp)':a.type==='err'?'var(--rp)':a.type==='warn'?'var(--yp)':'var(--bp)'}">
+          ${a.type==='ok'?'✓':a.type==='err'?'✕':a.type==='warn'?'!':'i'}
+        </span>
+        <div class="audit-text">
+          <b>${a.action}</b>
+          ${a.detail ? `<br><span style="font-size:10.5px;color:var(--g400)">${a.detail}</span>` : ''}
+        </div>
+      </div>`).join('');
+    html += '</div></div>';
+  }
+  document.getElementById('page-audit').innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SOZLAMALAR SAHIFASI
+══════════════════════════════════════════════════════════ */
+function rSettings(){
+  const s  = DB.settings;
+  const pc = getPC();
+  const dH = ALL_DAYS.map((d,i) =>
+    `<label class="dchk ${s.workDays.includes(i)?'on':''}" id="dchk${i}">
+      <input type="checkbox" ${s.workDays.includes(i)?'checked':''} onchange="toggleDay(${i},this)"/>${d}
+    </label>`).join('');
+  const tH = Array.from({length:pc}, (_,i) => {
+    const t  = s.periodTimes[i] || {s:'',e:''};
+    const isMor = i < getME();
+    return `<div class="row" style="gap:7px;padding:4px 0;border-bottom:1px solid var(--g100)">
+      <span style="font-size:10.5px;font-weight:700;color:var(--br);min-width:52px">
+        ${i+1}-soat${isMor
+          ? '<span style="font-size:8px;color:var(--blu);margin-left:2px">☀️</span>'
+          : '<span style="font-size:8px;color:var(--yel);margin-left:2px">🌆</span>'}
+      </span>
+      <input type="time" value="${t.s}" style="flex:1;font-size:11.5px" onchange="savePT(${i},'s',this.value)"/>
+      <span style="font-size:10px;color:var(--g400)">–</span>
+      <input type="time" value="${t.e}" style="flex:1;font-size:11.5px" onchange="savePT(${i},'e',this.value)"/>
+    </div>`;
+  }).join('');
+  document.getElementById('page-settings').innerHTML = `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:860px">
+    <div class="card">
+      <div class="ch"><span class="ch-t">📅 Dars kunlari</span></div>
+      <div class="cb">
+        <p style="font-size:11.5px;color:var(--g500);margin-bottom:8px">Maktabda dars bo'ladigan kunlar:</p>
+        <div class="dchks">${dH}</div>
+        <div class="sep"></div>
+        <div class="alert ai">Faqat belgilangan kunlarga dars joylashtiriladi</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ch-t">⏱ Soat limiti va shift</span></div>
+      <div class="cb">
+        <label class="fl">Umumiy kunlik max dars soati</label>
+        <input type="number" value="${s.maxPeriods}" min="1" max="14" style="margin-bottom:9px"
+          onchange="DB.settings.maxPeriods=parseInt(this.value)||7;save();toast('Saqlandi','ok')"/>
+        <label class="fl">Period soni (1–12)</label>
+        <input type="number" value="${pc}" min="1" max="12" style="margin-bottom:9px"
+          onchange="DB.settings.periodCount=parseInt(this.value)||8;while(DB.settings.periodTimes.length<DB.settings.periodCount)DB.settings.periodTimes.push({s:'',e:''});save();rSettings();"/>
+        <label class="fl">
+          Kunning 1-qismi: 1-soatdan
+          <input type="number" value="${getME()}" min="1" max="12"
+            style="width:55px;display:inline-block;margin:0 4px;padding:2px 6px"
+            onchange="DB.settings.morEnd=parseInt(this.value)||4;save();rSettings();"/>
+          -soatgacha
+        </label>
+        <div class="alert aw" style="margin-top:8px">
+          🍽 Tushlik: ${LUNCH.s}–${LUNCH.e} (1-qism va 2-qism orasida ko'rsatiladi)
+        </div>
+      </div>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <div class="ch">
+        <span class="ch-t">🔔 Qo'ng'iroq jadvali (${pc} period)</span>
+        <button class="btn b-gh b-sm" onclick="resetTimes()">↺ Standart</button>
+      </div>
+      <div class="cb">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">${tH}</div>
+      </div>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <div class="ch"><span class="ch-t">💾 Ma'lumotlar zaxirasi</span></div>
+      <div class="cb">
+        <div class="row">
+          <button class="btn b-br" onclick="expJSON()">⬇ JSON yuklab olish</button>
+          <label class="btn b-gh" style="cursor:pointer">
+            ⬆ JSON yuklash<input type="file" accept=".json" onchange="impJSON(this)" style="display:none"/>
+          </label>
+          <button class="btn b-grn" onclick="importFromXLS()">📊 Excel yuklamasini import</button>
+          <button class="btn b-red" onclick="resetAll()">🗑 Hammasini o'chirish</button>
+        </div>
+        <p style="font-size:10.5px;color:var(--g400);margin-top:7px">
+          JSON — barcha ma'lumotlar zaxirasi. Excel import — yuklama matritsasini Excel fayldan o'qish.
+        </p>
+      </div>
+    </div>
+  </div>`;
+}
+function toggleDay(i, el){
+  const has = DB.settings.workDays.includes(i);
+  if (has){
+    if (DB.settings.workDays.length<=1){ toast('Kamida 1 kun bo\'lishi kerak!','err'); el.checked=true; return; }
+    DB.settings.workDays = DB.settings.workDays.filter(d=>d!==i);
+    el.closest('.dchk').classList.remove('on');
+  } else {
+    DB.settings.workDays.push(i);
+    DB.settings.workDays.sort((a,b)=>a-b);
+    el.closest('.dchk').classList.add('on');
+  }
+  save(); toast('Saqlandi','ok');
+}
+function savePT(i, f, v){
+  if (!DB.settings.periodTimes[i]) DB.settings.periodTimes[i]={s:'',e:''};
+  DB.settings.periodTimes[i][f]=v; save();
+}
+function resetTimes(){
+  if (!confirm('Standart vaqtlarni tiklash?')) return;
+  DB.settings.periodTimes = JSON.parse(JSON.stringify(DEF_TIMES));
+  save(); rSettings(); toast('Tiklandi','ok');
+}
+function expJSON(){
+  const b=new Blob([dbSerialize()],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download='zi-jadval.json'; a.click();
+}
+function impJSON(inp){
+  const f=inp.files[0]; if(!f) return;
+  const fr=new FileReader();
+  fr.onload=e=>{
+    try{
+      const p=JSON.parse(e.target.result);
+      DB={...p.DB, locks:new Set(Array.isArray(p.DB.locks)?p.DB.locks:[])};
+      _nid=p._nid||1;
+      _history=[]; _future=[];
+      save(); nav(CUR); toast('Yuklandi','ok');
+      addAudit('JSON import qilindi', 'Tashqi fayldan ma\'lumot yuklandi', 'ok');
+    }catch{ toast('Fayl xato','err'); }
+  };
+  fr.readAsText(f);
+}
+
+/* Excel dan yuklamasini import qilish */
+function importFromXLS(){
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='.xlsx,.xls';
+  inp.onchange = e => {
+    const f = e.target.files[0]; if(!f) return;
+    const fr = new FileReader();
+    fr.onload = ev => {
+      try {
+        const wb = XLSX.read(ev.target.result, {type:'binary'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+        // Jadval: 1-qator sarlavha (sinf nomlari), 1-ustun fan nomlari
+        // Format: [,'5A','5B','6A'] va ['Matematika', 5, 4, 5]
+        if (rows.length < 2){ toast('Excel format xato','err'); return; }
+        const clsNames = rows[0].slice(1);
+        let imported = 0;
+        rows.slice(1).forEach(row => {
+          const subName = row[0];
+          if (!subName) return;
+          const subj = DB.subjects.find(s=>s.name.toLowerCase().trim()===subName.toLowerCase().trim());
+          if (!subj){ return; }
+          clsNames.forEach((cn, ci) => {
+            const h = parseInt(row[ci+1])||0;
+            if (!h) return;
+            const cls = DB.classes.find(c=>c.name.toLowerCase().trim()===cn.toLowerCase().trim());
+            if (!cls) return;
+            const k = wlKey(cls.id, subj.id);
+            if (!DB.wlMap[k]) DB.wlMap[k]={weeklyHours:0,teacherId:'',isPara:false};
+            DB.wlMap[k].weeklyHours = h;
+            imported++;
+          });
+        });
+        save(); rWorkload();
+        toast(`${imported} ta yuklama Excel dan import qilindi`,'ok');
+        addAudit('Excel import', `${imported} ta yuklama import qilindi`,'ok');
+      } catch(e){ toast('Excel o\'qishda xato: '+e.message,'err'); }
+    };
+    fr.readAsBinaryString(f);
+  };
+  inp.click();
+}
+
+function resetAll(){
+  if (!confirm('BARCHA ma\'lumotlar o\'chiriladi! Tasdiqlaysizmi?')) return;
+  saveSnapshot('Hammasi o\'chirildi');
+  DB = {
+    subjects:[], teachers:[], classes:[], wlMap:{}, timetable:[],
+    locks: new Set(),
+    settings: {workDays:[0,1,2,3,4],maxPeriods:7,periodCount:8,morEnd:4,
+               periodTimes:JSON.parse(JSON.stringify(DEF_TIMES))},
+    audit: []
+  };
+  _nid=1; _history=[]; _future=[];
+  save(); nav('dash'); toast('Tozalandi','warn');
+}
+
+/* ══════════════════════════════════════════════════════════
+   FANLAR BAZASI
+══════════════════════════════════════════════════════════ */
+function openSM(id){
+  document.getElementById('m-s-ti').textContent = id?'Fanni tahrirlash':'Fan qo\'shish';
+  document.getElementById('s-eid').value = id||'';
+  if(id){
+    const s=DB.subjects.find(x=>x.id===id);
+    document.getElementById('s-n').value   = s.name;
+    document.getElementById('s-c').value   = s.color;
+    document.getElementById('s-pri').value = s.priority;
+    document.getElementById('s-sh').value  = s.shift;
+    document.getElementById('s-pmin').value= s.prefPMin||'';
+    document.getElementById('s-pmax').value= s.prefPMax||'';
+  } else {
+    document.getElementById('s-n').value   = '';
+    document.getElementById('s-c').value   = nextColor();
+    document.getElementById('s-pri').value = 'core';
+    document.getElementById('s-sh').value  = 'any';
+    document.getElementById('s-pmin').value= '';
+    document.getElementById('s-pmax').value= '';
+  }
+  openM('m-s');
+}
+function saveSubject(){
+  const name = document.getElementById('s-n').value.trim();
+  if(!name){ toast('Fan nomi kiritilmadi','err'); return; }
+  saveSnapshot('Fan saqlandi: ' + name);
+  const id = document.getElementById('s-eid').value;
+  const obj = {
+    id: id||uid(),
+    name,
+    color:    document.getElementById('s-c').value,
+    priority: document.getElementById('s-pri').value,
+    shift:    document.getElementById('s-sh').value,
+    prefPMin: parseInt(document.getElementById('s-pmin').value)||null,
+    prefPMax: parseInt(document.getElementById('s-pmax').value)||null
+  };
+  if(id){ DB.subjects[DB.subjects.findIndex(x=>x.id===id)]=obj; }
+  else DB.subjects.push(obj);
+  addAudit(id?'Fan tahrirlandi':'Fan qo\'shildi', obj.name, 'ok');
+  save(); closeM('m-s'); rSubjects(); toast('Saqlandi','ok');
+}
+function delSubject(id){
+  if(!confirm('O\'chirish?')) return;
+  const s=DB.subjects.find(x=>x.id===id);
+  saveSnapshot('Fan o\'chirildi: '+(s?.name||''));
+  DB.subjects = DB.subjects.filter(s=>s.id!==id);
+  Object.keys(DB.wlMap).forEach(k=>{ if(k.includes('_'+id)) delete DB.wlMap[k]; });
+  DB.timetable = DB.timetable.filter(e=>e.subjectId!==id);
+  DB.teachers.forEach(t=>{ t.subjectIds=t.subjectIds.filter(s=>s!==id); });
+  addAudit('Fan o\'chirildi', s?.name||'', 'warn');
+  save(); rSubjects(); toast('O\'chirildi','warn');
+}
+function rSubjects(){
+  const pane = document.getElementById('subj-pane');
+  if(!DB.subjects.length){
+    pane.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><h3>Fan yo\'q</h3></div>';
+    return;
+  }
+  let h='<div class="card"><div class="cb" style="padding:0"><table class="stbl"><thead><tr><th>Fan nomi</th><th>Rang</th><th>Ustuvorlik</th><th>Qism</th><th>Afzal vaqt</th><th>O\'qituvchilar</th><th></th></tr></thead><tbody>';
+  ['core','elec','fill'].forEach(pri=>{
+    const subs=DB.subjects.filter(s=>s.priority===pri);
+    if(!subs.length) return;
+    h+=`<tr><td colspan="7" style="background:var(--g50);font-size:9.5px;font-weight:700;text-transform:uppercase;color:var(--g400);letter-spacing:.07em;padding:4px 10px">${PL[pri]}</td></tr>`;
+    subs.forEach(s=>{
+      const tlist=certTeachers(s.id);
+      const pref=(s.prefPMin||s.prefPMax)?`${s.prefPMin||'?'}–${s.prefPMax||'?'}-soat`:'—';
+      h+=`<tr>
+        <td><span style="display:inline-flex;align-items:center;gap:6px"><span class="dot" style="background:${s.color}"></span><b>${s.name}</b></span></td>
+        <td><input type="color" value="${s.color}" onchange="updSC('${s.id}',this.value)" style="width:28px;height:22px;padding:1px;border:1px solid var(--g200);border-radius:4px;cursor:pointer"/></td>
+        <td><span class="bdg ${pri==='core'?'pc':pri==='elec'?'pe':'pf'}">${PL[pri]}</span></td>
+        <td><span class="bdg ${s.shift==='mor'?'sm':s.shift==='aft'?'sa':'sn'}">${SL[s.shift]}</span></td>
+        <td style="font-size:10.5px;color:var(--g500)">${pref}</td>
+        <td style="font-size:10.5px;color:var(--g500)">${tlist.map(t=>`<span class="dot" style="background:${t.color}"></span> ${t.name}`).join(' &nbsp;')||'<span style="color:var(--red)">⚠ Yo\'q</span>'}</td>
+        <td>
+          <button class="btn b-gh b-sm" onclick="openSM('${s.id}')">✏️</button>
+          <button class="btn b-red b-sm" onclick="delSubject('${s.id}')">🗑</button>
+        </td>
+      </tr>`;
+    });
+  });
+  pane.innerHTML=h+'</tbody></table></div></div>';
+}
+function updSC(id, c){ const s=DB.subjects.find(x=>x.id===id); if(s){s.color=c;save();} }
+
+/* ══════════════════════════════════════════════════════════
+   O'QITUVCHILAR
+══════════════════════════════════════════════════════════ */
+let tTabMode='list', matTid=null, _tSR=[];
+
+function tTab(t){
+  tTabMode=t;
+  document.querySelectorAll('#t-tabs .tab').forEach((b,i)=>b.classList.toggle('on', i===(['list','matrix','schedule'].indexOf(t))));
+  ['t-list','t-matrix','t-schedule'].forEach(id=>{ document.getElementById(id).style.display='none'; });
+  document.getElementById('t-'+t).style.display='';
+  if(t==='matrix')   rMatrix();
+  if(t==='schedule') rTSchedule();
+}
+
+/* Yuklanish balansi kartachalari */
+function rLoadBalancer(){
+  const lb=document.getElementById('lb-wrap');
+  if(!DB.teachers.length){ lb.innerHTML=''; return; }
+  lb.innerHTML=DB.teachers.map(t=>{
+    const assigned=Object.values(DB.wlMap).filter(w=>w.teacherId===t.id).reduce((a,w)=>a+w.weeklyHours,0);
+    const placed  =DB.timetable.filter(e=>e.teacherId===t.id).length;
+    const max     =t.maxHours||35;
+    const pct     =max>0?Math.min(100,Math.round(assigned/max*100)):0;
+    const overload=assigned>max;
+    return `<div class="lb-card" style="${overload?'border-color:var(--rp2);background:var(--rp)':''}">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+        <span class="dot" style="background:${t.color};width:8px;height:8px"></span>
+        <span style="font-size:11.5px;font-weight:700;color:var(--br);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</span>
+        <span style="font-size:9.5px;color:${overload?'var(--red)':'var(--g400)'};font-weight:600">${assigned}/${max}h</span>
+      </div>
+      <div class="prog" style="height:6px">
+        <div class="prf" style="width:${pct}%;background:${overload?'var(--red)':pct>70?'var(--yel)':t.color}"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:3px">
+        <span style="font-size:9.5px;color:var(--g400)">${pct}% yuklanish${overload?' ⚠️':pct>70?' ⚡':''}</span>
+        <span style="font-size:9.5px;color:var(--g400)">${placed} dars</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openTM(id){
+  document.getElementById('m-t-ti').textContent = id?'O\'qituvchini tahrirlash':'O\'qituvchi qo\'shish';
+  document.getElementById('t-eid').value = id||'';
+  if(id){
+    const t=DB.teachers.find(x=>x.id===id);
+    document.getElementById('t-n').value  = t.name;
+    document.getElementById('t-c').value  = t.color;
+    document.getElementById('t-p').value  = t.pacing;
+    document.getElementById('t-mh').value = t.maxHours||35;
+    _tSR=[...t.subjectIds];
+  } else {
+    document.getElementById('t-n').value  = '';
+    document.getElementById('t-c').value  = nextColor();
+    document.getElementById('t-p').value  = 'alt';
+    document.getElementById('t-mh').value = 35;
+    _tSR=[];
+  }
+  rTSR();
+  openM('m-t');
+}
+function addTSubjRow(){
+  const avail=DB.subjects.filter(s=>!_tSR.includes(s.id));
+  if(!avail.length){ toast('Barcha fanlar biriktirilgan','warn'); return; }
+  _tSR.push(avail[0].id); rTSR();
+}
+function rTSR(){
+  const w   = document.getElementById('t-subj-rows');
+  const cnt = document.getElementById('t-subj-count');
+  if(cnt) cnt.textContent = _tSR.length + ' ta fan';
+  if(!_tSR.length){
+    w.innerHTML='<p style="font-size:11px;color:var(--g400);padding:5px 0">Fan biriktirilmagan</p>';
+    return;
+  }
+  const opts='<option value="">— Fan tanlang —</option>'+
+    DB.subjects.map(s=>`<option value="${s.id}">${s.name} (${PL[s.priority]})</option>`).join('');
+  w.innerHTML=_tSR.map((sid,i)=>
+    `<div style="display:grid;grid-template-columns:1fr 40px;gap:4px;align-items:center;padding:3px 0;border-bottom:1px solid var(--g100)">
+      <select style="font-size:11.5px" onchange="_tSR[${i}]=this.value;rTSR()">${opts}</select>
+      <button class="btn b-red b-sm" style="justify-content:center" onclick="_tSR.splice(${i},1);rTSR()">✕</button>
+    </div>`).join('');
+  w.querySelectorAll('select').forEach((el,i)=>{ if(_tSR[i]) el.value=_tSR[i]; });
+}
+function saveTeacher(){
+  const name=document.getElementById('t-n').value.trim();
+  if(!name){ toast('Ism kiritilmadi','err'); return; }
+  const sids   = _tSR.filter(x=>x&&x.length>1);
+  const id     = document.getElementById('t-eid').value;
+  const maxH   = parseInt(document.getElementById('t-mh').value)||35;
+  saveSnapshot((id?'Tahrirlandi':'Qo\'shildi') + ': ' + name);
+  const obj = {
+    id: id||uid(), name,
+    color:    document.getElementById('t-c').value,
+    pacing:   document.getElementById('t-p').value,
+    constraints: id?(DB.teachers.find(x=>x.id===id)?.constraints||{}):{},
+    subjectIds: sids,
+    maxHours: maxH
+  };
+  if(id){ DB.teachers[DB.teachers.findIndex(x=>x.id===id)]=obj; }
+  else DB.teachers.push(obj);
+  addAudit(id?'O\'qituvchi tahrirlandi':'O\'qituvchi qo\'shildi', name, 'ok');
+  save(); closeM('m-t'); rTeachers(); toast('Saqlandi','ok');
+}
+function delTeacher(id){
+  if(!confirm('O\'chirish?')) return;
+  const t=DB.teachers.find(x=>x.id===id);
+  saveSnapshot('O\'qituvchi o\'chirildi: '+(t?.name||''));
+  DB.teachers  = DB.teachers.filter(t=>t.id!==id);
+  DB.timetable = DB.timetable.filter(e=>e.teacherId!==id);
+  Object.keys(DB.wlMap).forEach(k=>{ if(DB.wlMap[k].teacherId===id) DB.wlMap[k].teacherId=''; });
+  addAudit('O\'qituvchi o\'chirildi', t?.name||'', 'warn');
+  save(); rTeachers(); toast('O\'chirildi','warn');
+}
+function rTeachers(){
+  rLoadBalancer();
+  const el=document.getElementById('t-list');
+  if(!DB.teachers.length){
+    el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><h3>O\'qituvchi yo\'q</h3></div>';
+    return;
+  }
+  el.innerHTML='<div class="tgrid">'+DB.teachers.map(t=>{
+    const ini      = t.name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+    const bl       = Object.keys(t.constraints||{}).length;
+    const subs     = DB.subjects.filter(s=>(t.subjectIds||[]).includes(s.id));
+    const assigned = Object.values(DB.wlMap).filter(w=>w.teacherId===t.id).reduce((a,w)=>a+w.weeklyHours,0);
+    const placed   = DB.timetable.filter(e=>e.teacherId===t.id).length;
+    const overload = assigned>(t.maxHours||35);
+    return `<div class="tcard">
+      <div class="tc-top">
+        <div class="ava" style="background:${t.color}">${ini}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;font-weight:700;color:var(--br);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</div>
+          <div style="font-size:10px;color:var(--g400)">
+            ${subs.length} fan · ${bl} blok · ${assigned}h yukl · ${placed} dars
+            ${overload ? '<span style="color:var(--red)">⚠️ limit oshdi</span>' : ''}
+            <span style="color:var(--or)">${t.pacing==='alt'?'🔀 Kunora':'📅 Ketma-ket'}</span>
+          </div>
+        </div>
+        <div class="row" style="gap:4px">
+          <button class="btn b-gh b-sm" onclick="openTM('${t.id}')">✏️</button>
+          <button class="btn b-red b-sm" onclick="delTeacher('${t.id}')">🗑</button>
+        </div>
+      </div>
+      <div style="padding:7px 12px;display:flex;flex-wrap:wrap;gap:3px">
+        ${subs.map(s=>`<span class="bdg" style="background:${s.color}18;color:${s.color};border:1px solid ${s.color}30"><span class="dot" style="background:${s.color}"></span>${s.name}</span>`).join('')||'<span style="font-size:10.5px;color:var(--g400)">Fansiz</span>'}
+      </div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+/* Bandlik matritsasi */
+function rMatrix(){
+  const el=document.getElementById('t-matrix');
+  const wd=getWD(), pc=getPC();
+  const selH='<option value="">— O\'qituvchini tanlang —</option>'+
+    DB.teachers.map(t=>`<option value="${t.id}" ${matTid===t.id?'selected':''}>${t.name}</option>`).join('');
+  let matH='';
+  if(matTid){
+    const t=DB.teachers.find(x=>x.id===matTid);
+    const cons=t?.constraints||{};
+    matH=`<div style="overflow-x:auto;margin-top:10px"><table class="mx">
+      <thead><tr><th style="min-width:68px;text-align:right">Soat</th>${wd.map(i=>`<th>${ALL_DAYS[i]}</th>`).join('')}</tr></thead>
+      <tbody>`;
+    for(let p=1; p<=pc; p++){
+      if(p===getME()+1) matH+=`<tr><td colspan="${wd.length+1}" style="background:linear-gradient(135deg,#FFFDE7,#FFF176);text-align:center;font-size:9.5px;font-weight:700;color:#7B6000;padding:3px;border:1px solid #F9E400">🍽 Tushlik: ${LUNCH.s}–${LUNCH.e}</td></tr>`;
+      matH+=`<tr><td class="mxpl">${p}-soat<small>${pTime(p)}</small></td>`;
+      wd.forEach(di=>{
+        const k=`${di}_${p}`, bl=!!cons[k];
+        matH+=`<td><div class="mxc ${bl?'bl':''}" onclick="togBlock('${matTid}','${k}',this)"></div></td>`;
+      });
+      matH+='</tr>';
+    }
+    matH+='</tbody></table></div><p style="font-size:10px;color:var(--g400);margin-top:5px">Qora = bloklangan (algoritm bu vaqtlarga dars qo\'ymaydi)</p>';
+  }
+  el.innerHTML=`<div class="card"><div class="ch"><span class="ch-t">Bandlik Matritsasi</span></div><div class="cb">
+    <div style="max-width:260px"><label class="fl">O'qituvchini tanlang</label>
+    <select onchange="matTid=this.value;rMatrix()">${selH}</select></div>
+    ${matH}
+  </div></div>`;
+}
+function togBlock(tid, k, el){
+  const t=DB.teachers.find(x=>x.id===tid); if(!t) return;
+  if(!t.constraints) t.constraints={};
+  if(t.constraints[k]){ delete t.constraints[k]; el.classList.remove('bl'); }
+  else { t.constraints[k]=true; el.classList.add('bl'); }
+  save();
+}
+
+/* O'qituvchi shaxsiy haftalik jadval ko'rinishi */
+function rTSchedule(){
+  const el  = document.getElementById('t-schedule');
+  const wd  = getWD();
+  const pc  = getPC();
+  if(!DB.teachers.length){
+    el.innerHTML='<div class="empty"><p>O\'qituvchi yo\'q</p></div>'; return;
+  }
+  el.innerHTML=`<div class="row" style="margin-bottom:12px">
+    <span style="font-size:13px;font-weight:700;color:var(--br)">Barcha o\'qituvchilar shaxsiy jadvali</span>
+  </div>
+  ${DB.teachers.map(t=>{
+    const ents = DB.timetable.filter(e=>e.teacherId===t.id).sort((a,b)=>a.day-b.day||a.period-b.period);
+    const totalH = ents.length;
+    // Haftalik summary: kunlar bo'yicha
+    const dayMap = {};
+    wd.forEach(di=>{ dayMap[di]=[]; });
+    ents.forEach(e=>{ if(dayMap[e.day]) dayMap[e.day].push(e); });
+
+    return `<div class="card card-hover" style="margin-bottom:10px">
+      <div class="ch">
+        <div class="ava" style="background:${t.color};width:32px;height:32px;font-size:12px;border-radius:7px">
+          ${t.name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase()}
+        </div>
+        <span class="ch-t">${t.name}</span>
+        <span class="bdg bdg-grn">${totalH} dars/hafta</span>
+        <span class="bdg ${totalH>(t.maxHours||35)?'bdg-red':'bdg-yel'}">${totalH}/${t.maxHours||35}h</span>
+        <button class="btn b-gh b-sm" onclick="setVM('teacher');vmFilter='${t.id}';nav('view')">📋 Batafsil</button>
+      </div>
+      <div class="cb" style="display:grid;grid-template-columns:repeat(${wd.length},1fr);gap:4px">
+        ${wd.map(di=>{
+          const dayEnts = dayMap[di]||[];
+          return `<div>
+            <div style="font-size:9.5px;font-weight:700;color:var(--g400);text-align:center;margin-bottom:4px">${ALL_DAYS_S[di]}</div>
+            ${dayEnts.map(e=>{
+              const s   = DB.subjects.find(x=>x.id===e.subjectId);
+              const cls = DB.classes.find(x=>x.id===e.classId);
+              return `<div class="t-sched-cell" style="background:${t.color}18;border-color:${t.color}30;color:${t.color};margin-bottom:3px">
+                <div style="font-weight:700;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s?.name||'?'}</div>
+                <div style="font-size:9px;opacity:.7">${e.period}-s · ${cls?.name||'?'}</div>
+              </div>`;
+            }).join('')||'<div style="font-size:9.5px;color:var(--g200);text-align:center;padding:4px">—</div>'}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('')}`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SINFLAR
+══════════════════════════════════════════════════════════ */
+function openCM(id){
+  document.getElementById('c-eid').value = id||'';
+  // Parallel sinflar checkboxlari
+  const pwrap = document.getElementById('c-parallel-wrap');
+  const curCls = id ? DB.classes.find(x=>x.id===id) : null;
+  pwrap.innerHTML = DB.classes
+    .filter(c => c.id !== id)
+    .map(c=>`
+      <label style="display:flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid var(--g200);border-radius:6px;font-size:11.5px;cursor:pointer">
+        <input type="checkbox" ${curCls?.parallelIds?.includes(c.id)?'checked':''} value="${c.id}" class="par-check"/> ${c.name}
+      </label>`).join('') || '<p style="font-size:11px;color:var(--g400)">Boshqa sinf yo\'q</p>';
+
+  if(id){
+    document.getElementById('c-n').value  = curCls?.name||'';
+    document.getElementById('c-mp').value = curCls?.maxPerDay||'';
+  } else {
+    document.getElementById('c-n').value  = '';
+    document.getElementById('c-mp').value = '';
+  }
+  openM('m-c');
+}
+function saveClass(){
+  const name=document.getElementById('c-n').value.trim();
+  if(!name){ toast('Sinf nomi kiritilmadi','err'); return; }
+  const mp   = parseInt(document.getElementById('c-mp').value)||null;
+  const id   = document.getElementById('c-eid').value;
+  const pars = [...document.querySelectorAll('.par-check:checked')].map(el=>el.value);
+  saveSnapshot((id?'Sinf tahrirlandi':'Sinf qo\'shildi') + ': ' + name);
+  const obj  = {id:id||uid(), name, maxPerDay:mp, parallelIds:pars};
+  if(id){ DB.classes[DB.classes.findIndex(x=>x.id===id)]=obj; }
+  else DB.classes.push(obj);
+  // Parallel sinflarni ham yangilaymiz
+  pars.forEach(pid=>{
+    const pc2=DB.classes.find(x=>x.id===pid);
+    if(pc2){
+      if(!pc2.parallelIds) pc2.parallelIds=[];
+      if(!pc2.parallelIds.includes(obj.id)) pc2.parallelIds.push(obj.id);
+    }
+  });
+  addAudit(id?'Sinf tahrirlandi':'Sinf qo\'shildi', name, 'ok');
+  save(); closeM('m-c'); rClasses(); toast('Saqlandi','ok');
+}
+function delClass(id){
+  if(!confirm('O\'chirish?')) return;
+  const c=DB.classes.find(x=>x.id===id);
+  saveSnapshot('Sinf o\'chirildi: '+(c?.name||''));
+  DB.classes   = DB.classes.filter(c=>c.id!==id);
+  Object.keys(DB.wlMap).forEach(k=>{ if(k.startsWith(id+'_')) delete DB.wlMap[k]; });
+  DB.timetable = DB.timetable.filter(e=>e.classId!==id);
+  DB.locks     = new Set([...DB.locks].filter(k=>!k.startsWith(id+'_')));
+  // Parallel bog'liqlikni ham olib tashlaymiz
+  DB.classes.forEach(c=>{ if(c.parallelIds) c.parallelIds=c.parallelIds.filter(p=>p!==id); });
+  addAudit('Sinf o\'chirildi', c?.name||'', 'warn');
+  save(); rClasses(); toast('O\'chirildi','warn');
+}
+function rClasses(){
+  const g=document.getElementById('cgrid');
+  if(!DB.classes.length){
+    g.innerHTML='<div class="empty" style="grid-column:1/-1"><h3>Sinf yo\'q</h3></div>'; return;
+  }
+  g.innerHTML=DB.classes.map(c=>{
+    const cwls   = Object.entries(DB.wlMap).filter(([k])=>k.startsWith(c.id+'_'));
+    const total  = cwls.reduce((s,[,w])=>s+w.weeklyHours,0);
+    const placed = DB.timetable.filter(e=>e.classId===c.id).length;
+    const lim    = c.maxPerDay||DB.settings.maxPeriods;
+    const pars   = (c.parallelIds||[]).map(pid=>DB.classes.find(x=>x.id===pid)?.name).filter(Boolean);
+    return `<div class="card card-hover" style="padding:0">
+      <div class="cb">
+        <div style="width:42px;height:42px;border-radius:9px;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;margin-bottom:7px">${c.name}</div>
+        <div style="font-size:12.5px;font-weight:700;color:var(--br);margin-bottom:2px">${c.name} sinfi</div>
+        <div style="font-size:10px;color:var(--g400);margin-bottom:3px">${cwls.length} fan · ${placed}/${total}h · max ${lim}/kun</div>
+        ${pars.length ? `<div style="font-size:9.5px;color:var(--pur);margin-bottom:5px">⇔ Parallel: ${pars.join(', ')}</div>` : ''}
+        ${total>0 ? `<div class="prog"><div class="prf" style="width:${Math.round(placed/total*100)}%;background:var(--or)"></div></div>` : ''}
+        <div class="row" style="margin-top:7px">
+          <button class="btn b-gh b-sm" onclick="openCM('${c.id}')">✏️</button>
+          <button class="btn b-red b-sm" onclick="delClass('${c.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   YUKLAMA MATRITSASI — sinf_fan kalit
+══════════════════════════════════════════════════════════ */
+function rWorkload(){
+  const wrap=document.getElementById('wl-wrap');
+  if(!DB.subjects.length||!DB.classes.length){
+    wrap.innerHTML='<div class="empty" style="padding:28px"><h3>Avval fan va sinf qo\'shing</h3></div>'; return;
+  }
+  let h='<table class="wl-tbl"><thead><tr><th>Fan / Sinf</th>'+
+    DB.classes.map(c=>`<th style="min-width:120px">${c.name}</th>`).join('')+
+    '</tr></thead><tbody>';
+  ['core','elec','fill'].forEach(pri=>{
+    const subs=DB.subjects.filter(s=>s.priority===pri);
+    if(!subs.length) return;
+    h+=`<tr><td colspan="${DB.classes.length+1}" style="background:var(--br);color:rgba(255,255,255,.7);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 8px">${PL[pri]}</td></tr>`;
+    subs.forEach(s=>{
+      const tlist=certTeachers(s.id);
+      const tOpts='<option value="">— O\'qituvchi —</option>'+
+        tlist.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+      const noTeacher = tlist.length===0
+        ? '<span style="font-size:9px;color:var(--red)">⚠️ O\'qituvchi biriktirilmagan</span>'
+        : '';
+      h+=`<tr><td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="dot" style="background:${s.color}"></span>
+          <div>
+            <div style="font-size:11.5px;font-weight:700">${s.name}</div>
+            <div style="font-size:9.5px;color:var(--g400)">${SL[s.shift]}</div>
+            ${noTeacher}
+          </div>
+        </div>
+      </td>`;
+      DB.classes.forEach(c=>{
+        const k = wlKey(c.id, s.id);
+        const w = DB.wlMap[k]||{weeklyHours:0,teacherId:'',isPara:false};
+        h+=`<td><div class="wl-cell">
+          <input class="wl-inp" type="number" min="0" max="20" value="${w.weeklyHours||''}" placeholder="0" id="wh_${k}"/>
+          <select class="wl-sel" id="wt_${k}">${tOpts}</select>
+          <label class="wl-para">
+            <input type="checkbox" id="wp_${k}" ${w.isPara?'checked':''}/> 2-soat (Para)
+          </label>
+        </div></td>`;
+      });
+      h+='</tr>';
+    });
+  });
+  h+='</tbody></table>';
+  wrap.innerHTML=h;
+  // O'qituvchi tanlovlarini tiklash
+  Object.entries(DB.wlMap).forEach(([k,w])=>{
+    const el=document.getElementById('wt_'+k);
+    if(el && w.teacherId) el.value=w.teacherId;
+  });
+}
+function saveWL(){
+  saveSnapshot('Yuklama saqlandi');
+  const newMap={};
+  DB.subjects.forEach(s=>{
+    DB.classes.forEach(c=>{
+      const k   = wlKey(c.id, s.id);
+      const hEl = document.getElementById('wh_'+k);
+      const tEl = document.getElementById('wt_'+k);
+      const pEl = document.getElementById('wp_'+k);
+      const h   = hEl?parseInt(hEl.value)||0:0;
+      const tid = tEl?tEl.value:'';
+      const par = pEl?pEl.checked:false;
+      if(h>0) newMap[k]={weeklyHours:h, teacherId:tid, isPara:par};
+    });
+  });
+  DB.wlMap=newMap;
+  addAudit('Yuklama matritsasi saqlandi', Object.keys(newMap).length+' ta yozuv', 'ok');
+  save();
+  toast(Object.keys(DB.wlMap).length+' ta yuklama saqlandi','ok');
+  rDash(); rLoadBalancer(); updateConflictBadge();
+}
+function clearWL(){
+  if(!confirm('Barcha yuklamalarni tozalash?')) return;
+  saveSnapshot('Yuklama tozalandi');
+  DB.wlMap={}; DB.timetable=[]; DB.locks=new Set();
+  addAudit('Yuklama tozalandi', '', 'warn');
+  save(); rWorkload(); toast('Tozalandi','warn');
+}
+
+/* ══════════════════════════════════════════════════════════
+   JADVAL SAHIFASI (TIMETABLE PAGE)
+══════════════════════════════════════════════════════════ */
+let ttDayF='all';
+function rTTPage(){ buildDayTabs(); rTTGrid(); }
+function buildDayTabs(){
+  const wd=getWD();
+  let h=`<button class="tab ${ttDayF==='all'?'on':''}" onclick="setTTDay('all')">Barchasi</button>`;
+  wd.forEach(di=>h+=`<button class="tab ${ttDayF===di?'on':''}" onclick="setTTDay(${di})">${ALL_DAYS_S[di]}</button>`);
+  document.getElementById('tt-days').innerHTML=h;
+}
+function setTTDay(d){ ttDayF=d; buildDayTabs(); rTTGrid(); }
+
+function rTTGrid(){
+  const wrap=document.getElementById('tt-wrap');
+  const wd=getWD(), pc=getPC(), me=getME();
+  if(!DB.classes.length){
+    wrap.innerHTML='<div class="empty" style="padding:28px"><h3>Avval sinf qo\'shing</h3></div>'; return;
+  }
+  const days = ttDayF==='all' ? wd : [parseInt(ttDayF)];
+  let html='';
+  days.forEach(di=>{
+    html+=`<div>
+      <div style="padding:5px 10px;background:var(--or3);border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between">
+        <b style="font-size:11.5px;color:var(--br)">${ALL_DAYS[di]}</b>
+        <span style="font-size:10px;color:var(--g400)">${DB.timetable.filter(e=>e.day===di).length} dars</span>
+      </div>
+      <div style="overflow-x:auto"><table class="tt">
+        <thead><tr><th style="min-width:80px">Soat/Vaqt</th>
+          ${DB.classes.map(c=>`<th style="min-width:90px">${c.name}</th>`).join('')}
+        </tr></thead>
+        <tbody>`;
+    for(let p=1; p<=pc; p++){
+      if(p===me+1) html+=`<tr class="lunch-row"><td>🍽 Tushlik</td><td colspan="${DB.classes.length}">${LUNCH.s} – ${LUNCH.e} &nbsp;·&nbsp; Tushlik tanaffus</td></tr>`;
+      html+=`<tr><td class="pcell">${p}<small>${pTime(p)}</small></td>`;
+      DB.classes.forEach(cls=>{
+        const cm = clsMax(cls.id);
+        if(p>cm){ html+=`<td><div class="slot lim">limit</div></td>`; return; }
+        const e  = getEntry(cls.id, di, p);
+        const lk = isLocked(cls.id, di, p);
+        if(e){
+          const t  = DB.teachers.find(x=>x.id===e.teacherId);
+          const s2 = DB.subjects.find(x=>x.id===e.subjectId);
+          const bg = t?.color || s2?.color || '#888';
+          const tc = contrast(bg);
+          // Mojaro tekshiruvi — bir vaqtda ikkita sinfda bo'lsa qizil chiziq
+          const hasCon = !lk && DB.timetable.some(x=>x.teacherId===e.teacherId&&x.day===di&&x.period===p&&x.classId!==cls.id);
+          html+=`<td style="padding:1px">
+            <div class="slot fill${lk?' locked':''}${hasCon?' conf':''}" style="background:${bg};color:${tc}"
+              onclick="openSlot(event,'${cls.id}',${di},${p})">
+              <span class="s-sub">${s2?.name||'?'}${e.isPara?'<span class="dbl">2x</span>':''}</span>
+              <span class="s-tch">${t?.name||'?'}</span>
+              ${!lk?`<span class="s-del" onclick="event.stopPropagation();rmEntry('${cls.id}',${di},${p})">✕</span>`:''}
+              <span class="lock-btn ${lk?'locked-icon':''}"
+                onclick="event.stopPropagation();toggleLock('${cls.id}',${di},${p})">${lk?'🔒':'🔓'}</span>
+            </div>
+          </td>`;
+        } else {
+          html+=`<td style="padding:1px"><div class="slot emp" onclick="openSlot(event,'${cls.id}',${di},${p})">+</div></td>`;
+        }
+      });
+      html+='</tr>';
+    }
+    html+='</tbody></table></div></div>';
+    if(ttDayF==='all') html+='<div style="height:1px;background:var(--g200)"></div>';
+  });
+  wrap.innerHTML=html;
+}
+
+/* Qulf boshqaruvi */
+function toggleLock(cid, day, p){
+  const k=lockKey(cid,day,p);
+  if(DB.locks.has(k)){
+    DB.locks.delete(k);
+    addAudit('Qulf ochildi', `${ALL_DAYS[day]} ${p}-soat ${DB.classes.find(c=>c.id===cid)?.name||''}`, 'warn');
+    toast('Qulf ochildi','warn');
+  } else {
+    const e=getEntry(cid,day,p);
+    if(!e){ toast('Bo\'sh katak qullf qilib bo\'lmaydi','err'); return; }
+    DB.locks.add(k);
+    addAudit('Katak qulflandi', `${ALL_DAYS[day]} ${p}-soat ${DB.classes.find(c=>c.id===cid)?.name||''}`, 'ok');
+    toast('🔒 Katak qulflandi','ok');
+  }
+  save(); rTTGrid();
+}
+function rmEntry(cid, day, p){
+  if(isLocked(cid,day,p)){ toast('🔒 Katak qulflangan!','err'); return; }
+  saveSnapshot(`Dars o'chirildi: ${ALL_DAYS[day]} ${p}-soat`);
+  const e=getEntry(cid,day,p);
+  if(e){
+    const s=DB.subjects.find(x=>x.id===e.subjectId);
+    addAudit('Dars o\'chirildi', `${s?.name||'?'} — ${ALL_DAYS[day]} ${p}-soat`, 'warn');
+  }
+  DB.timetable=DB.timetable.filter(e=>!(e.classId===cid&&e.day===day&&e.period===p));
+  save(); rTTGrid();
+  if(CUR==='view') rView();
+}
+
+/* Slot qalqib chiquvchi menyusi */
+let popCtx=null;
+function openSlot(evt, cid, day, period){
+  evt.stopPropagation();
+  if(isLocked(cid,day,period)){ toast('🔒 Katak qulflangan! Avval qulfni oching.','warn'); return; }
+  popCtx={cid,day,period};
+  const pop=document.getElementById('pop');
+  const cls=DB.classes.find(c=>c.id===cid);
+  // Bu sinf uchun barcha yuklamalar
+  const cwls=Object.entries(DB.wlMap)
+    .filter(([k])=>k.startsWith(cid+'_'))
+    .map(([k,w])=>({...w, k, sid:k.substring(cid.length+1)}));
+  if(!cwls.length){ toast('Bu sinf uchun yuklama yo\'q','warn'); return; }
+  let h=`<h4>📅 ${ALL_DAYS[day]} · ${period}-soat${pTime(period)?' ('+pTime(period)+')':''} – ${cls?.name||''}</h4>`;
+  ['core','elec','fill'].forEach(pri=>{
+    const pw=cwls.filter(w=>DB.subjects.find(s=>s.id===w.sid)?.priority===pri);
+    if(!pw.length) return;
+    h+=`<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--g400);margin:4px 0 2px;letter-spacing:.06em">${PL[pri]}</div>`;
+    pw.forEach(w=>{
+      const subj = DB.subjects.find(x=>x.id===w.sid);
+      const t    = DB.teachers.find(x=>x.id===w.teacherId);
+      const placed= DB.timetable.filter(e=>e.subjectId===w.sid&&e.classId===cid).length;
+      const rem   = w.weeklyHours-placed;
+      const cap   = dailyCap(w.weeklyHours, w.isPara);
+      const dc    = subjDayCount(w.sid, cid, day);
+      const busy  = t && tBusy(t.id, day, period, cid);
+      const blk   = t && isBlocked(t.id, day, period);
+      const parCon= t && parallelConflict(cid, t.id, day, period);
+      const ovCap = dc>=cap;
+      const shWrn = !shiftOK(w.sid, period);
+      const dis   = busy || blk || rem<=0 || ovCap || parCon;
+      const why   = busy?'(band)': blk?'(blok)': rem<=0?'(to\'ldi)': ovCap?'(kun limiti)': parCon?'(parallel)': '';
+      h+=`<div class="popt ${dis?'dis':''}" onclick="placeEntry('${w.sid}','${t?.id||''}')">
+        <span class="dot" style="background:${subj?.color||'#888'}"></span>
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          <b>${subj?.name||'?'}</b>
+          <span style="font-size:10px;color:var(--g400)"> ${t?.name||'—'}</span>
+        </span>
+        ${dis
+          ? `<span style="font-size:9.5px;color:var(--red)">${why}</span>`
+          : `<span style="font-size:9.5px;color:var(--g400)">${rem}h${shWrn?' ⚠️':''}</span>`}
+      </div>`;
+    });
+  });
+  const cur=getEntry(cid,day,period);
+  if(cur) h+=`<div class="popt-sep"></div>
+    <div class="popt" onclick="rmEntry('${cid}',${day},${period});closePop()" style="color:var(--red)">✕ O'chirish</div>`;
+  pop.innerHTML=h; pop.style.display='block';
+  document.getElementById('pop-bg').style.display='block';
+  const r=evt.target.getBoundingClientRect();
+  let top=r.bottom+4, left=r.left;
+  if(top+340>window.innerHeight) top=r.top-350;
+  if(left+235>window.innerWidth) left=window.innerWidth-239;
+  pop.style.top=Math.max(4,top)+'px'; pop.style.left=Math.max(4,left)+'px';
+}
+function closePop(){
+  document.getElementById('pop').style.display='none';
+  document.getElementById('pop-bg').style.display='none';
+  popCtx=null;
+}
+function placeEntry(subjectId, teacherId){
+  if(!popCtx) return;
+  const{cid,day,period}=popCtx;
+  if(isLocked(cid,day,period)){ toast('🔒 Qulflangan!','err'); closePop(); return; }
+  // Tekshiruvlar
+  if(teacherId && tBusy(teacherId,day,period,cid)){ toast('O\'qituvchi bu vaqtda band!','err'); closePop(); return; }
+  if(teacherId && isBlocked(teacherId,day,period)){ toast('Bu vaqt bloklangan!','err'); closePop(); return; }
+  if(teacherId && parallelConflict(cid,teacherId,day,period)){ toast('Parallel sinfda ham bu o\'qituvchi bor!','err'); closePop(); return; }
+  const w=DB.wlMap[wlKey(cid,subjectId)];
+  const cap=w?dailyCap(w.weeklyHours,w.isPara):1;
+  if(subjDayCount(subjectId,cid,day)>=cap){ toast('Kun limiti to\'ldi!','err'); closePop(); return; }
+  saveSnapshot(`Dars qo'lda joylashtirildi`);
+  DB.timetable=DB.timetable.filter(e=>!(e.classId===cid&&e.day===day&&e.period===period));
+  DB.timetable.push({classId:cid, day, period, subjectId, teacherId, isPara:false});
+  const s=DB.subjects.find(x=>x.id===subjectId);
+  addAudit('Dars qo\'lda joylashtirildi', `${s?.name||'?'} — ${ALL_DAYS[day]} ${period}-soat`, 'ok');
+  save(); closePop(); rTTGrid(); updateConflictBadge(); toast('Joylashtirildi','ok');
+}
+
+/* ══════════════════════════════════════════════════════════
+   3-BOSQICH BACKTRACKING + RESHUFFLE ALGORITMI
+   ──────────────────────────────────────────────────────
+   Bosqich 1 (Asosiy fanlar): eng qiyin, birinchi joylashtiriladi
+   Bosqich 2 (Qo'shimcha fanlar): qolgan bo'sh joylarga
+   Bosqich 3 (Zaxira fanlar): oxirgi bo'sh periodlarni to'ldiradi
+══════════════════════════════════════════════════════════ */
+function runGen(){
+  if(!Object.keys(DB.wlMap).length){ toast('Avval yuklamani saqlang','err'); return; }
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true; btn.textContent='⏳ Yaratilmoqda…';
+  setTimeout(()=>{
+    try{ doGen(); }
+    catch(e){ toast('Algoritm xatosi: '+e.message,'err'); console.error(e); }
+    btn.disabled=false; btn.textContent='⚡ Yaratish';
+  }, 30);
+}
+
+function doGen(){
+  const wd=getWD(), pc=getPC(), me=getME();
+  // Faqat qulflanmagan darslarni o'chiramiz
+  DB.timetable = DB.timetable.filter(e => isLocked(e.classId, e.day, e.period));
+  const failLog = [];
+
+  /* ── Vazifalar ro'yxatini quramiz ──
+     Har WL yozuvi uchun joylashtiriladigan period'lar ketma-ketligi.
+     Para bo'lsa — juft vazifalar, qolganlar yakka.              */
+  function buildTasks(priority){
+    const tasks=[];
+    Object.entries(DB.wlMap).forEach(([k,w])=>{
+      const[cid, ...sidParts] = k.split('_');
+      const sid = sidParts.join('_');
+      const subj = DB.subjects.find(s=>s.id===sid);
+      if(!subj || subj.priority!==priority) return;
+      if(!w.teacherId) return; // O'qituvchi biriktirilmagan
+      // Allaqachon joylashtirilganlarni hisobga olamiz (qulflangan darslar)
+      const already = DB.timetable.filter(e=>e.subjectId===sid&&e.classId===cid).length;
+      let rem = w.weeklyHours - already;
+      if(rem<=0) return;
+      const nPairs = w.isPara ? Math.floor(rem/2) : 0;
+      for(let i=0;i<nPairs;i++){ tasks.push({sid,tid:w.teacherId,cid,wh:w.weeklyHours,isPara:w.isPara,double:true}); rem-=2; }
+      for(let i=0;i<rem;i++)    tasks.push({sid,tid:w.teacherId,cid,wh:w.weeklyHours,isPara:w.isPara,double:false});
+    });
+    return tasks;
+  }
+
+  /* ── Slot yaroqliligini tekshiramiz ── */
+  function slotValid(task, d, p){
+    const{sid,tid,cid,wh,isPara,double}=task;
+    const cm=clsMax(cid);
+    if(p>cm) return false;
+    if(double && (p+1>cm || p+1>pc)) return false;
+    // Para tushlik osha o'tmasin
+    if(double && p===me) return false;
+    if(!shiftOK(sid,p)) return false;
+    if(double && !shiftOK(sid,p+1)) return false;
+    if(isBlocked(tid,d,p)) return false;
+    if(double && isBlocked(tid,d,p+1)) return false;
+    if(isLocked(cid,d,p)) return false;  // qulflangan katak
+    if(double && isLocked(cid,d,p+1)) return false;
+    if(getEntry(cid,d,p)) return false;
+    if(double && getEntry(cid,d,p+1)) return false;
+    // Kunlik sinf yuklanish limiti
+    const dl=dayLoad(cid,d);
+    if(dl>=(double?cm-1:cm)) return false;
+    // Kunlik fan limiti
+    const cap=dailyCap(wh,isPara);
+    const dc=subjDayCount(sid,cid,d);
+    if(dc+(double?2:1)>cap) return false;
+    // Parallel sinf tekshiruvi
+    if(parallelConflict(cid,tid,d,p)) return false;
+    if(double && parallelConflict(cid,tid,d,p+1)) return false;
+    return true;
+  }
+
+  /* ── Reshuffle: boshqa slot bo'shatish ──
+     Teacher X uchun (day,period) slot kerak, lekin u yerda Teacher Y bor.
+     Teacher Y'ning darsini boshqa joyga ko'chirishga harakat qilamiz.    */
+  function reshuffle(tid, d, p, excCid){
+    const blocker=DB.timetable.find(e=>e.teacherId===tid&&e.day===d&&e.period===p&&e.classId!==excCid);
+    if(!blocker) return false;
+    if(isLocked(blocker.classId, blocker.day, blocker.period)) return false; // qulflangan — ko'chirib bo'lmaydi
+    const bw=DB.wlMap[wlKey(blocker.classId, blocker.subjectId)];
+    if(!bw) return false;
+    for(const nd of wd){
+      for(let np=1; np<=pc; np++){
+        if(nd===d && np===p) continue;
+        if(isLocked(blocker.classId,nd,np)) continue;
+        if(getEntry(blocker.classId,nd,np)) continue;
+        if(isBlocked(blocker.teacherId,nd,np)) continue;
+        if(tBusy(blocker.teacherId,nd,np,blocker.classId)) continue;
+        const bcm=clsMax(blocker.classId);
+        if(np>bcm) continue;
+        if(!shiftOK(blocker.subjectId,np)) continue;
+        const bdl=dayLoad(blocker.classId,nd);
+        if(bdl>=bcm) continue;
+        const cap2=dailyCap(bw.weeklyHours,bw.isPara);
+        const dc2=subjDayCount(blocker.subjectId,blocker.classId,nd);
+        if(dc2+1>cap2) continue;
+        if(parallelConflict(blocker.classId,blocker.teacherId,nd,np)) continue;
+        // Ko'chiramiz
+        DB.timetable[DB.timetable.indexOf(blocker)]={...blocker, day:nd, period:np};
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /* ── Slot bahosi (qanchalik yaxshi) ──
+     Manfiy = yaxshi, musbat = yomon.
+     Asosiy fanlar ertalab, gap minimizatsiya, pacing hisobi.   */
+  function scoreSlot(task, d, p){
+    const{sid,tid}=task;
+    let sc=0;
+    const subj=DB.subjects.find(x=>x.id===sid);
+    // Asosiy fanlar uchun ertalab bonus
+    if(subj?.priority==='core' && p<=3) sc-=12;
+    if(subj?.priority==='core' && p===me+1) sc+=10; // Tushlikdan keyin darhol — yomon
+    // Afzal vaqt bonusi
+    if(!prefOK(sid,p)) sc+=8;
+    // Pacing tekshiruvi
+    const t=DB.teachers.find(x=>x.id===tid);
+    if(t?.pacing==='alt'){
+      const used=tDaysSet(tid);
+      if(used.has(d-1)||used.has(d+1)) sc+=7; // Kunora = ketma-ket kunlardan qochish
+    }
+    if(t?.pacing==='cons'){
+      const used=tDaysSet(tid);
+      if(used.size>0 && !used.has(d)) sc+=5; // Ketma-ket = yangi kun qo'shishdan qochish
+    }
+    // Gap minimizatsiya: o'qituvchi shu kunda boshqa dars bormi?
+    const tl=DB.timetable.filter(e=>e.teacherId===tid&&e.day===d);
+    if(tl.length>0){
+      const minP=Math.min(...tl.map(e=>e.period));
+      const maxP=Math.max(...tl.map(e=>e.period));
+      if(p>minP && p<maxP) sc-=5; // Bo'shliqni to'ldirish — yaxshi
+      if(p<minP-1 || p>maxP+1) sc+=6; // Yangi bo'shliq yaratish — yomon
+    }
+    return sc;
+  }
+
+  /* ── Vazifani joylashtirish ── */
+  function placeTask(task){
+    const{sid,tid,cid,double}=task;
+    const cands=[];
+    wd.forEach(d=>{
+      for(let p=1; p<=pc-(double?1:0); p++){
+        if(!slotValid(task,d,p)) continue;
+        const tFree=!tBusy(tid,d,p,cid) && (!double||!tBusy(tid,d,p+1,cid));
+        const sc=scoreSlot(task,d,p) + (tFree?0:200); // Reshuffle kerak bo'lsa yuqori narx
+        cands.push({d,p,sc});
+      }
+    });
+    cands.sort((a,b)=>a.sc-b.sc); // Eng yaxshi slotni birinchi
+    for(const{d,p} of cands){
+      // O'qituvchi bo'sh yoki reshuffle qilsa bo'ladimi?
+      let ok=!tBusy(tid,d,p,cid) && (!double||!tBusy(tid,d,p+1,cid));
+      if(!ok){
+        const r1=!tBusy(tid,d,p,cid)   || reshuffle(tid,d,p,cid);
+        const r2=!double || !tBusy(tid,d,p+1,cid) || reshuffle(tid,d,p+1,cid);
+        ok=r1 && r2 && !tBusy(tid,d,p,cid) && (!double||!tBusy(tid,d,p+1,cid));
+      }
+      if(!ok) continue;
+      if(isLocked(cid,d,p)) continue;
+      if(double && isLocked(cid,d,p+1)) continue;
+      if(getEntry(cid,d,p)) continue;
+      if(double && getEntry(cid,d,p+1)) continue;
+      // Kunlik cap qayta tekshiruv (reshuffle'dan keyin o'zgarishi mumkin)
+      const cap=dailyCap(task.wh,task.isPara);
+      if(subjDayCount(sid,cid,d)+(double?2:1)>cap) continue;
+      // Joylashtiramiz
+      DB.timetable.push({classId:cid, day:d, period:p, subjectId:sid, teacherId:tid, isPara:task.isPara});
+      if(double) DB.timetable.push({classId:cid, day:d, period:p+1, subjectId:sid, teacherId:tid, isPara:true});
+      return true;
+    }
+    return false;
+  }
+
+  /* ── Eng qiyin vazifalarni birinchi joylashtirish (constraint-first) ── */
+  function sortByDifficulty(tasks){
+    return tasks.sort((a,b)=>{
+      let ca=0, cb=0;
+      wd.forEach(d=>{ for(let p=1;p<=pc;p++){ if(slotValid(a,d,p)) ca++; if(slotValid(b,d,p)) cb++; } });
+      return ca-cb; // Kamroq variant = qiyinroq = birinchi
+    });
+  }
+
+  /* ── 3 BOSQICH ISHGA TUSHIRAMIZ ── */
+  saveSnapshot('Jadval avtomatik yaratildi');
+  let totalOK=0;
+  ['core','elec','fill'].forEach(pri=>{
+    sortByDifficulty(buildTasks(pri)).forEach(task=>{
+      if(placeTask(task)) totalOK++;
+      else {
+        const s=DB.subjects.find(x=>x.id===task.sid);
+        const t=DB.teachers.find(x=>x.id===task.tid);
+        const c=DB.classes.find(x=>x.id===task.cid);
+        failLog.push({pri, teacher:t?.name||'—', subj:s?.name||'?', cls:c?.name||'?', tid:task.tid, sid:task.sid, cid:task.cid});
+      }
+    });
+  });
+
+  addAudit('Jadval yaratildi', `${DB.timetable.length} dars, ${failLog.length} muammo`, failLog.length?'warn':'ok');
+  save(); rTTGrid(); rDash(); updateConflictBadge();
+
+  /* ── Natija panelidni ko'rsatamiz ── */
+  const logEl=document.getElementById('gen-log');
+  const total=DB.timetable.length;
+  let logH='';
+  if(failLog.length){
+    const grp={};
+    failLog.forEach(f=>{ const k=f.tid+'|'+f.sid+'|'+f.cid; grp[k]=(grp[k]||{...f,cnt:0}); grp[k].cnt++; });
+    logH=`<div class="fail-box">
+      <h4>⚠️ Joylashmagan darslar balansi (${failLog.length} ta)</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:2px 8px;font-size:10px;font-weight:700;color:var(--red);opacity:.55;padding:2px 0">
+        <span>O'qituvchi</span><span>Fan</span><span>Sinf</span><span>Soat</span>
+      </div>
+      ${Object.values(grp).map(f=>`<div class="fail-row">
+        <span>👤 ${f.teacher}</span>
+        <span>📚 ${f.subj}</span>
+        <span>🏫 ${f.cls}</span>
+        <span style="font-weight:700">−${f.cnt} soat</span>
+      </div>`).join('')}
+    </div>`;
+  }
+  logH+=`<div class="alert ${failLog.length?'aw':'as'}" style="margin-bottom:10px">
+    ${failLog.length?'⚠️':'✅'} ${total} dars joylashtirildi
+    ${DB.locks.size?' · 🔒 '+DB.locks.size+' qulflangan':''}
+    ${failLog.length?' · '+failLog.length+' joylashmadi':''}
+    · ☀️ 1-qism: ${DB.timetable.filter(e=>e.period<=me).length}
+    · 🌆 2-qism: ${DB.timetable.filter(e=>e.period>me).length}
+  </div>`;
+  logEl.innerHTML=logH;
+  if(!failLog.length) setTimeout(()=>{ logEl.innerHTML=''; }, 7000);
+  toast(failLog.length ? `${total} joylashtirildi, ${failLog.length} muammo` : `✅ ${total} dars tayyor!`,
+        failLog.length ? 'warn' : 'ok');
+}
+
+function clearTT(){
+  if(!confirm('Barcha jadvalni tozalash? (Qulflangan kataklar ham tozalanadi)')) return;
+  saveSnapshot('Jadval tozalandi');
+  DB.timetable=[]; DB.locks=new Set();
+  addAudit('Jadval tozalandi', '', 'warn');
+  save(); rTTGrid(); rDash(); updateConflictBadge(); toast('Tozalandi','warn');
+}
+
+/* ══════════════════════════════════════════════════════════
+   KO'RISH VA EKSPORT SAHIFASI
+══════════════════════════════════════════════════════════ */
+let vmMode='master', vmFilter=null;
+
+function setVM(m){
+  vmMode=m; vmFilter=null;
+  document.querySelectorAll('#v-tabs .tab').forEach((b,i)=>b.classList.toggle('on',['master','class','teacher'].indexOf(m)===i));
+  rView();
+}
+function rView(){
+  const fb=document.getElementById('v-filter');
+  const bd=document.getElementById('v-body');
+  if(vmMode==='master'){
+    fb.innerHTML='';
+    rMaster(bd);
+  } else if(vmMode==='class'){
+    fb.innerHTML='<span style="font-size:11px;font-weight:600;color:var(--g500)">Sinf:</span>'+
+      DB.classes.map(c=>`<button class="btn b-sm ${vmFilter===c.id?'b-br':'b-gh'}" onclick="vmFilter='${c.id}';rView()">${c.name}</button>`).join('');
+    rClassV(bd, vmFilter);
+  } else {
+    fb.innerHTML='<span style="font-size:11px;font-weight:600;color:var(--g500)">O\'qituvchi:</span>'+
+      DB.teachers.map(t=>`<button class="btn b-sm ${vmFilter===t.id?'b-br':'b-gh'}" style="${vmFilter===t.id?'':'border-left:3px solid '+t.color}" onclick="vmFilter='${t.id}';rView()">${t.name}</button>`).join('');
+    rTeacherV(bd, vmFilter);
+  }
+}
+
+// Jadval katak HTML generatori (View va Master uchun qayta ishlatiladi)
+function slotBlock(cid, di, p){
+  const e=getEntry(cid,di,p);
+  if(e){
+    const t=DB.teachers.find(x=>x.id===e.teacherId);
+    const s=DB.subjects.find(x=>x.id===e.subjectId);
+    const bg=t?.color||s?.color||'#888';
+    const tc=contrast(bg);
+    const lk=isLocked(cid,di,p);
+    return `<td style="padding:1px"><div style="background:${bg};color:${tc};border-radius:5px;padding:3px 5px;font-size:10.5px;font-weight:700;min-height:40px;position:relative">
+      <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        ${s?.name||'?'}${e.isPara?'<span class="dbl">2x</span>':''}${lk?' 🔒':''}
+      </div>
+      <div style="font-size:9.5px;opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t?.name||''}</div>
+    </div></td>`;
+  }
+  return `<td><div style="min-height:40px;background:var(--g50);border-radius:5px;border:1px dashed var(--g200)"></div></td>`;
+}
+
+function rMaster(el){
+  if(!DB.timetable.length){
+    el.innerHTML='<div class="empty"><h3>Jadval bo\'sh</h3><p>Avval yarating</p></div>'; return;
+  }
+  const wd=getWD(), pc=getPC(), me=getME();
+  let h='<div id="vx">';
+  wd.forEach(di=>{
+    if(!DB.timetable.some(e=>e.day===di)) return;
+    h+=`<div style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:800;color:var(--br);padding:4px 0;border-bottom:2px solid var(--or);margin-bottom:5px">
+        ${ALL_DAYS[di]} — ${DB.timetable.filter(e=>e.day===di).length} dars
+      </div>
+      <div style="overflow-x:auto"><table class="tt">
+        <thead><tr><th>Soat</th>${DB.classes.map(c=>`<th>${c.name}</th>`).join('')}</tr></thead>
+        <tbody>`;
+    for(let p=1;p<=pc;p++){
+      if(p===me+1) h+=`<tr class="lunch-row"><td>🍽 Tushlik</td><td colspan="${DB.classes.length}">${LUNCH.s}–${LUNCH.e} Tushlik tanaffus</td></tr>`;
+      h+=`<tr><td class="pcell">${p}<small>${pTime(p)}</small></td>`;
+      DB.classes.forEach(cls=>h+=slotBlock(cls.id,di,p));
+      h+='</tr>';
+    }
+    h+='</tbody></table></div></div>';
+  });
+  el.innerHTML=h+'</div>';
+}
+
+function rClassV(el, cid){
+  if(!cid){ el.innerHTML='<div class="empty"><p>Sinfni tanlang</p></div>'; return; }
+  const cls=DB.classes.find(c=>c.id===cid);
+  const wd=getWD(), pc=getPC(), me=getME();
+  // Haftalik umumiy statistika
+  const totalH=DB.timetable.filter(e=>e.classId===cid).length;
+  let h=`<div id="vx">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="width:38px;height:38px;border-radius:8px;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">${cls?.name}</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--br)">${cls?.name} sinfi — Haftalik dars jadvali</div>
+        <div style="font-size:10.5px;color:var(--g400)">Jami: ${totalH} dars · Max: ${clsMax(cid)}/kun</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto"><table class="tt">
+    <thead><tr><th>Soat</th>${wd.map(i=>`<th>${ALL_DAYS[i]}</th>`).join('')}</tr></thead><tbody>`;
+  for(let p=1;p<=pc;p++){
+    if(p===me+1) h+=`<tr class="lunch-row"><td>🍽</td><td colspan="${wd.length}">${LUNCH.s}–${LUNCH.e} Tushlik</td></tr>`;
+    h+=`<tr><td class="pcell">${p}<small>${pTime(p)}</small></td>`;
+    wd.forEach(di=>h+=slotBlock(cid,di,p));
+    h+='</tr>';
+  }
+  el.innerHTML=h+'</tbody></table></div></div>';
+}
+
+function rTeacherV(el, tid){
+  if(!tid){ el.innerHTML='<div class="empty"><p>O\'qituvchini tanlang</p></div>'; return; }
+  const t=DB.teachers.find(x=>x.id===tid);
+  const ents=DB.timetable.filter(e=>e.teacherId===tid).sort((a,b)=>a.day-b.day||a.period-b.period);
+  if(!ents.length){ el.innerHTML=`<div class="empty"><h3>${t?.name}</h3><p>Dars yo'q</p></div>`; return; }
+  const wd=getWD(), pc=getPC(), me=getME();
+  // Haftalik summary
+  const dayCount={};
+  wd.forEach(di=>{ dayCount[di]=ents.filter(e=>e.day===di).length; });
+  const totalH=ents.length;
+  const assigned=Object.values(DB.wlMap).filter(w=>w.teacherId===tid).reduce((a,w)=>a+w.weeklyHours,0);
+
+  let h=`<div id="vx">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="ava" style="background:${t?.color};width:38px;height:38px;font-size:13px;border-radius:8px">
+        ${t?.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--br)">${t?.name} — Shaxsiy jadval</div>
+        <div style="font-size:10.5px;color:var(--g400)">
+          ${totalH} dars · Yuklama: ${assigned}h · ${t?.pacing==='alt'?'🔀 Kunora':'📅 Ketma-ket'}
+        </div>
+      </div>
+    </div>
+    <!-- Haftalik ko'rinish (visual) -->
+    <div style="display:grid;grid-template-columns:repeat(${wd.length},1fr);gap:4px;margin-bottom:12px">
+      ${wd.map(di=>`<div style="text-align:center">
+        <div style="font-size:9.5px;font-weight:700;color:var(--g400);margin-bottom:3px">${ALL_DAYS_S[di]}</div>
+        <div style="font-size:18px;font-weight:800;color:${t?.color}">${dayCount[di]}</div>
+        <div style="font-size:9px;color:var(--g400)">dars</div>
+      </div>`).join('')}
+    </div>
+    <!-- Batafsil ro'yxat -->
+    <table class="vtbl">
+      <thead><tr><th>Kun</th><th>Soat</th><th>Vaqt</th><th>Sinf</th><th>Fan</th><th>Tur</th></tr></thead>
+      <tbody>`;
+  ents.forEach(e=>{
+    const s=DB.subjects.find(x=>x.id===e.subjectId);
+    const c=DB.classes.find(x=>x.id===e.classId);
+    const lk=isLocked(e.classId,e.day,e.period);
+    h+=`<tr>
+      <td style="font-weight:600">${ALL_DAYS[e.day]}</td>
+      <td style="font-weight:700;color:var(--or)">${e.period}-soat</td>
+      <td style="font-size:10.5px;color:var(--g500)">${pTime(e.period)}</td>
+      <td><b>${c?.name||'?'}</b></td>
+      <td><span style="display:inline-flex;align-items:center;gap:5px">
+        <span class="dot" style="background:${s?.color||'#888'}"></span>
+        <b>${s?.name||'?'}</b>
+        ${e.isPara?'<span class="dbl" style="background:var(--or);color:#fff">2x</span>':''}
+        ${lk?' 🔒':''}
+      </span></td>
+      <td>${s?`<span class="bdg ${s.priority==='core'?'pc':s.priority==='elec'?'pe':'pf'}">${PL[s.priority]}</span>`:''}</td>
+    </tr>`;
+  });
+  el.innerHTML=h+'</tbody></table></div>';
+}
+
+/* ── Eksport funksiyalari ── */
+async function expPDF(){
+  const el=document.getElementById('vx');
+  if(!el){ toast('Ko\'rinishni tanlang','warn'); return; }
+  toast('PDF tayyorlanmoqda…');
+  try{
+    const c=await html2canvas(el,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
+    const img=c.toDataURL('image/png');
+    const{jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'mm',format:'a4'});
+    const w=pdf.internal.pageSize.getWidth(), h=c.height*w/c.width;
+    pdf.addImage(img,'PNG',0,0,w,h);
+    pdf.save('zamaxshariy-jadval.pdf');
+    addAudit('PDF eksport qilindi', vmMode+' ko\'rinish', 'ok');
+    toast('PDF saqlandi','ok');
+  }catch(e){ toast('PDF xato: '+e.message,'err'); }
+}
+
+function printView(){
+  window.print();
+  addAudit('Chop etildi', vmMode+' ko\'rinish', 'ok');
+}
+
+// JSON ni ko'rinish sifatida eksport qilish
+function expViewJSON(){
+  const data={
+    meta: {exported: new Date().toISOString(), view: vmMode, filter: vmFilter},
+    timetable: DB.timetable,
+    teachers: DB.teachers,
+    subjects: DB.subjects,
+    classes: DB.classes
+  };
+  const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download=`jadval-${vmMode}.json`; a.click();
+  toast('JSON saqlandi','ok');
+}
+
+function expXLS(){
+  if(!DB.timetable.length){ toast('Jadval bo\'sh','warn'); return; }
+  const wb=XLSX.utils.book_new();
+  const wd=getWD(), pc=getPC(), me=getME();
+  if(vmMode==='master'||vmMode==='class'){
+    const cls2=vmMode==='class'&&vmFilter?DB.classes.filter(c=>c.id===vmFilter):DB.classes;
+    cls2.forEach(c=>{
+      const rows=[['Soat','Vaqt',...wd.map(i=>ALL_DAYS[i])]];
+      for(let p=1;p<=pc;p++){
+        if(p===me+1) rows.push(['— TUSHLIK —',`${LUNCH.s}–${LUNCH.e}`,...wd.map(()=>'')]);
+        const row=[`${p}-soat`, pTime(p)];
+        wd.forEach(di=>{
+          const e=getEntry(c.id,di,p);
+          if(e){
+            const s=DB.subjects.find(x=>x.id===e.subjectId);
+            const t=DB.teachers.find(x=>x.id===e.teacherId);
+            row.push(`${s?.name||'?'} (${t?.name||'?'})${e.isPara?' [2x]':''}${isLocked(c.id,di,p)?' [🔒]':''}`);
+          } else row.push('');
+        });
+        rows.push(row);
+      }
+      const ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:7},{wch:13},...wd.map(()=>({wch:22}))];
+      XLSX.utils.book_append_sheet(wb, ws, c.name);
+    });
+  } else {
+    const tlist=vmFilter?DB.teachers.filter(t=>t.id===vmFilter):DB.teachers;
+    tlist.forEach(t=>{
+      const ents=DB.timetable.filter(e=>e.teacherId===t.id).sort((a,b)=>a.day-b.day||a.period-b.period);
+      const rows=[['Kun','Soat','Vaqt','Sinf','Fan','Tur','Qulf']];
+      ents.forEach(e=>{
+        const s=DB.subjects.find(x=>x.id===e.subjectId);
+        const c=DB.classes.find(x=>x.id===e.classId);
+        rows.push([
+          ALL_DAYS[e.day], `${e.period}-soat`, pTime(e.period),
+          c?.name||'?', s?.name||'?',
+          PL[s?.priority||'core']+(e.isPara?' [2x]':''),
+          isLocked(e.classId,e.day,e.period)?'🔒':''
+        ]);
+      });
+      const ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:13},{wch:7},{wch:13},{wch:7},{wch:18},{wch:14},{wch:5}];
+      XLSX.utils.book_append_sheet(wb, ws, t.name.slice(0,30).replace(/[:\\/?\*\[\]]/g,'_'));
+    });
+  }
+  XLSX.writeFile(wb,'zamaxshariy-jadval.xlsx');
+  addAudit('Excel eksport qilindi', vmMode+' ko\'rinish', 'ok');
+  toast('Excel saqlandi','ok');
+}
+
+/* ══════════════════════════════════════════════════════════
+   HISOBOTLAR SAHIFASI
+══════════════════════════════════════════════════════════ */
+function rReports(){
+  const wd=getWD(), me=getME();
+  let html=`<div style="font-size:13px;font-weight:700;color:var(--br);margin-bottom:12px">📋 Hisobotlar</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">`;
+  // O'qituvchi hisoboti
+  html+=`<div class="card">
+    <div class="ch"><span class="ch-t">👤 O'qituvchi haftalik hisoboti</span></div>
+    <div class="cb" style="padding:0">
+    <table class="vtbl">
+      <thead><tr><th>O'qituvchi</th><th>Jami dars</th><th>☀️ 1-qism</th><th>🌆 2-qism</th>${wd.map(di=>`<th>${ALL_DAYS_S[di]}</th>`).join('')}</tr></thead>
+      <tbody>
+      ${DB.teachers.map(t=>{
+        const ents=DB.timetable.filter(e=>e.teacherId===t.id);
+        const mor =ents.filter(e=>e.period<=me).length;
+        const aft =ents.filter(e=>e.period>me).length;
+        const days=wd.map(di=>ents.filter(e=>e.day===di).length);
+        return `<tr>
+          <td><span style="display:inline-flex;align-items:center;gap:5px"><span class="dot" style="background:${t.color}"></span><b>${t.name}</b></span></td>
+          <td style="text-align:center;font-weight:700;color:var(--or)">${ents.length}</td>
+          <td style="text-align:center">${mor}</td>
+          <td style="text-align:center">${aft}</td>
+          ${days.map(d=>`<td style="text-align:center">${d||'—'}</td>`).join('')}
+        </tr>`;
+      }).join('')||'<tr><td colspan="99" style="text-align:center;padding:16px;color:var(--g400)">O\'qituvchi yo\'q</td></tr>'}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+  // Sinf hisoboti
+  html+=`<div class="card">
+    <div class="ch"><span class="ch-t">🏫 Sinf haftalik hisoboti</span></div>
+    <div class="cb" style="padding:0">
+    <table class="vtbl">
+      <thead><tr><th>Sinf</th><th>Jami dars</th><th>☀️ 1-qism</th><th>🌆 2-qism</th><th>Yuklama %</th></tr></thead>
+      <tbody>
+      ${DB.classes.map(c=>{
+        const ents=DB.timetable.filter(e=>e.classId===c.id);
+        const mor =ents.filter(e=>e.period<=me).length;
+        const aft =ents.filter(e=>e.period>me).length;
+        const cwls=Object.entries(DB.wlMap).filter(([k])=>k.startsWith(c.id+'_'));
+        const total=cwls.reduce((s,[,w])=>s+w.weeklyHours,0);
+        const pct2 =total>0?Math.round(ents.length/total*100):0;
+        return `<tr>
+          <td><b>${c.name}</b></td>
+          <td style="text-align:center;font-weight:700;color:var(--or)">${ents.length}/${total}</td>
+          <td style="text-align:center">${mor}</td>
+          <td style="text-align:center">${aft}</td>
+          <td style="text-align:center">
+            <div class="prog" style="height:5px;display:inline-block;width:60px;vertical-align:middle">
+              <div class="prf" style="width:${pct2}%;background:var(--or)"></div>
+            </div>
+            <span style="font-size:10px;margin-left:4px">${pct2}%</span>
+          </td>
+        </tr>`;
+      }).join('')||'<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--g400)">Sinf yo\'q</td></tr>'}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+  // Fan taqsimlash
+  html+=`<div class="card" style="grid-column:1/-1">
+    <div class="ch"><span class="ch-t">📚 Fan bo'yicha umumiy hisobot</span></div>
+    <div class="cb" style="padding:0">
+    <table class="vtbl">
+      <thead><tr><th>Fan</th><th>Ustuvorlik</th><th>Jami yuklama</th><th>Joylashtirilgan</th><th>Qolgan</th><th>Bajarilish</th></tr></thead>
+      <tbody>
+      ${DB.subjects.map(s=>{
+        const allWls=Object.entries(DB.wlMap).filter(([k])=>k.includes('_'+s.id));
+        const totalH=allWls.reduce((a,[,w])=>a+w.weeklyHours,0);
+        const placed=DB.timetable.filter(e=>e.subjectId===s.id).length;
+        const rem=totalH-placed;
+        const pct3=totalH>0?Math.round(placed/totalH*100):0;
+        return `<tr>
+          <td><span style="display:inline-flex;align-items:center;gap:5px"><span class="dot" style="background:${s.color}"></span><b>${s.name}</b></span></td>
+          <td><span class="bdg ${s.priority==='core'?'pc':s.priority==='elec'?'pe':'pf'}">${PL[s.priority]}</span></td>
+          <td style="text-align:center">${totalH}</td>
+          <td style="text-align:center;color:var(--grn);font-weight:700">${placed}</td>
+          <td style="text-align:center;color:${rem>0?'var(--red)':'var(--g400)'};font-weight:700">${rem}</td>
+          <td>
+            <div class="prog" style="height:5px;display:inline-block;width:80px;vertical-align:middle">
+              <div class="prf" style="width:${pct3}%;background:${s.color}"></div>
+            </div>
+            <span style="font-size:10px;margin-left:4px">${pct3}%</span>
+          </td>
+        </tr>`;
+      }).join('')||'<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--g400)">Fan yo\'q</td></tr>'}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+  html+='</div>';
+  html+=`<div class="row" style="margin-top:12px">
+    <button class="btn b-br" onclick="expXLS()">📊 Excel eksport</button>
+    <button class="btn b-yel" onclick="printView()">🖨 Chop etish</button>
+  </div>`;
+  document.getElementById('page-reports').innerHTML=html;
+}
+
+/* ══════════════════════════════════════════════════════════
+   DEMO MA'LUMOTLARI
+══════════════════════════════════════════════════════════ */
+function seedDemo(){
+  if(Object.keys(DB.wlMap).length && !confirm('Demo ma\'lumotlarni yuklash? (Joriy ma\'lumotlar o\'chiriladi)')) return;
+  DB={
+    subjects:[], teachers:[], classes:[], wlMap:{}, timetable:[],
+    locks:new Set(),
+    settings:{workDays:[0,1,2,3,4],maxPeriods:8,periodCount:8,morEnd:4,periodTimes:JSON.parse(JSON.stringify(DEF_TIMES))},
+    audit:[]
+  };
+  _nid=1; _ci=0; _history=[]; _future=[];
+  // Fanlar
+  const subjDefs=[
+    {n:'Matematika',      c:'#3B82F6', pri:'core', sh:'mor', pMin:1, pMax:4},
+    {n:"O'zbek tili",     c:'#10B981', pri:'core', sh:'mor', pMin:1, pMax:4},
+    {n:'Ingliz tili',     c:'#6366F1', pri:'core', sh:'any'},
+    {n:'Fizika',          c:'#EF4444', pri:'core', sh:'aft', pMin:5, pMax:8},
+    {n:'Tarix',           c:'#F59E0B', pri:'elec', sh:'any'},
+    {n:'Kimyo',           c:'#84CC16', pri:'elec', sh:'aft'},
+    {n:'Informatika',     c:'#EC4899', pri:'elec', sh:'aft'},
+    {n:'Tarbiya soati',   c:'#A78BFA', pri:'fill', sh:'any'},
+  ];
+  subjDefs.forEach(d=>DB.subjects.push({id:uid(),name:d.n,color:d.c,priority:d.pri,shift:d.sh,prefPMin:d.pMin||null,prefPMax:d.pMax||null}));
+  // Sinflar (parallel guruhlar bilan)
+  DB.classes=[
+    {id:'c5a',name:'5A',maxPerDay:6,parallelIds:['c5b']},
+    {id:'c5b',name:'5B',maxPerDay:6,parallelIds:['c5a']},
+    {id:'c6a',name:'6A',maxPerDay:7,parallelIds:['c6b']},
+    {id:'c6b',name:'6B',maxPerDay:7,parallelIds:['c6a']}
+  ];
+  function sid(n){ return DB.subjects.find(s=>s.name===n)?.id; }
+  // O'qituvchilar — 5A/5B Math → t1(Aziz), 6A/6B Math → t5(Sardor)
+  DB.teachers=[
+    {id:'t1',name:'Aziz Karimov',    color:'#FF6E00',pacing:'alt', constraints:{'0_1':true,'4_8':true},subjectIds:[sid('Matematika'),sid('Fizika')],              maxHours:30},
+    {id:'t2',name:'Malika Yusupova', color:'#6366F1',pacing:'cons',constraints:{'3_7':true},             subjectIds:[sid("O'zbek tili")],                          maxHours:28},
+    {id:'t3',name:'Bobur Toshmatov', color:'#10B981',pacing:'alt', constraints:{},                       subjectIds:[sid('Ingliz tili'),sid('Tarix')],              maxHours:32},
+    {id:'t4',name:'Nilufar Rashidova',color:'#EC4899',pacing:'cons',constraints:{},                      subjectIds:[sid('Kimyo'),sid('Informatika')],              maxHours:25},
+    {id:'t5',name:'Sardor Xolmatov', color:'#F59E0B',pacing:'alt', constraints:{},                       subjectIds:[sid('Matematika'),sid('Tarbiya soati')],       maxHours:30},
+  ];
+  // Yuklama matritsasi — composite key: classId_subjectId
+  const wl=[
+    // Matematika: 5A,5B → Aziz; 6A,6B → Sardor (TURLI O'QITUVCHI)
+    {cid:'c5a',sn:'Matematika',    h:5, tid:'t1',para:true},
+    {cid:'c5b',sn:'Matematika',    h:5, tid:'t1',para:true},
+    {cid:'c6a',sn:'Matematika',    h:5, tid:'t5',para:true},
+    {cid:'c6b',sn:'Matematika',    h:5, tid:'t5',para:false},
+    {cid:'c5a',sn:"O'zbek tili",   h:4, tid:'t2',para:true},
+    {cid:'c5b',sn:"O'zbek tili",   h:4, tid:'t2',para:false},
+    {cid:'c6a',sn:"O'zbek tili",   h:4, tid:'t2',para:false},
+    {cid:'c6b',sn:"O'zbek tili",   h:4, tid:'t2',para:false},
+    {cid:'c5a',sn:'Ingliz tili',   h:4, tid:'t3',para:false},
+    {cid:'c5b',sn:'Ingliz tili',   h:4, tid:'t3',para:false},
+    {cid:'c6a',sn:'Ingliz tili',   h:4, tid:'t3',para:false},
+    {cid:'c6b',sn:'Ingliz tili',   h:4, tid:'t3',para:false},
+    {cid:'c5a',sn:'Fizika',        h:3, tid:'t1',para:false},
+    {cid:'c5b',sn:'Fizika',        h:3, tid:'t1',para:false},
+    {cid:'c6a',sn:'Fizika',        h:3, tid:'t1',para:false},
+    {cid:'c5a',sn:'Tarix',         h:2, tid:'t3',para:false},
+    {cid:'c6a',sn:'Tarix',         h:2, tid:'t3',para:false},
+    {cid:'c6b',sn:'Tarix',         h:2, tid:'t3',para:false},
+    {cid:'c6a',sn:'Kimyo',         h:2, tid:'t4',para:false},
+    {cid:'c6b',sn:'Kimyo',         h:2, tid:'t4',para:false},
+    {cid:'c5a',sn:'Informatika',   h:2, tid:'t4',para:false},
+    {cid:'c6a',sn:'Informatika',   h:2, tid:'t4',para:false},
+    {cid:'c5a',sn:'Tarbiya soati', h:1, tid:'t5',para:false},
+    {cid:'c5b',sn:'Tarbiya soati', h:1, tid:'t5',para:false},
+    {cid:'c6a',sn:'Tarbiya soati', h:1, tid:'t5',para:false},
+    {cid:'c6b',sn:'Tarbiya soati', h:1, tid:'t5',para:false},
+  ];
+  wl.forEach(w=>{
+    const si=sid(w.sn);
+    if(si) DB.wlMap[wlKey(w.cid,si)]={weeklyHours:w.h, teacherId:w.tid, isPara:w.para};
+  });
+  addAudit('Demo ma\'lumotlar yuklandi', '4 sinf, 5 o\'qituvchi, 8 fan', 'ok');
+  save();
+  nav('dash');
+  toast('🎉 Demo yuklandi! 5A/5B Math=Aziz, 6A/6B Math=Sardor, Parallel: 5A⇔5B, 6A⇔6B','ok');
+}
+
+/* ══════════════════════════════════════════════════════════
+   KLAVIATURA QISQARTIRISHLAR
+══════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    closePop(); clearSearch();
+    document.querySelectorAll('.ov:not(.off)').forEach(m=>m.classList.add('off'));
+    if(_copyMode||_swapMode){ _copyMode=false;_swapMode=false;_copySrc=null;_swapSrc=null; updateModeUI(); rTTGrid(); }
+  }
+  if(e.ctrlKey && e.key==='z' && !e.shiftKey){
+    const inp=document.activeElement;
+    if(!inp||!['INPUT','TEXTAREA','SELECT'].includes(inp.tagName)){ e.preventDefault(); doUndo(); }
+  }
+  if((e.ctrlKey&&e.key==='y')||(e.ctrlKey&&e.shiftKey&&e.key==='z')){
+    const inp=document.activeElement;
+    if(!inp||!['INPUT','TEXTAREA','SELECT'].includes(inp.tagName)){ e.preventDefault(); doRedo(); }
+  }
+  if(e.ctrlKey&&e.key==='s'){ e.preventDefault(); save(); toast('Saqlandi','ok'); updateStatusBar(); }
+  if(e.ctrlKey&&e.key==='f'){ e.preventDefault(); const gs=document.getElementById('global-search'); if(gs){gs.focus();gs.select();} }
+  // C — nusxalash rejimi
+  if(e.key==='c'&&!e.ctrlKey&&!e.metaKey&&CUR==='timetable'){
+    const inp=document.activeElement;
+    if(!inp||!['INPUT','TEXTAREA','SELECT'].includes(inp.tagName)) toggleCopyMode();
+  }
+  // S — almashtirish rejimi
+  if(e.key==='s'&&!e.ctrlKey&&!e.metaKey&&CUR==='timetable'){
+    const inp=document.activeElement;
+    if(!inp||!['INPUT','TEXTAREA','SELECT'].includes(inp.tagName)) toggleSwapMode();
+  }
+});
+
+/* ══════════════════════════════════════════════════════════
+   TUNGI REJIM
+══════════════════════════════════════════════════════════ */
+function toggleDark(){
+  const d = document.body.classList.toggle('dark');
+  localStorage.setItem('zi-dark', d?'1':'0');
+  document.getElementById('theme-btn').textContent = d ? '☀️' : '🌙';
+  toast(d?'Tungi rejim yoqildi':'Kunduzgi rejim','ok');
+}
+function loadDark(){
+  if(localStorage.getItem('zi-dark')==='1'){
+    document.body.classList.add('dark');
+    const btn=document.getElementById('theme-btn');
+    if(btn) btn.textContent='☀️';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOBIL SIDEBAR
+══════════════════════════════════════════════════════════ */
+function toggleMobSidebar(){
+  const sb=document.querySelector('.sb');
+  const ov=document.getElementById('mob-overlay');
+  const open=sb.classList.toggle('mob-open');
+  if(ov) ov.style.display=open?'block':'none';
+}
+
+/* ══════════════════════════════════════════════════════════
+   JADVALDA YORITISH — TUZATILGAN VERSIYA
+   Eski versiya onclick attributedan qidirardi (xato).
+   Yangi versiya: data-* atribut bilan ishlaydi.
+══════════════════════════════════════════════════════════ */
+function highlightInGrid(q){
+  document.querySelectorAll('.slot.highlighted').forEach(s=>s.classList.remove('highlighted'));
+  if(!q.trim()) return;
+  const ql=q.toLowerCase();
+  // Barcha slot elementlarini data-cid, data-day, data-period bilan topamiz
+  document.querySelectorAll('.slot.fill[data-cid]').forEach(el=>{
+    const cid=el.dataset.cid, day=parseInt(el.dataset.day), per=parseInt(el.dataset.per);
+    const e=getEntry(cid,day,per);
+    if(!e) return;
+    const t=DB.teachers.find(x=>x.id===e.teacherId);
+    const s=DB.subjects.find(x=>x.id===e.subjectId);
+    const c=DB.classes.find(x=>x.id===e.classId);
+    if([t?.name,s?.name,c?.name].filter(Boolean).some(n=>n.toLowerCase().includes(ql)))
+      el.classList.add('highlighted');
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   NUSXALASH REJIMI (Copy-Paste)
+   Bir katakni bosib, boshqa bo'sh katakka nusxalaymiz.
+══════════════════════════════════════════════════════════ */
+let _copyMode=false, _copySrc=null;
+function toggleCopyMode(){
+  _swapMode=false; _swapSrc=null;
+  _copyMode=!_copyMode;
+  if(!_copyMode) _copySrc=null;
+  updateModeUI();
+  if(_copyMode) toast('📋 Nusxalash rejimi: avval manbani, keyin manzilni bosing (Esc - bekor)','ok');
+  else toast('Nusxalash rejimi o\'chirildi','warn');
+}
+function handleCopyClick(cid,day,per){
+  if(!_copySrc){
+    const e=getEntry(cid,day,per);
+    if(!e){ toast('Bo\'sh katak nusxalab bo\'lmaydi','err'); return; }
+    _copySrc={cid,day,per};
+    toast('✅ Manba tanlandi. Endi manzil katakni bosing','ok');
+    rTTGrid(); return;
+  }
+  // Manzil
+  if(_copySrc.cid===cid&&_copySrc.day===day&&_copySrc.per===per){ toast('O\'z-o\'ziga nusxa bo\'lmaydi','warn'); return; }
+  if(isLocked(cid,day,per)){ toast('🔒 Manzil qulflangan','err'); return; }
+  const src=getEntry(_copySrc.cid,_copySrc.day,_copySrc.per);
+  if(!src){ toast('Manba topilmadi','err'); _copySrc=null; rTTGrid(); return; }
+  // Tekshiruvlar
+  if(src.teacherId&&tBusy(src.teacherId,day,per,cid)){ toast('O\'qituvchi bu vaqtda band!','err'); return; }
+  const w=DB.wlMap[wlKey(cid,src.subjectId)];
+  if(!w){ toast('Bu sinf uchun bu fan yuklamasi yo\'q','err'); return; }
+  saveSnapshot('Nusxalash: '+ALL_DAYS[_copySrc.day]+' → '+ALL_DAYS[day]);
+  DB.timetable=DB.timetable.filter(e=>!(e.classId===cid&&e.day===day&&e.period===per));
+  DB.timetable.push({...src, classId:cid, day, period:per});
+  const s=DB.subjects.find(x=>x.id===src.subjectId);
+  addAudit('Nusxalash',''+s?.name+' → '+ALL_DAYS[day]+' '+per+'-soat','ok');
+  _copySrc=null; save(); rTTGrid();
+  toast('✅ Nusxalandi','ok');
+}
+
+/* ══════════════════════════════════════════════════════════
+   ALMASHTIRISH REJIMI (Swap)
+   Ikkita katakni bir-biri bilan almashtiramiz.
+══════════════════════════════════════════════════════════ */
+let _swapMode=false, _swapSrc=null;
+function toggleSwapMode(){
+  _copyMode=false; _copySrc=null;
+  _swapMode=!_swapMode;
+  if(!_swapMode) _swapSrc=null;
+  updateModeUI();
+  if(_swapMode) toast('⇄ Almashtirish rejimi: ikkita katakni tanlang (Esc - bekor)','ok');
+  else toast('Almashtirish rejimi o\'chirildi','warn');
+}
+function handleSwapClick(cid,day,per){
+  if(!_swapSrc){
+    _swapSrc={cid,day,per};
+    toast('✅ Birinchi katak tanlandi. Ikkinchisini bosing','ok');
+    rTTGrid(); return;
+  }
+  if(_swapSrc.cid===cid&&_swapSrc.day===day&&_swapSrc.per===per){ toast('Bir xil katak','warn'); return; }
+  if(isLocked(cid,day,per)||isLocked(_swapSrc.cid,_swapSrc.day,_swapSrc.per)){
+    toast('🔒 Qulflangan katak almashtirib bo\'lmaydi','err'); return;
+  }
+  const eA=getEntry(_swapSrc.cid,_swapSrc.day,_swapSrc.per);
+  const eB=getEntry(cid,day,per);
+  saveSnapshot('Almashtirish');
+  // A ni o'chirib B joyiga, B ni o'chirib A joyiga
+  DB.timetable=DB.timetable.filter(e=>
+    !(e.classId===_swapSrc.cid&&e.day===_swapSrc.day&&e.period===_swapSrc.per)&&
+    !(e.classId===cid&&e.day===day&&e.period===per)
+  );
+  if(eA) DB.timetable.push({...eA, classId:cid, day, period:per});
+  if(eB) DB.timetable.push({...eB, classId:_swapSrc.cid, day:_swapSrc.day, period:_swapSrc.per});
+  addAudit('Katak almashtirildi',ALL_DAYS[_swapSrc.day]+' '+_swapSrc.per+'-soat ⇄ '+ALL_DAYS[day]+' '+per+'-soat','ok');
+  _swapSrc=null; save(); rTTGrid(); toast('⇄ Almashtirildi','ok');
+}
+
+function updateModeUI(){
+  const cb=document.getElementById('copy-mode-btn');
+  const sb=document.getElementById('swap-mode-btn');
+  if(cb) cb.style.background=_copyMode?'var(--blu)':''
+  if(cb) cb.style.color=_copyMode?'#fff':''
+  if(sb) sb.style.background=_swapMode?'var(--pur)':''
+  if(sb) sb.style.color=_swapMode?'#fff':''
+  updateStatusBar();
+}
+
+/* ══════════════════════════════════════════════════════════
+   SLOT CLICK HANDLER — Copy/Swap rejimlarini hisobga oladi
+   Bu funksiya openSlot ga qo'shimcha sifatida ishlaydi.
+══════════════════════════════════════════════════════════ */
+// openSlot ni override qilamiz — rejimlarni tekshiradi
+const _origOpenSlot = openSlot;
+function openSlot(evt, cid, day, period){
+  evt.stopPropagation();
+  if(_copyMode){ handleCopyClick(cid,day,period); return; }
+  if(_swapMode){ handleSwapClick(cid,day,period); return; }
+  _origOpenSlot(evt,cid,day,period);
+}
+
+/* ══════════════════════════════════════════════════════════
+   TEZKOR MOJARO TEKSHIRUVI (validate tugmasi)
+══════════════════════════════════════════════════════════ */
+function quickValidate(){
+  const conflicts=findAllConflicts();
+  if(!conflicts.length){ toast('✅ Hech qanday mojaro yo\'q!','ok'); return; }
+  const err=conflicts.filter(c=>c.severity==='error').length;
+  const wrn=conflicts.filter(c=>c.severity==='warn').length;
+  toast(`⚠️ ${err} xato, ${wrn} ogohlantirish — Mojarolar sahifasiga o'ting`,'warn');
+  updateConflictBadge();
+}
+
+/* ══════════════════════════════════════════════════════════
+   YARIM AVTOMATIK GENERATSIYA
+══════════════════════════════════════════════════════════ */
+let _pgenClasses=new Set(), _pgenSubjects=new Set();
+function openPartialGen(){
+  _pgenClasses=new Set(DB.classes.map(c=>c.id));
+  _pgenSubjects=new Set(['core','elec','fill']);
+  const cc=document.getElementById('pgen-classes');
+  const sc=document.getElementById('pgen-subjects');
+  cc.innerHTML=DB.classes.map(c=>`
+    <label class="pgen-item on" onclick="togglePGen('c','${c.id}',this)">
+      <input type="checkbox" checked/>${c.name}
+    </label>`).join('');
+  sc.innerHTML=[
+    {k:'core',l:'⭐ Asosiy'},{k:'elec',l:'📘 Qo\'shimcha'},{k:'fill',l:'◦ Zaxira'}
+  ].map(p=>`
+    <label class="pgen-item on" onclick="togglePGen('s','${p.k}',this)">
+      <input type="checkbox" checked/>${p.l}
+    </label>`).join('');
+  openM('m-pgen');
+}
+function togglePGen(type,key,el){
+  const set=type==='c'?_pgenClasses:_pgenSubjects;
+  if(set.has(key)){ set.delete(key); el.classList.remove('on'); }
+  else { set.add(key); el.classList.add('on'); }
+}
+function runPartialGen(){
+  closeM('m-pgen');
+  if(!_pgenClasses.size||!_pgenSubjects.size){ toast('Kamida 1 sinf va 1 ustuvorlik tanlang','err'); return; }
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true; btn.textContent='⏳ Yaratilmoqda…';
+  setTimeout(()=>{
+    try{ doPartialGen([..._pgenClasses],[..._pgenSubjects]); }
+    catch(e){ toast('Xato: '+e.message,'err'); console.error(e); }
+    btn.disabled=false; btn.textContent='⚡ Yaratish';
+  },30);
+}
+
+/* ══════════════════════════════════════════════════════════
+   YARIM AVTOMATIK ALGORITM — faqat tanlangan kesma
+══════════════════════════════════════════════════════════ */
+function doPartialGen(selClasses, selPriorities){
+  const wd=getWD(), pc=getPC(), me=getME();
+  // Faqat tanlangan sinflarning qulflanmagan darslarini o'chiramiz
+  DB.timetable=DB.timetable.filter(e=>
+    !selClasses.includes(e.classId) || isLocked(e.classId,e.day,e.period)
+  );
+  const failLog=[];
+
+  function buildTasksPartial(priority){
+    const tasks=[];
+    Object.entries(DB.wlMap).forEach(([k,w])=>{
+      const[cid,...sidParts]=k.split('_');
+      const sid=sidParts.join('_');
+      if(!selClasses.includes(cid)) return;
+      const subj=DB.subjects.find(s=>s.id===sid);
+      if(!subj||subj.priority!==priority||!selPriorities.includes(priority)) return;
+      if(!w.teacherId) return;
+      const already=DB.timetable.filter(e=>e.subjectId===sid&&e.classId===cid).length;
+      let rem=w.weeklyHours-already;
+      if(rem<=0) return;
+      const nPairs=w.isPara?Math.floor(rem/2):0;
+      for(let i=0;i<nPairs;i++){tasks.push({sid,tid:w.teacherId,cid,wh:w.weeklyHours,isPara:w.isPara,double:true});rem-=2;}
+      for(let i=0;i<rem;i++) tasks.push({sid,tid:w.teacherId,cid,wh:w.weeklyHours,isPara:w.isPara,double:false});
+    });
+    return tasks;
+  }
+
+  // Asosiy algoritmdan slotValid va placeTask funksiyalarini ishlatamiz
+  saveSnapshot('Qisman generatsiya');
+  let totalOK=0;
+  selPriorities.forEach(pri=>{
+    buildTasksPartial(pri).forEach(task=>{
+      if(placeTask(task)) totalOK++;
+      else{
+        const s=DB.subjects.find(x=>x.id===task.sid);
+        const t=DB.teachers.find(x=>x.id===task.tid);
+        const c=DB.classes.find(x=>x.id===task.cid);
+        failLog.push({teacher:t?.name||'—',subj:s?.name||'?',cls:c?.name||'?'});
+      }
+    });
+  });
+  // placeTask — asosiy doGen dan ko'chirilgan (closures ishlamaydi, shuning uchun qayta yozamiz)
+  function placeTask(task){
+    const{sid,tid,cid,double}=task;
+    const cands=[];
+    wd.forEach(d=>{
+      for(let p=1;p<=pc-(double?1:0);p++){
+        if(!slotValid(task,d,p)) continue;
+        const tFree=!tBusy(tid,d,p,cid)&&(!double||!tBusy(tid,d,p+1,cid));
+        cands.push({d,p,sc:scoreSlot(task,d,p)+(tFree?0:200)});
+      }
+    });
+    cands.sort((a,b)=>a.sc-b.sc);
+    for(const{d,p} of cands){
+      let ok=!tBusy(tid,d,p,cid)&&(!double||!tBusy(tid,d,p+1,cid));
+      if(!ok){
+        const r1=!tBusy(tid,d,p,cid)||reshuffle(tid,d,p,cid);
+        const r2=!double||!tBusy(tid,d,p+1,cid)||reshuffle(tid,d,p+1,cid);
+        ok=r1&&r2&&!tBusy(tid,d,p,cid)&&(!double||!tBusy(tid,d,p+1,cid));
+      }
+      if(!ok) continue;
+      if(isLocked(cid,d,p)||getEntry(cid,d,p)) continue;
+      if(double&&(isLocked(cid,d,p+1)||getEntry(cid,d,p+1))) continue;
+      const cap=dailyCap(task.wh,task.isPara);
+      if(subjDayCount(sid,cid,d)+(double?2:1)>cap) continue;
+      DB.timetable.push({classId:cid,day:d,period:p,subjectId:sid,teacherId:tid,isPara:task.isPara});
+      if(double) DB.timetable.push({classId:cid,day:d,period:p+1,subjectId:sid,teacherId:tid,isPara:true});
+      return true;
+    }
+    return false;
+  }
+
+  addAudit('Qisman generatsiya',''+selClasses.length+' sinf, '+totalOK+' joylashtirildi',failLog.length?'warn':'ok');
+  saveGenHistory(totalOK,failLog.length,selClasses.length);
+  save(); rTTGrid(); rDash(); updateStatusBar(); updateConflictBadge();
+  const logEl=document.getElementById('gen-log');
+  logEl.innerHTML=`<div class="alert ${failLog.length?'aw':'as'}" style="margin-bottom:10px">
+    ${failLog.length?'⚠️':'✅'} Qisman: ${totalOK} joylashtirildi${failLog.length?' · '+failLog.length+' joylashmadi':''}
+  </div>`;
+  setTimeout(()=>{logEl.innerHTML='';},6000);
+  toast(failLog.length?totalOK+' qisman, '+failLog.length+' muammo':'✅ '+totalOK+' qisman tayyor!',failLog.length?'warn':'ok');
+}
+
+/* ══════════════════════════════════════════════════════════
+   GENERATSIYA TARIXI
+══════════════════════════════════════════════════════════ */
+function saveGenHistory(placed,failed,classes){
+  if(!DB.genHistory) DB.genHistory=[];
+  DB.genHistory.unshift({
+    ts:Date.now(), placed, failed, classes,
+    total:DB.timetable.length
+  });
+  if(DB.genHistory.length>20) DB.genHistory=DB.genHistory.slice(0,20);
+}
+function openGenLog(){
+  if(!DB.genHistory) DB.genHistory=[];
+  renderGenLog();
+  openM('m-genlog');
+}
+function renderGenLog(){
+  const el=document.getElementById('genlog-body');
+  if(!DB.genHistory||!DB.genHistory.length){
+    el.innerHTML='<div class="empty"><h3>Tarix bo\'sh</h3><p>Hali bir marta generatsiya qilinmagan</p></div>'; return;
+  }
+  el.innerHTML=DB.genHistory.map(h=>`
+    <div class="gen-hist-item">
+      <div style="font-size:9.5px;color:var(--g400);min-width:80px">${fmtDate(h.ts)}</div>
+      <div style="flex:1">
+        <span style="font-weight:700;color:var(--grn)">+${h.placed}</span> joylashtirildi
+        ${h.failed?`<span style="color:var(--red);margin-left:6px">−${h.failed} muammo</span>`:''}
+        <span style="color:var(--g400);margin-left:6px;font-size:10.5px">${h.classes||'?'} sinf</span>
+      </div>
+      <span style="font-size:10px;color:var(--g400)">Jami: ${h.total}</span>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   IKKI SINF SOLISHTIRISH
+══════════════════════════════════════════════════════════ */
+function openCompare(){
+  const sa=document.getElementById('cmp-a');
+  const sb=document.getElementById('cmp-b');
+  const opts='<option value="">— tanlang —</option>'+
+    DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  sa.innerHTML=opts; sb.innerHTML=opts;
+  document.getElementById('cmp-body').innerHTML='<div class="empty"><p>Ikki sinfni tanlang</p></div>';
+  openM('m-compare');
+}
+function renderCompare(){
+  const cA=document.getElementById('cmp-a').value;
+  const cB=document.getElementById('cmp-b').value;
+  const el=document.getElementById('cmp-body');
+  if(!cA||!cB){ el.innerHTML='<div class="empty"><p>Ikki sinfni tanlang</p></div>'; return; }
+  const wd=getWD(), pc=getPC(), me=getME();
+  const clA=DB.classes.find(c=>c.id===cA), clB=DB.classes.find(c=>c.id===cB);
+  function cellHtml(cid,di,p){
+    const e=getEntry(cid,di,p);
+    if(!e) return `<div style="min-height:36px;background:var(--g50);border-radius:4px;border:1px dashed var(--g200)"></div>`;
+    const t=DB.teachers.find(x=>x.id===e.teacherId);
+    const s=DB.subjects.find(x=>x.id===e.subjectId);
+    const bg=t?.color||s?.color||'#888';
+    return `<div style="background:${bg};color:${contrast(bg)};border-radius:4px;padding:3px 5px;font-size:10px;font-weight:700;min-height:36px">
+      <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s?.name||'?'}</div>
+      <div style="font-size:9px;opacity:.75">${t?.name||''}</div>
+    </div>`;
+  }
+  let h=`<div class="compare-wrap">`;
+  // A sinf
+  h+=`<div><div style="font-size:12px;font-weight:800;color:var(--br);margin-bottom:6px;text-align:center">🏫 ${clA?.name}</div>`;
+  h+=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="font-size:9.5px;padding:2px 4px;text-align:left;color:var(--g400)">Soat</th>${wd.map(di=>`<th style="font-size:9.5px;padding:2px;text-align:center;color:var(--g400)">${ALL_DAYS_S[di]}</th>`).join('')}</tr></thead><tbody>`;
+  for(let p=1;p<=pc;p++){
+    if(p===me+1) h+=`<tr><td colspan="${wd.length+1}" style="background:#FFF176;text-align:center;font-size:9px;padding:3px;color:#7B6000;font-weight:700">🍽 Tushlik</td></tr>`;
+    h+=`<tr><td style="font-size:9px;font-weight:700;color:var(--br);padding:2px 4px">${p}</td>`;
+    wd.forEach(di=>h+=`<td style="padding:1px">${cellHtml(cA,di,p)}</td>`);
+    h+='</tr>';
+  }
+  h+='</tbody></table></div>';
+  // B sinf
+  h+=`<div><div style="font-size:12px;font-weight:800;color:var(--br);margin-bottom:6px;text-align:center">🏫 ${clB?.name}</div>`;
+  h+=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="font-size:9.5px;padding:2px 4px;text-align:left;color:var(--g400)">Soat</th>${wd.map(di=>`<th style="font-size:9.5px;padding:2px;text-align:center;color:var(--g400)">${ALL_DAYS_S[di]}</th>`).join('')}</tr></thead><tbody>`;
+  for(let p=1;p<=pc;p++){
+    if(p===me+1) h+=`<tr><td colspan="${wd.length+1}" style="background:#FFF176;text-align:center;font-size:9px;padding:3px;color:#7B6000;font-weight:700">🍽 Tushlik</td></tr>`;
+    h+=`<tr><td style="font-size:9px;font-weight:700;color:var(--br);padding:2px 4px">${p}</td>`;
+    wd.forEach(di=>h+=`<td style="padding:1px">${cellHtml(cB,di,p)}</td>`);
+    h+='</tr>';
+  }
+  h+='</tbody></table></div>';
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+/* ══════════════════════════════════════════════════════════
+   QIDIRUV TARIXI
+══════════════════════════════════════════════════════════ */
+let _searchHistory=[];
+const _origHandleGlobalSearch=handleGlobalSearch;
+function handleGlobalSearch(q){
+  if(q.trim().length>=2){
+    _searchHistory=_searchHistory.filter(x=>x!==q.trim());
+    _searchHistory.unshift(q.trim());
+    if(_searchHistory.length>10) _searchHistory.pop();
+    localStorage.setItem('zi-sh',JSON.stringify(_searchHistory));
+  }
+  _origHandleGlobalSearch(q);
+}
+function loadSearchHistory(){ try{_searchHistory=JSON.parse(localStorage.getItem('zi-sh')||'[]');}catch{} }
+// Global search bo'sh bo'lganda tarixi ko'rsatamiz
+document.addEventListener('DOMContentLoaded',()=>{
+  const gs=document.getElementById('global-search');
+  if(gs){
+    gs.addEventListener('focus',()=>{
+      if(!gs.value&&_searchHistory.length){
+        const res=document.getElementById('search-results');
+        res.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--g400);padding:4px 8px 2px">Oxirgi qidiruvlar:</div>'+
+          _searchHistory.map(q=>`
+            <div class="sh-item" onclick="document.getElementById('global-search').value='${q.replace(/'/g,"\\'")}';handleGlobalSearch('${q.replace(/'/g,"\\'")}')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+              ${q}
+            </div>`).join('');
+        res.style.display='block';
+      }
+    });
+  }
+});
+
+/* ══════════════════════════════════════════════════════════
+   CHOP ETISH — HAR SINF UCHUN ALOHIDA SAHIFA
+══════════════════════════════════════════════════════════ */
+function printAllClasses(){
+  const wd=getWD(), pc=getPC(), me=getME();
+  let printHtml=`<!DOCTYPE html><html lang="uz"><head><meta charset="UTF-8"/>
+  <title>Zamaxshariy Izdoshlari — Dars Jadvali</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;font-size:11px}
+    .page{page-break-after:always;padding:16px}
+    .page:last-child{page-break-after:auto}
+    h2{font-size:16px;font-weight:800;color:#3D1800;margin-bottom:4px}
+    p{font-size:10px;color:#888;margin-bottom:10px}
+    table{width:100%;border-collapse:collapse}
+    th{padding:5px 7px;background:#3D1800;color:#fff;font-size:10px;text-align:center;border:1px solid #6B3000}
+    th:first-child{text-align:left}
+    td{padding:4px 6px;border:1px solid #ddd;vertical-align:top;min-height:40px}
+    .pcell{background:#FFF0E0;color:#3D1800;font-weight:700;text-align:center;font-size:10px}
+    .slot{border-radius:4px;padding:3px 5px;font-weight:700;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .lunch{background:#FFF176;text-align:center;font-size:9.5px;font-weight:700;color:#7B6000}
+    .empty-slot{background:#F9FAFB;min-height:36px}
+  </style></head><body>`;
+  DB.classes.forEach((cls,ci)=>{
+    printHtml+=`<div class="page">
+      <h2>🏫 ${cls.name} sinfi — Haftalik Dars Jadvali</h2>
+      <p>Zamaxshariy Izdoshlari Xususiy Maktabi | Chop etildi: ${new Date().toLocaleDateString('uz-UZ')}</p>
+      <table><thead><tr><th>Soat/Vaqt</th>${wd.map(i=>`<th>${ALL_DAYS[i]}</th>`).join('')}</tr></thead><tbody>`;
+    for(let p=1;p<=pc;p++){
+      if(p===me+1) printHtml+=`<tr><td class="lunch" colspan="${wd.length+1}">🍽 Tushlik: ${LUNCH.s} – ${LUNCH.e}</td></tr>`;
+      printHtml+=`<tr><td class="pcell">${p}-soat<br><small style="font-weight:400;font-size:9px">${pTime(p)}</small></td>`;
+      wd.forEach(di=>{
+        const e=getEntry(cls.id,di,p);
+        if(e){
+          const t=DB.teachers.find(x=>x.id===e.teacherId);
+          const s=DB.subjects.find(x=>x.id===e.subjectId);
+          const bg=t?.color||s?.color||'#888';
+          printHtml+=`<td><div class="slot" style="background:${bg};color:${contrast(bg)}">
+            ${s?.name||'?'}${e.isPara?' [2x]':''}<br>
+            <span style="font-size:9px;opacity:.75">${t?.name||''}</span>
+          </div></td>`;
+        } else printHtml+=`<td class="empty-slot"></td>`;
+      });
+      printHtml+='</tr>';
+    }
+    printHtml+=`</tbody></table></div>`;
+  });
+  printHtml+='</body></html>';
+  const w=window.open('','_blank');
+  w.document.write(printHtml);
+  w.document.close();
+  w.print();
+}
+
+/* ══════════════════════════════════════════════════════════
+   STATUS BAR YANGILASH
+══════════════════════════════════════════════════════════ */
+function updateStatusBar(){
+  const placed=document.getElementById('sb-placed');
+  const conf=document.getElementById('sb-conflicts');
+  const mode=document.getElementById('sb-mode');
+  const saved=document.getElementById('sb-saved');
+  if(placed) placed.textContent='📅 '+DB.timetable.length+' dars';
+  if(conf){
+    const n=findAllConflicts().filter(c=>c.severity==='error').length;
+    conf.textContent=n?'⚠️ '+n+' xato':'✓ Mojaro yo\'q';
+    conf.style.color=n?'rgba(255,120,120,.8)':'rgba(255,255,255,.35)';
+  }
+  if(mode){
+    mode.textContent=_copyMode?'📋 Nusxalash':_swapMode?'⇄ Almashtirish':'📌 Normal rejim';
+  }
+  if(saved){ saved.textContent='💾 Saqlangan'; setTimeout(()=>{ if(saved) saved.textContent=''; },2000); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SESSIYA TAYMER
+══════════════════════════════════════════════════════════ */
+const _sessStart=Date.now();
+function startSessionTimer(){
+  setInterval(()=>{
+    const elapsed=Math.floor((Date.now()-_sessStart)/1000);
+    const h=Math.floor(elapsed/3600);
+    const m=Math.floor((elapsed%3600)/60);
+    const s=elapsed%60;
+    const str=(h?h+'s ':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    const el=document.getElementById('sess-display');
+    if(el) el.textContent=str;
+    const sb=document.getElementById('sb-session');
+    if(sb) sb.textContent='⏱ '+str;
+  },1000);
+}
+
+/* ══════════════════════════════════════════════════════════
+   TUZATISH: doGen — genHistory saqlash + data-* atriblari bilan slot render
+   rTTGrid funksiyasiga data-cid, data-day, data-per qo'shamiz
+══════════════════════════════════════════════════════════ */
+// rTTGrid override — data-* atributlar qo'shamiz highlightInGrid uchun
+const _origRTTGrid=rTTGrid;
+function rTTGrid(){
+  _origRTTGrid();
+  // data-* atributlarni qo'shamiz
+  document.querySelectorAll('.slot.fill').forEach(el=>{
+    const onclick=el.getAttribute('onclick')||'';
+    const m=onclick.match(/openSlot\(event,'([^']+)',(\d+),(\d+)\)/);
+    if(m){
+      el.dataset.cid=m[1];
+      el.dataset.day=m[2];
+      el.dataset.per=m[3];
+    }
+  });
+  updateStatusBar();
+}
+
+/* ══════════════════════════════════════════════════════════
+   TUZATISH: doGen — genHistory saqlash
+══════════════════════════════════════════════════════════ */
+const _origDoGen=doGen;
+function doGen(){
+  _origDoGen();
+  if(!DB.genHistory) DB.genHistory=[];
+  saveGenHistory(DB.timetable.length,0,DB.classes.length);
+}
+
+/* ══════════════════════════════════════════════════════════
+   TUZATISH: importFromXLS — arraybuffer ishlatamiz
+══════════════════════════════════════════════════════════ */
+function importFromXLS(){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='.xlsx,.xls';
+  inp.onchange=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const fr=new FileReader();
+    // arraybuffer ishlatamiz (binary emas!)
+    fr.onload=ev=>{
+      try{
+        const wb=XLSX.read(ev.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+        if(rows.length<2){toast('Excel format xato','err');return;}
+        const clsNames=rows[0].slice(1);
+        let imported=0;
+        rows.slice(1).forEach(row=>{
+          const subName=String(row[0]||'').trim();
+          if(!subName) return;
+          const subj=DB.subjects.find(s=>s.name.toLowerCase()===subName.toLowerCase());
+          if(!subj) return;
+          clsNames.forEach((cn,ci)=>{
+            const h=parseInt(row[ci+1])||0; if(!h) return;
+            const cls=DB.classes.find(c=>c.name.toLowerCase()===String(cn||'').toLowerCase().trim());
+            if(!cls) return;
+            const k=wlKey(cls.id,subj.id);
+            if(!DB.wlMap[k]) DB.wlMap[k]={weeklyHours:0,teacherId:'',isPara:false};
+            DB.wlMap[k].weeklyHours=h; imported++;
+          });
+        });
+        save(); rWorkload();
+        toast(`${imported} ta yuklama Excel dan import qilindi`,'ok');
+        addAudit('Excel import',`${imported} ta yuklama`,'ok');
+      }catch(e){toast('Excel xato: '+e.message,'err');}
+    };
+    fr.readAsArrayBuffer(f); // ← arraybuffer, binary emas
+  };
+  inp.click();
+}
+
+/* ══════════════════════════════════════════════════════════
+   TUZATISH: rAnalytics — wlMap priority hisoblash
+══════════════════════════════════════════════════════════ */
+const _origRAnalytics=rAnalytics;
+function rAnalytics(){
+  // rAnalytics ni to'g'rilangan versiya bilan almashtiramiz
+  const wd=getWD(), me=getME();
+  const allWl=Object.values(DB.wlMap);
+
+  // O'qituvchi yuklanish chart
+  const tData=DB.teachers.map(t=>{
+    const assigned=allWl.filter(w=>w.teacherId===t.id).reduce((a,w)=>a+w.weeklyHours,0);
+    const placed=DB.timetable.filter(e=>e.teacherId===t.id).length;
+    return {...t,assigned,placed};
+  });
+  const maxAssigned=Math.max(...tData.map(t=>t.assigned),1);
+  const tBars=tData.map(t=>`
+    <div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:40px">
+      <div class="chart-bar" style="height:${Math.round(t.assigned/maxAssigned*70)}px;background:${t.color};width:100%;max-width:44px">
+        <span>${t.assigned}h</span>
+      </div>
+      <div class="chart-label" title="${t.name}">${t.name.split(' ')[0]}</div>
+    </div>`).join('');
+
+  // Priority hisoblash — TO'G'RILANGAN
+  let coreH=0,elecH=0,fillH=0;
+  Object.entries(DB.wlMap).forEach(([k,w])=>{
+    const sid=k.split('_').slice(1).join('_');
+    const subj=DB.subjects.find(s=>s.id===sid);
+    if(!subj) return;
+    if(subj.priority==='core') coreH+=w.weeklyHours;
+    else if(subj.priority==='elec') elecH+=w.weeklyHours;
+    else fillH+=w.weeklyHours;
+  });
+  const totalPH=coreH+elecH+fillH||1;
+
+  const morPlaced=DB.timetable.filter(e=>e.period<=me).length;
+  const aftPlaced=DB.timetable.filter(e=>e.period>me).length;
+  const totalPl=morPlaced+aftPlaced||1;
+
+  const dayStats=getWD().map(di=>({day:ALL_DAYS_S[di],cnt:DB.timetable.filter(e=>e.day===di).length}));
+  const maxDay=Math.max(...dayStats.map(d=>d.cnt),1);
+
+  // O'qituvchi bandlik soatlari bo'yicha (haftaning har kuni)
+  const tDayStats=DB.teachers.map(t=>({
+    name:t.name.split(' ')[0], color:t.color,
+    days:wd.map(di=>DB.timetable.filter(e=>e.teacherId===t.id&&e.day===di).length)
+  }));
+
+  document.getElementById('page-analytics').innerHTML=`
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <div class="card">
+      <div class="ch"><span class="ch-t">📊 O'qituvchi haftalik yuklanish</span></div>
+      <div class="cb">
+        <div class="chart-bar-wrap">${tBars||'<p style="font-size:11px;color:var(--g400)">Ma\'lumot yo\'q</p>'}</div>
+        <p style="font-size:9.5px;color:var(--g400);margin-top:6px">Har ustun = haftalik soat (yuklama matritsasidan)</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ch-t">📅 Kunlik joylashtirilgan darslar</span></div>
+      <div class="cb">
+        <div class="chart-bar-wrap">
+          ${dayStats.map(d=>`
+            <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+              <div class="chart-bar" style="height:${Math.round(d.cnt/maxDay*70)}px;background:var(--or);width:100%;max-width:44px"><span>${d.cnt}</span></div>
+              <div class="chart-label">${d.day}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+    <div class="card">
+      <div class="ch"><span class="ch-t">📈 Ustuvorlik taqsimlash</span></div>
+      <div class="cb">
+        ${[
+          {label:'⭐ Asosiy',h:coreH,color:'#92400E'},{label:'📘 Qo\'shimcha',h:elecH,color:'#5B21B6'},{label:'◦ Zaxira',h:fillH,color:'#166534'}
+        ].map(row=>`
+          <div style="margin-bottom:9px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+              <span style="font-size:11.5px;font-weight:600">${row.label}</span>
+              <span style="font-size:11px;color:var(--g400)">${row.h}h · ${Math.round(row.h/totalPH*100)}%</span>
+            </div>
+            <div class="prog" style="height:8px"><div class="prf" style="width:${Math.round(row.h/totalPH*100)}%;background:${row.color}"></div></div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ch-t">☀️🌆 Shift taqsimlash</span></div>
+      <div class="cb">
+        <div style="margin-bottom:9px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+            <span style="font-size:11.5px;font-weight:600">☀️ 1-qism (ertalab)</span>
+            <span style="font-size:11px;color:var(--g400)">${morPlaced} · ${Math.round(morPlaced/totalPl*100)}%</span>
+          </div>
+          <div class="prog" style="height:8px"><div class="prf" style="width:${Math.round(morPlaced/totalPl*100)}%;background:var(--blu)"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+            <span style="font-size:11.5px;font-weight:600">🌆 2-qism (tushdan keyin)</span>
+            <span style="font-size:11px;color:var(--g400)">${aftPlaced} · ${Math.round(aftPlaced/totalPl*100)}%</span>
+          </div>
+          <div class="prog" style="height:8px"><div class="prf" style="width:${Math.round(aftPlaced/totalPl*100)}%;background:var(--or)"></div></div>
+        </div>
+        <div class="sep"></div>
+        <p style="font-size:10.5px;color:var(--g500)">Jami: ${DB.timetable.length} dars joylashtirilgan</p>
+        <button class="btn b-br b-sm" style="margin-top:8px;width:100%" onclick="printAllClasses()">🖨 Barcha sinflarni chop etish</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ch-t">🏫 Sinf qamrovliligi</span></div>
+      <div class="cb">
+        ${DB.classes.map(c=>{
+          const cwls=Object.entries(DB.wlMap).filter(([k])=>k.startsWith(c.id+'_'));
+          const total=cwls.reduce((s,[,w])=>s+w.weeklyHours,0);
+          const placed=DB.timetable.filter(e=>e.classId===c.id).length;
+          const pct2=total>0?Math.round(placed/total*100):0;
+          return `<div style="margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:1px">
+              <span style="font-size:11.5px;font-weight:700">${c.name}</span>
+              <span style="font-size:10px;color:var(--g400)">${placed}/${total}h · ${pct2}%</span>
+            </div>
+            <div class="prog"><div class="prf" style="width:${pct2}%;background:var(--or)"></div></div>
+          </div>`;
+        }).join('')||'<p style="font-size:11px;color:var(--g400)">Sinf yo\'q</p>'}
+      </div>
+    </div>
+  </div>
+  <!-- O'qituvchi kunlik taqsimlash jadvali -->
+  <div class="card">
+    <div class="ch"><span class="ch-t">👥 O'qituvchi kunlik bandligi</span></div>
+    <div class="cb" style="padding:0;overflow-x:auto">
+      <table class="vtbl">
+        <thead><tr><th>O'qituvchi</th>${wd.map(di=>`<th>${ALL_DAYS[di]}</th>`).join('')}<th>Jami</th></tr></thead>
+        <tbody>
+          ${tDayStats.map(t=>{
+            const total=t.days.reduce((a,n)=>a+n,0);
+            return `<tr>
+              <td><span style="display:inline-flex;align-items:center;gap:5px"><span class="dot" style="background:${t.color}"></span><b>${t.name}</b></span></td>
+              ${t.days.map(n=>`<td style="text-align:center;font-weight:${n>0?700:400};color:${n>0?'var(--br)':'var(--g300)'}">${n||'—'}</td>`).join('')}
+              <td style="text-align:center;font-weight:700;color:var(--or)">${total}</td>
+            </tr>`;
+          }).join('')||'<tr><td colspan="99" style="text-align:center;padding:16px;color:var(--g400)">O\'qituvchi yo\'q</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TUZATISH: rReports — Chop tugmasi qo'shamiz
+══════════════════════════════════════════════════════════ */
+const _origRReports=rReports;
+function rReports(){
+  _origRReports();
+  // Hisobotlar sahifasiga qo'shimcha tugmalar
+  const extra=document.createElement('div');
+  extra.className='row'; extra.style.marginTop='12px';
+  extra.innerHTML=`
+    <button class="btn b-pur" onclick="printAllClasses()">🖨 Barcha sinflar chop</button>
+    <button class="btn b-teal" onclick="expXLS()">📊 Excel eksport</button>`;
+  document.getElementById('page-reports').appendChild(extra);
+}
+
+/* ══════════════════════════════════════════════════════════
+   ISHGA TUSHIRISH — TO'LDIRILGAN
+══════════════════════════════════════════════════════════ */
+load();
+loadDark();
+loadSearchHistory();
+updateUndoButtons();
+updateConflictBadge();
+startSessionTimer();
+updateStatusBar();
+rDash();
+</script>
+</body>
+</html>
