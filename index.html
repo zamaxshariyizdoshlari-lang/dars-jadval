@@ -901,8 +901,8 @@ async function checkExistingSession(){
 
 /* ── Bulutdan realtime yangilanish (boshqa seans o'zgartirsa) ── */
 function subscribeRealtime(){
-  _realtimeCh = sb.channel('app_state_changes')
-    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'app_state', filter:'id=eq.1' }, (payload) => {
+  _realtimeCh = sb.channel('schedule_touch_changes')
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'schedule_touch', filter:'id=eq.1' }, (payload) => {
       if (payload.new.updated_by === _sbUser?.id) return; // o'zimiz saqlagan o'zgarish
       toast('&#9888; Jadval boshqa seansda yangilandi — bosing va qayta yuklang', 'warn', async () => {
         const ok = await loadFromCloud();
@@ -970,21 +970,19 @@ function queueCloudSave(){
 }
 async function pushToCloud(){
   if (!_sbUser) return;
-  const payload = JSON.parse(dbSerialize());
-  const { error } = await sb.from('app_state')
-    .update({ data: payload, updated_by: _sbUser.id })
-    .eq('id', 1);
+  const { DB: dbPayload } = JSON.parse(dbSerialize()); // {subjects,teachers,classes,wlMap,timetable,locks,settings,audit}
+  const { error } = await sb.rpc('admin_save_schedule', { payload: dbPayload });
   setSync(error ? 'error' : 'synced');
   if (error) console.error('Bulutga saqlashda xato:', error);
 }
 async function loadFromCloud(){
   if (!_sbUser) return false;
-  const { data, error } = await sb.from('app_state').select('data').eq('id', 1).maybeSingle();
+  const { data, error } = await sb.rpc('admin_load_schedule');
   if (error){ setSync('error'); toast('Bulutdan yuklab bo\'lmadi — lokal nusxa ishlatilmoqda', 'warn'); return false; }
   setSync('synced');
-  if (data && data.data && Object.keys(data.data).length){
-    hydrateDB(data.data);
-    try { localStorage.setItem('zi6', JSON.stringify(data.data)); } catch(e){}
+  if (data && (data.subjects?.length || data.teachers?.length || data.classes?.length)){
+    hydrateDB({ DB: data });
+    try { localStorage.setItem('zi6', JSON.stringify({ DB: data, _nid })); } catch(e){}
     return true;
   }
   return false;
@@ -1741,10 +1739,13 @@ function rConflicts(){
    AUDIT JURNALI SAHIFASI
 ══════════════════════════════════════════════════════════ */
 function rAudit(){
-  const items = DB.audit;
+  renderAuditItems(DB.audit); // tezkor: lokal kesh bilan darhol chizamiz
+  if (_sbUser) fetchCloudAudit(); // so'ng: bulutdagi doimiy jurnal bilan boyitamiz
+}
+function renderAuditItems(items){
   let html = `<div class="row" style="justify-content:space-between;margin-bottom:12px">
     <span style="font-size:13px;font-weight:700;color:var(--br)">O'zgarishlar tarixi (${items.length} ta)</span>
-    <button class="btn b-red b-sm" onclick="if(confirm('Tarixni tozalash?')){DB.audit=[];save();rAudit()}">🗑 Tozalash</button>
+    <button class="btn b-red b-sm" onclick="if(confirm('Mahalliy keshni tozalash? (Bulutdagi doimiy tarix saqlanib qoladi)')){DB.audit=[];save();rAudit()}">🗑 Tozalash</button>
   </div>`;
   if (!items.length){
     html += '<div class="empty"><h3>Tarix bo\'sh</h3><p>Hali hech qanday o\'zgarish qayd etilmagan</p></div>';
@@ -1764,6 +1765,19 @@ function rAudit(){
     html += '</div></div>';
   }
   document.getElementById('page-audit').innerHTML = html;
+}
+async function fetchCloudAudit(){
+  const { data, error } = await sb.from('audit_log')
+    .select('actor_email,action,detail,type,created_at')
+    .order('created_at', { ascending: false }).limit(200);
+  if (error || !data || CUR !== 'audit') return;
+  const items = data.map(r => ({
+    ts: new Date(r.created_at).getTime(),
+    action: r.actor_email ? `${r.action} — ${r.actor_email}` : r.action,
+    detail: r.detail,
+    type: r.type === 'success' ? 'ok' : r.type === 'error' ? 'err' : r.type
+  }));
+  renderAuditItems(items);
 }
 
 /* ══════════════════════════════════════════════════════════
