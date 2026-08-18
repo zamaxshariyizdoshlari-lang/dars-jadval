@@ -7,6 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════
    DIZAYN O'ZGARUVCHILARI — Zamaxshariy Izdoshlari ranglari
@@ -368,9 +369,41 @@ input[type=color]{width:34px;height:27px;padding:2px;border:1px solid var(--g200
 #status-bar{position:fixed;bottom:0;left:var(--sb);right:0;height:22px;background:var(--br);color:rgba(255,255,255,.5);display:flex;align-items:center;padding:0 14px;gap:12px;font-size:9.5px;z-index:50;pointer-events:none}
 #status-bar span{display:flex;align-items:center;gap:4px}
 @media(max-width:660px){#status-bar{left:0}}
+/* ── Kirish darvozasi (auth gate) ── */
+body:not(.authed) #app,body:not(.authed) #status-bar,body:not(.authed) #tc{display:none!important}
+#auth-gate{background:var(--br)}
+body.authed #auth-gate{display:none!important}
+.auth-card{background:#fff;border-radius:14px;width:100%;max-width:380px;padding:26px 24px 20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.auth-card h1{font-size:15.5px;font-weight:800;color:var(--br)}
+.auth-card>p{font-size:10.5px;color:var(--g400);margin-bottom:16px}
+#sb-user-row{display:flex;align-items:center;gap:6px;padding:7px 12px;border-top:1px solid rgba(255,255,255,.07)}
+#sb-user-email{flex:1;font-size:9.5px;color:rgba(255,255,255,.4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sb-signout{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:11px;padding:2px 4px;border-radius:4px}
+#sb-signout:hover{background:rgba(255,255,255,.08);color:#fff}
+#sb-sync{transition:color .2s}
 </style>
 </head>
 <body>
+<!-- ══════════════════════════════════════════════════════
+     KIRISH DARVOZASI — faqat ro'yxatdan o'tgan admin kira oladi
+══════════════════════════════════════════════════════ -->
+<div id="auth-gate" class="ov">
+  <div class="auth-card">
+    <h1>Zamaxshariy Izdoshlari</h1>
+    <p>Dars Jadvali Tizimi &middot; faqat admin uchun</p>
+    <div id="auth-msg"></div>
+    <form id="auth-form" onsubmit="return handleAuthSubmit(event)">
+      <div class="fg" style="text-align:left;margin-bottom:12px">
+        <div><label class="fl">Email</label><input type="email" id="auth-email" required autocomplete="username"></div>
+        <div><label class="fl">Parol</label><input type="password" id="auth-pass" required minlength="6" autocomplete="current-password"></div>
+      </div>
+      <button type="submit" class="btn b-or b-lg" style="width:100%;justify-content:center" id="auth-submit-btn">Kirish</button>
+    </form>
+    <p style="margin-top:12px;font-size:10.5px;color:var(--g400)" id="auth-toggle-wrap">
+      Birinchi marta kirasizmi? <a href="#" onclick="toggleAuthMode();return false">Ro&#700;yxatdan o&#700;tish</a>
+    </p>
+  </div>
+</div>
 <div id="app">
 <!-- ══════════════════════════════════════════════════════
      SIDEBAR — Navigatsiya paneli
@@ -415,6 +448,10 @@ input[type=color]{width:34px;height:27px;padding:2px;border:1px solid var(--g200
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Gen tarixi</div>
   </nav>
   <div id="session-timer">&#9201; Sessiya: <span id="sess-display">00:00</span></div>
+  <div id="sb-user-row">
+    <span id="sb-user-email">&#8212;</span>
+    <button id="sb-signout" onclick="signOutAdmin()" title="Chiqish">&#9099;</button>
+  </div>
   <div class="sb-foot">&#169; 2025 Zamaxshariy Izdoshlari</div>
 </aside>
 
@@ -704,7 +741,8 @@ input[type=color]{width:34px;height:27px;padding:2px;border:1px solid var(--g200
   <span id="sb-placed">&#128197; 0 dars</span>
   <span id="sb-conflicts">&#10003; Mojaro yo'q</span>
   <span id="sb-session">&#9201; 00:00</span>
-  <span style="margin-left:auto" id="sb-saved">&#128190; Saqlangan</span>
+  <span style="margin-left:auto" id="sb-sync">&#9679; Ulanmoqda&#8230;</span>
+  <span id="sb-saved">&#128190; Saqlangan</span>
 </div>
 
 <script>
@@ -767,6 +805,113 @@ const MAX_UNDO = 30;  // maksimal undo bosqichi
 function uid(){ return 'u' + (Date.now() % 99999999) + (++_nid); }
 function wlKey(cid, sid){ return cid + '_' + sid; }
 
+/* ══════════════════════════════════════════════════════════
+   SUPABASE — bulutli backend (auth + saqlash + audit)
+══════════════════════════════════════════════════════════ */
+const SUPABASE_URL      = 'https://sspvboeooadvbqqgsuxi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzcHZib2Vvb2FkdmJxcWdzdXhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwMjQ0OTQsImV4cCI6MjEwMjYwMDQ5NH0.xTVMB3XtoEC8DHy0zLoz15Xit0oydZzCueGld_Go8OU';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let _sbUser = null;
+let _authMode = 'login';
+let _pushTimer = null;
+let _realtimeCh = null;
+
+function setSync(state){
+  const el = document.getElementById('sb-sync');
+  if (!el) return;
+  const map = {
+    connecting: ['&#9679; Ulanmoqda&#8230;', 'rgba(255,255,255,.35)'],
+    synced:     ['&#9679; Bulutga ulangan', '#4ADE80'],
+    saving:     ['&#9679; Saqlanmoqda&#8230;', '#FBBF24'],
+    error:      ['&#9679; Sinxronlash xatosi', '#F87171']
+  };
+  const [txt, col] = map[state] || map.connecting;
+  el.innerHTML = txt;
+  el.style.color = col;
+}
+
+/* ── Kirish / Ro'yxatdan o'tish ── */
+function toggleAuthMode(){
+  _authMode = _authMode === 'login' ? 'signup' : 'login';
+  document.getElementById('auth-submit-btn').textContent = _authMode === 'login' ? 'Kirish' : 'Ro\'yxatdan o\'tish';
+  document.getElementById('auth-toggle-wrap').innerHTML = _authMode === 'login'
+    ? 'Birinchi marta kirasizmi? <a href="#" onclick="toggleAuthMode();return false">Ro\'yxatdan o\'tish</a>'
+    : 'Akkountingiz bormi? <a href="#" onclick="toggleAuthMode();return false">Kirish</a>';
+  setAuthMsg('');
+}
+function setAuthMsg(msg, type){
+  const el = document.getElementById('auth-msg');
+  el.innerHTML = msg ? `<div class="alert ${type==='err'?'ae':type==='ok'?'as':'ai'}" style="margin-bottom:10px;text-align:left">${msg}</div>` : '';
+}
+function translateAuthError(msg){
+  if (/Invalid login credentials/i.test(msg)) return 'Email yoki parol noto\'g\'ri';
+  if (/User already registered/i.test(msg))   return 'Bu email allaqachon ro\'yxatdan o\'tgan — Kirish orqali urinib ko\'ring';
+  if (/Password should be/i.test(msg))        return 'Parol kamida 6 belgidan iborat bo\'lishi kerak';
+  if (/Unable to validate email/i.test(msg))  return 'Email manzili noto\'g\'ri';
+  return msg;
+}
+async function handleAuthSubmit(ev){
+  ev.preventDefault();
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-pass').value;
+  const btn   = document.getElementById('auth-submit-btn');
+  btn.disabled = true; setAuthMsg('');
+  try {
+    if (_authMode === 'login'){
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      await onAuthed(data.user);
+    } else {
+      const { data, error } = await sb.auth.signUp({ email, password: pass });
+      if (error) throw error;
+      if (data.session){
+        await onAuthed(data.user);
+      } else {
+        setAuthMsg('Ro\'yxatdan o\'tdingiz. Emailingizga yuborilgan tasdiqlash havolasini bosing, so\'ng shu yerdan tizimga kiring.', 'ok');
+      }
+    }
+  } catch(e){
+    setAuthMsg(translateAuthError(e.message || String(e)), 'err');
+  } finally {
+    btn.disabled = false;
+  }
+  return false;
+}
+async function onAuthed(user){
+  const { data: adminRow } = await sb.from('admins').select('id').eq('id', user.id).maybeSingle();
+  if (!adminRow){
+    setAuthMsg('Sizda ushbu tizimga kirish huquqi yo\'q. Administrator bilan bog\'laning.', 'err');
+    await sb.auth.signOut();
+    return;
+  }
+  _sbUser = user;
+  document.getElementById('sb-user-email').textContent = user.email;
+  document.body.classList.add('authed');
+  bootApp();
+}
+async function signOutAdmin(){
+  if (_realtimeCh) sb.removeChannel(_realtimeCh);
+  await sb.auth.signOut();
+  location.reload();
+}
+async function checkExistingSession(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.user) await onAuthed(session.user);
+}
+
+/* ── Bulutdan realtime yangilanish (boshqa seans o'zgartirsa) ── */
+function subscribeRealtime(){
+  _realtimeCh = sb.channel('app_state_changes')
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'app_state', filter:'id=eq.1' }, (payload) => {
+      if (payload.new.updated_by === _sbUser?.id) return; // o'zimiz saqlagan o'zgarish
+      toast('&#9888; Jadval boshqa seansda yangilandi — bosing va qayta yuklang', 'warn', async () => {
+        const ok = await loadFromCloud();
+        if (ok){ rerenderCurrent(); toast('Yangilandi', 'ok'); }
+      });
+    })
+    .subscribe();
+}
+
 /* ── Ma'lumotlar saqlash va yuklash ── */
 function dbSerialize(){
   return JSON.stringify({
@@ -774,44 +919,89 @@ function dbSerialize(){
     _nid
   });
 }
+function hydrateDB(p){
+  const d = p.DB || {};
+  DB = {
+    subjects:  d.subjects  || [],
+    teachers:  d.teachers  || [],
+    classes:   d.classes   || [],
+    wlMap:     d.wlMap     || {},
+    timetable: d.timetable || [],
+    locks:     new Set(Array.isArray(d.locks) ? d.locks : []),
+    settings:  d.settings  || {workDays:[0,1,2,3,4],maxPeriods:7,periodCount:8,morEnd:4,periodTimes:JSON.parse(JSON.stringify(DEF_TIMES))},
+    audit:     d.audit     || []
+  };
+  _nid = p._nid || 1;
+  // Ko'chirma: eski ma'lumotlarga yangi maydonlar
+  if (!DB.settings.periodTimes) DB.settings.periodTimes = JSON.parse(JSON.stringify(DEF_TIMES));
+  while (DB.settings.periodTimes.length < DB.settings.periodCount)
+    DB.settings.periodTimes.push({s:'',e:''});
+  if (!DB.settings.morEnd) DB.settings.morEnd = 4;
+  DB.teachers.forEach(t => {
+    if (!t.constraints) t.constraints = {};
+    if (!t.subjectIds)  t.subjectIds  = [];
+    if (!t.maxHours)    t.maxHours    = 35;
+  });
+  DB.classes.forEach(c => {
+    if (!c.parallelIds) c.parallelIds = [];
+  });
+  DB.subjects.forEach(s => {
+    if (s.prefPMin === undefined) s.prefPMin = null;
+    if (s.prefPMax === undefined) s.prefPMax = null;
+  });
+}
 function save(){
   try { localStorage.setItem('zi6', dbSerialize()); } catch(e){}
+  queueCloudSave();
 }
 function load(){
+  // Lokal keshdan tezkor yuklash (oflayn/tezkor render uchun)
   try {
     const r = localStorage.getItem('zi6');
     if (!r) return;
-    const p = JSON.parse(r);
-    const d = p.DB;
-    DB = {
-      subjects:  d.subjects  || [],
-      teachers:  d.teachers  || [],
-      classes:   d.classes   || [],
-      wlMap:     d.wlMap     || {},
-      timetable: d.timetable || [],
-      locks:     new Set(Array.isArray(d.locks) ? d.locks : []),
-      settings:  d.settings  || {workDays:[0,1,2,3,4],maxPeriods:7,periodCount:8,morEnd:4,periodTimes:JSON.parse(JSON.stringify(DEF_TIMES))},
-      audit:     d.audit     || []
-    };
-    _nid = p._nid || 1;
-    // Ko'chirma: eski ma'lumotlarga yangi maydonlar
-    if (!DB.settings.periodTimes) DB.settings.periodTimes = JSON.parse(JSON.stringify(DEF_TIMES));
-    while (DB.settings.periodTimes.length < DB.settings.periodCount)
-      DB.settings.periodTimes.push({s:'',e:''});
-    if (!DB.settings.morEnd) DB.settings.morEnd = 4;
-    DB.teachers.forEach(t => {
-      if (!t.constraints) t.constraints = {};
-      if (!t.subjectIds)  t.subjectIds  = [];
-      if (!t.maxHours)    t.maxHours    = 35;
-    });
-    DB.classes.forEach(c => {
-      if (!c.parallelIds) c.parallelIds = [];
-    });
-    DB.subjects.forEach(s => {
-      if (s.prefPMin === undefined) s.prefPMin = null;
-      if (s.prefPMax === undefined) s.prefPMax = null;
-    });
+    hydrateDB(JSON.parse(r));
   } catch(e){ console.warn('Ma\'lumot yuklashda xato:', e); }
+}
+function queueCloudSave(){
+  if (!_sbUser) return;
+  setSync('saving');
+  clearTimeout(_pushTimer);
+  _pushTimer = setTimeout(pushToCloud, 700);
+}
+async function pushToCloud(){
+  if (!_sbUser) return;
+  const payload = JSON.parse(dbSerialize());
+  const { error } = await sb.from('app_state')
+    .update({ data: payload, updated_by: _sbUser.id })
+    .eq('id', 1);
+  setSync(error ? 'error' : 'synced');
+  if (error) console.error('Bulutga saqlashda xato:', error);
+}
+async function loadFromCloud(){
+  if (!_sbUser) return false;
+  const { data, error } = await sb.from('app_state').select('data').eq('id', 1).maybeSingle();
+  if (error){ setSync('error'); toast('Bulutdan yuklab bo\'lmadi — lokal nusxa ishlatilmoqda', 'warn'); return false; }
+  setSync('synced');
+  if (data && data.data && Object.keys(data.data).length){
+    hydrateDB(data.data);
+    try { localStorage.setItem('zi6', JSON.stringify(data.data)); } catch(e){}
+    return true;
+  }
+  return false;
+}
+async function bootApp(){
+  load();
+  loadDark();
+  loadSearchHistory();
+  updateUndoButtons();
+  updateConflictBadge();
+  startSessionTimer();
+  updateStatusBar();
+  rDash();
+  setSync('connecting');
+  const refreshed = await loadFromCloud();
+  if (refreshed) rerenderCurrent();
+  subscribeRealtime();
 }
 
 /* ── Undo/Redo tizimi ── */
@@ -868,6 +1058,17 @@ function addAudit(action, detail, type='info'){
   if (DB.audit.length > 200) DB.audit = DB.audit.slice(0, 200);
   // Sidebar'dagi mojaro sonini yangilaymiz
   updateConflictBadge();
+  // Bulutdagi doimiy audit jurnaliga ham yozamiz (o'chmaydi, holat qayta tiklansa ham qoladi)
+  if (_sbUser){
+    const typeMap = { ok:'success', err:'error' };
+    sb.from('audit_log').insert({
+      actor_id: _sbUser.id,
+      actor_email: _sbUser.email,
+      action,
+      detail: typeof detail === 'string' ? detail : (detail == null ? '' : JSON.stringify(detail)),
+      type: typeMap[type] || type || 'info'
+    }).then(({error}) => { if (error) console.error('Audit yozishda xato:', error); });
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -923,13 +1124,14 @@ function rerenderCurrent(){ nav(CUR); }
 /* ══════════════════════════════════════════════════════════
    TOAST BILDIRISH
 ══════════════════════════════════════════════════════════ */
-function toast(msg, type=''){
+function toast(msg, type='', onClick){
   const c = document.getElementById('tc');
   const t = document.createElement('div');
   t.className = 'toast ' + (type==='ok'?'ts' : type==='warn'?'tw' : type==='err'?'te' : '');
-  t.textContent = msg;
+  t.innerHTML = msg;
+  if (onClick){ t.style.cursor = 'pointer'; t.style.pointerEvents = 'all'; t.onclick = () => { onClick(); t.remove(); }; }
   c.appendChild(t);
-  setTimeout(() => t.remove(), 3200);
+  setTimeout(() => t.remove(), onClick ? 8000 : 3200);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -3851,16 +4053,11 @@ function rReports(){
 }
 
 /* ══════════════════════════════════════════════════════════
-   ISHGA TUSHIRISH — TO'LDIRILGAN
+   ISHGA TUSHIRISH — avval kirish (auth) tekshiriladi,
+   faqat shundan keyin ilova (bootApp) yuklanadi
 ══════════════════════════════════════════════════════════ */
-load();
 loadDark();
-loadSearchHistory();
-updateUndoButtons();
-updateConflictBadge();
-startSessionTimer();
-updateStatusBar();
-rDash();
+checkExistingSession();
 </script>
 </body>
 </html>
