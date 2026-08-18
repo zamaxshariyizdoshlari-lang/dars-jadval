@@ -960,8 +960,10 @@ function load(){
     hydrateDB(JSON.parse(r));
   } catch(e){ console.warn('Ma\'lumot yuklashda xato:', e); }
 }
+let _initialLoadDone = false;
+let _intentionalWipe = false;
 function queueCloudSave(){
-  if (!_sbUser) return;
+  if (!_sbUser || !_initialLoadDone) return; // bulutdan birinchi yuklash tugamaguncha hech narsa jo'natmaymiz
   setSync('saving');
   clearTimeout(_pushTimer);
   _pushTimer = setTimeout(pushToCloud, 700);
@@ -969,9 +971,17 @@ function queueCloudSave(){
 async function pushToCloud(){
   if (!_sbUser) return;
   const { DB: dbPayload } = JSON.parse(dbSerialize()); // {subjects,teachers,classes,wlMap,timetable,locks,settings,audit}
-  const { error } = await sb.rpc('admin_save_schedule', { payload: dbPayload });
+  const wipe = _intentionalWipe; _intentionalWipe = false;
+  const { error } = await sb.rpc('admin_save_schedule', { payload: dbPayload, confirm_wipe: wipe });
   setSync(error ? 'error' : 'synced');
-  if (error) console.error('Bulutga saqlashda xato:', error);
+  if (error){
+    console.error('Bulutga saqlashda xato:', error);
+    if (/safety_guard_empty_overwrite/.test(error.message)){
+      toast('⚠ Himoya: bo\'sh holat bulutdagi mavjud ma\'lumotni o\'chirmadi. Sahifani qayta yuklab ko\'ring.', 'err');
+    } else {
+      toast('⚠ Bulutga saqlanmadi: ' + error.message, 'err');
+    }
+  }
 }
 async function loadFromCloud(){
   if (!_sbUser) return false;
@@ -996,6 +1006,7 @@ async function bootApp(){
   rDash();
   setSync('connecting');
   const refreshed = await loadFromCloud();
+  _initialLoadDone = true; // shu nuqtadan keyingina bulutga saqlash yoqiladi (poyga holatidan himoya)
   if (refreshed) rerenderCurrent();
   subscribeRealtime();
 }
@@ -1818,6 +1829,7 @@ async function restoreSnapshot(id){
   if (!confirm('Joriy holat zaxiraga saqlanadi, so\'ng shu nuqtaga qaytariladi. Davom etasizmi?')) return;
   const { data, error } = await sb.rpc('admin_restore_snapshot', { snapshot_id: id });
   if (error){ toast('Xato: '+error.message,'err'); return; }
+  saveSnapshot('Zaxira nuqtasidan tiklashdan oldin');
   hydrateDB({ DB: data });
   try { localStorage.setItem('zi6', JSON.stringify({ DB: data, _nid })); } catch(e){}
   addAudit('Zaxira nuqtasidan tiklandi', '', 'warn');
@@ -2079,6 +2091,7 @@ function importFromXLS(){
 
 function resetAll(){
   if (!confirm('BARCHA ma\'lumotlar o\'chiriladi! Tasdiqlaysizmi?')) return;
+  if (!confirm('Haqiqatan ham ishonchingiz komilmi? Bu amalni ortga qaytarib bo\'lmaydi (faqat zaxira nuqtasidan tiklash mumkin).')) return;
   saveSnapshot('Hammasi o\'chirildi');
   DB = {
     subjects:[], teachers:[], classes:[], wlMap:{}, timetable:[],
@@ -2088,6 +2101,7 @@ function resetAll(){
     audit: []
   };
   _nid=1; _history=[]; _future=[];
+  _intentionalWipe = true;
   save(); nav('dash'); toast('Tozalandi','warn');
 }
 
