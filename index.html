@@ -545,7 +545,7 @@ body.public-view #public-view-page{display:block}
           <button class="btn b-pur b-sm" onclick="openPartialGen()" title="Faqat tanlangan sinflar/fanlar">&#9889; Tanlangan</button>
           <button class="btn b-blu b-sm" onclick="openGenLog()" title="Generatsiya tarixi">&#128202;</button>
           <button class="btn b-teal b-sm" onclick="openCompare()" title="Sinflarni solishtirish">&#8644;</button>
-          <button class="btn b-red" onclick="clearTT()">&#128465;</button>
+          <button class="btn b-red" onclick="clearTT(event)">&#128465;</button>
         </div>
       </div>
       <div id="gen-log"></div>
@@ -3033,11 +3033,39 @@ function doGen(){
   saveGenHistory(DB.timetable.length, failLog.length, DB.classes.length);
 }
 
-function clearTT(){
-  if(!confirm('Barcha jadvalni tozalash? (Qulflangan kataklar ham tozalanadi)')) return;
-  saveSnapshot('Jadval tozalandi');
-  DB.timetable=[]; DB.locks=new Set();
-  addAudit('Jadval tozalandi', '', 'warn');
+function clearTT(evt){
+  const lockedN = DB.locks.size;
+  const pop = document.getElementById('pop');
+  pop.innerHTML = `<h4>🗑 Jadvalni tozalash</h4>
+    <div class="popt" onclick="closePop();doClearTT('all')">
+      🗑 <span style="flex:1">Barchasini tozalash</span>
+      ${lockedN ? `<span style="font-size:9px;color:var(--g400)">${lockedN} qulf ham</span>` : ''}
+    </div>
+    <div class="popt ${lockedN?'':'dis'}" onclick="closePop();doClearTT('unlocked')">
+      🔓 <span style="flex:1">Faqat qulflanmaganlarni tozalash</span>
+    </div>`;
+  pop.style.display='block';
+  document.getElementById('pop-bg').style.display='block';
+  const r=evt.target.closest('button').getBoundingClientRect();
+  let top=r.bottom+4, left=r.left;
+  if(top+140>window.innerHeight) top=r.top-140;
+  if(left+235>window.innerWidth) left=window.innerWidth-239;
+  pop.style.top=Math.max(4,top)+'px'; pop.style.left=Math.max(4,left)+'px';
+}
+function doClearTT(mode){
+  if (mode==='all'){
+    if(!confirm('Barcha jadvalni tozalash? (Qulflangan kataklar ham tozalanadi)')) return;
+    saveSnapshot('Jadval tozalandi (hammasi)');
+    DB.timetable=[]; DB.locks=new Set();
+    addAudit('Jadval tozalandi', 'Barchasi (qulflanganlar ham)', 'warn');
+  } else {
+    if (!DB.locks.size){ toast('Qulflangan katak yo\'q','warn'); return; }
+    if(!confirm('Faqat qulflanmagan darslar tozalansinmi? Qulflangan kataklar saqlanib qoladi.')) return;
+    saveSnapshot('Jadval tozalandi (qulflanmaganlar)');
+    const before = DB.timetable.length;
+    DB.timetable = DB.timetable.filter(e => isLocked(e.classId, e.day, e.period));
+    addAudit('Jadval tozalandi', `${before - DB.timetable.length} ta (qulflanmagan darslar)`, 'warn');
+  }
   save(); rTTGrid(); rDash(); updateConflictBadge(); toast('Tozalandi','warn');
 }
 
