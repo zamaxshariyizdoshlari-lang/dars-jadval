@@ -373,6 +373,12 @@ input[type=color]{width:34px;height:27px;padding:2px;border:1px solid var(--g200
 body:not(.authed) #app,body:not(.authed) #status-bar,body:not(.authed) #tc{display:none!important}
 #auth-gate{background:var(--br)}
 body.authed #auth-gate{display:none!important}
+/* ── O'qituvchi uchun ochiq (faqat-o'qish) ko'rinish ── */
+#public-view-page{display:none;max-width:760px;margin:24px auto;padding:0 14px}
+body.public-view #auth-gate,body.public-view #app,body.public-view #status-bar,body.public-view #tc{display:none!important}
+body.public-view #public-view-page{display:block}
+.pv-slot{border-radius:6px;padding:5px 7px;font-weight:700;font-size:10.5px;min-height:36px}
+.pv-empty{background:var(--g50);border:1px dashed var(--g300);min-height:36px;border-radius:6px}
 .auth-card{background:#fff;border-radius:14px;width:100%;max-width:380px;padding:26px 24px 20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 .auth-card h1{font-size:15.5px;font-weight:800;color:var(--br)}
 .auth-card>p{font-size:10.5px;color:var(--g400);margin-bottom:16px}
@@ -404,6 +410,8 @@ body.authed #auth-gate{display:none!important}
     </p>
   </div>
 </div>
+<!-- O'qituvchi uchun ochiq (parolsiz, faqat-o'qish) jadval ko'rinishi -->
+<div id="public-view-page"></div>
 <div id="app">
 <!-- ══════════════════════════════════════════════════════
      SIDEBAR — Navigatsiya paneli
@@ -525,6 +533,7 @@ body.authed #auth-gate{display:none!important}
         </div>
       </div>
       <div class="alert ai" style="margin-bottom:9px">Har fan&#215;sinf kesmasi: haftalik soat + o&#700;qituvchi (faqat shu fanni o&#700;qita oladiganlar) + para</div>
+      <div id="import-report"></div>
       <div class="card"><div class="cb" style="padding:0;overflow-x:auto"><div id="wl-wrap"></div></div></div>
     </div>
     <div class="page" id="page-timetable">
@@ -1760,7 +1769,10 @@ function rConflicts(){
 ══════════════════════════════════════════════════════════ */
 function rAudit(){
   renderAuditItems(DB.audit); // tezkor: lokal kesh bilan darhol chizamiz
-  if (_sbUser) fetchCloudAudit(); // so'ng: bulutdagi doimiy jurnal bilan boyitamiz
+  if (_sbUser){
+    fetchCloudAudit(); // so'ng: bulutdagi doimiy jurnal bilan boyitamiz
+    rSnapshotsPane();
+  }
 }
 function renderAuditItems(items){
   let html = `<div class="row" style="justify-content:space-between;margin-bottom:12px">
@@ -1784,7 +1796,33 @@ function renderAuditItems(items){
       </div>`).join('');
     html += '</div></div>';
   }
+  html += `<div class="card" style="margin-top:14px">
+    <div class="ch"><span class="ch-t">🕐 Zaxira nuqtalari (avtomatik, har 15 daqiqada)</span></div>
+    <div class="cb" id="snapshots-pane"><p style="font-size:11px;color:var(--g400)">Yuklanmoqda&#8230;</p></div>
+  </div>`;
   document.getElementById('page-audit').innerHTML = html;
+}
+async function rSnapshotsPane(){
+  const pane = document.getElementById('snapshots-pane');
+  if (!pane) return;
+  const { data, error } = await sb.rpc('admin_list_snapshots');
+  if (error || CUR !== 'audit') return;
+  if (!data.length){ pane.innerHTML = '<p style="font-size:11px;color:var(--g400)">Hali zaxira nuqtasi yo\'q — birinchi saqlashdan keyin paydo bo\'ladi.</p>'; return; }
+  pane.innerHTML = data.map(s => `
+    <div class="row" style="justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--g100)">
+      <span style="font-size:11.5px">${fmtDate(new Date(s.created_at).getTime())} ${s.created_by_email ? '· '+s.created_by_email : ''}</span>
+      <button class="btn b-gh b-sm" onclick="restoreSnapshot('${s.id}')">↺ Tiklash</button>
+    </div>`).join('');
+}
+async function restoreSnapshot(id){
+  if (!confirm('Joriy holat zaxiraga saqlanadi, so\'ng shu nuqtaga qaytariladi. Davom etasizmi?')) return;
+  const { data, error } = await sb.rpc('admin_restore_snapshot', { snapshot_id: id });
+  if (error){ toast('Xato: '+error.message,'err'); return; }
+  hydrateDB({ DB: data });
+  try { localStorage.setItem('zi6', JSON.stringify({ DB: data, _nid })); } catch(e){}
+  addAudit('Zaxira nuqtasidan tiklandi', '', 'warn');
+  toast('Tiklandi','ok');
+  rerenderCurrent();
 }
 async function fetchCloudAudit(){
   const { data, error } = await sb.from('audit_log')
@@ -1881,7 +1919,74 @@ function rSettings(){
         </p>
       </div>
     </div>
+    <div class="card" style="grid-column:1/-1">
+      <div class="ch"><span class="ch-t">👥 Adminlar</span></div>
+      <div class="cb" id="admins-pane">
+        <p style="font-size:11px;color:var(--g400)">Yuklanmoqda&#8230;</p>
+      </div>
+    </div>
   </div>`;
+  if (_sbUser) rAdminsPane();
+}
+async function rAdminsPane(){
+  const pane = document.getElementById('admins-pane');
+  if (!pane) return;
+  const [{ data: admins, error: e1 }, { data: invites, error: e2 }] = await Promise.all([
+    sb.rpc('admin_list_admins'), sb.rpc('admin_list_invites')
+  ]);
+  if (e1 || e2){ pane.innerHTML = '<div class="alert ae">Adminlar ro\'yxatini yuklab bo\'lmadi</div>'; return; }
+  const meId = _sbUser.id;
+  pane.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <p style="font-size:10.5px;font-weight:700;color:var(--g500);margin-bottom:6px">FAOL ADMINLAR (${admins.length})</p>
+        ${admins.map(a=>`
+          <div class="row" style="justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--g100)">
+            <span style="font-size:11.5px">${a.email}${a.id===meId?' <span style="color:var(--g400)">(siz)</span>':''}</span>
+            ${a.id!==meId && admins.length>1
+              ? `<button class="btn b-red b-sm" onclick="removeAdmin('${a.id}','${a.email}')">O'chirish</button>`
+              : ''}
+          </div>`).join('')}
+      </div>
+      <div>
+        <p style="font-size:10.5px;font-weight:700;color:var(--g500);margin-bottom:6px">TAKLIF QILINGANLAR (${invites.length})</p>
+        ${invites.map(i=>`
+          <div class="row" style="justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--g100)">
+            <span style="font-size:11.5px">${i.email}</span>
+            <button class="btn b-gh b-sm" onclick="removeInvite('${i.email}')">Bekor qilish</button>
+          </div>`).join('') || '<p style="font-size:11px;color:var(--g400)">Yo\'q</p>'}
+        <div class="row" style="margin-top:9px">
+          <input type="email" id="invite-email" placeholder="email@misol.com" style="flex:1"/>
+          <button class="btn b-or b-sm" onclick="inviteAdmin()">+ Taklif qilish</button>
+        </div>
+        <p style="font-size:10px;color:var(--g400);margin-top:5px">Taklif qilingan kishi shu email bilan "Ro'yxatdan o'tish"ni bossa, avtomatik admin bo'ladi.</p>
+      </div>
+    </div>`;
+}
+async function inviteAdmin(){
+  const inp = document.getElementById('invite-email');
+  const email = inp.value.trim();
+  if (!email){ toast('Email kiriting','err'); return; }
+  const { error } = await sb.rpc('admin_add_invite', { target_email: email });
+  if (error){ toast('Xato: '+error.message,'err'); return; }
+  addAudit('Admin taklif qilindi', email, 'ok');
+  toast('Taklif yuborildi','ok');
+  rAdminsPane();
+}
+async function removeInvite(email){
+  if (!confirm(`${email} taklifini bekor qilasizmi?`)) return;
+  const { error } = await sb.rpc('admin_remove_invite', { target_email: email });
+  if (error){ toast('Xato: '+error.message,'err'); return; }
+  toast('Bekor qilindi','warn');
+  rAdminsPane();
+}
+async function removeAdmin(id, email){
+  if (!confirm(`${email} admin huquqidan mahrum qilinsinmi?`)) return;
+  const { error } = await sb.rpc('admin_remove_admin', { target_id: id });
+  if (error){ toast('Xato: '+error.message,'err'); return; }
+  addAudit('Admin o\'chirildi', email, 'warn');
+  toast('O\'chirildi','warn');
+  rAdminsPane();
 }
 function toggleDay(i, el){
   const has = DB.settings.workDays.includes(i);
@@ -1916,12 +2021,15 @@ function impJSON(inp){
   fr.onload=e=>{
     try{
       const p=JSON.parse(e.target.result);
+      if(!p.DB) throw new Error('Fayl formatida "DB" maydoni yo\'q — bu tizimning eksport fayli emasga o\'xshaydi');
       DB={...p.DB, locks:new Set(Array.isArray(p.DB.locks)?p.DB.locks:[])};
       _nid=p._nid||1;
       _history=[]; _future=[];
-      save(); nav(CUR); toast('Yuklandi','ok');
-      addAudit('JSON import qilindi', 'Tashqi fayldan ma\'lumot yuklandi', 'ok');
-    }catch{ toast('Fayl xato','err'); }
+      const summary=`${DB.subjects.length} fan, ${DB.teachers.length} o'qituvchi, ${DB.classes.length} sinf, ${DB.timetable.length} dars`;
+      save(); nav(CUR);
+      toast(`Yuklandi: ${summary}`,'ok');
+      addAudit('JSON import qilindi', summary, 'ok');
+    }catch(err){ toast('Fayl xato: '+err.message,'err'); }
   };
   fr.readAsText(f);
 }
@@ -2182,6 +2290,14 @@ function delTeacher(id){
   addAudit('O\'qituvchi o\'chirildi', t?.name||'', 'warn');
   save(); rTeachers(); toast('O\'chirildi','warn');
 }
+async function shareTeacherLink(tid){
+  if (!_sbUser){ toast('Faqat onlayn rejimda ishlaydi','err'); return; }
+  const { data: token, error } = await sb.rpc('admin_get_teacher_token', { t_id: tid });
+  if (error){ toast('Xato: '+error.message,'err'); return; }
+  const url = location.origin + location.pathname + '?t=' + token;
+  try { await navigator.clipboard.writeText(url); toast('Havola nusxalandi!','ok'); } catch(e){}
+  prompt('O\'qituvchi uchun faqat-ko\'rish havolasi (nusxalash uchun Ctrl+C):', url);
+}
 function rTeachers(){
   rLoadBalancer();
   const el=document.getElementById('t-list');
@@ -2208,6 +2324,7 @@ function rTeachers(){
           </div>
         </div>
         <div class="row" style="gap:4px">
+          <button class="btn b-teal b-sm" onclick="shareTeacherLink('${t.id}')" title="Faqat ko'rish uchun shaxsiy havola">🔗</button>
           <button class="btn b-gh b-sm" onclick="openTM('${t.id}')">✏️</button>
           <button class="btn b-red b-sm" onclick="delTeacher('${t.id}')">🗑</button>
         </div>
@@ -3839,9 +3956,19 @@ function startSessionTimer(){
   },1000);
 }
 
-/* ══════════════════════════════════════════════════════════
-   TUZATISH: importFromXLS — arraybuffer ishlatamiz
-══════════════════════════════════════════════════════════ */
+function renderImportReport(imported, skippedSubjects, skippedClasses){
+  const el = document.getElementById('import-report');
+  if (!el) return;
+  if (!skippedSubjects.size && !skippedClasses.size){
+    el.innerHTML = `<div class="alert as" style="margin-bottom:9px">✅ ${imported} ta yuklama import qilindi, hech narsa o'tkazib yuborilmadi.</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="fail-box" style="margin-bottom:9px">
+    <h4>⚠️ ${imported} ta import qilindi, ${skippedSubjects.size+skippedClasses.size} ta o'tkazib yuborildi</h4>
+    ${skippedSubjects.size ? `<p style="font-size:11px;margin-top:4px"><b>Topilmagan fanlar:</b> ${[...skippedSubjects].join(', ')} — avval "Fanlar bazasi"ga qo'shing.</p>` : ''}
+    ${skippedClasses.size ? `<p style="font-size:11px;margin-top:4px"><b>Topilmagan sinflar:</b> ${[...skippedClasses].join(', ')} — avval "Sinflar"ga qo'shing.</p>` : ''}
+  </div>`;
+}
 function importFromXLS(){
   const inp=document.createElement('input');
   inp.type='file'; inp.accept='.xlsx,.xls';
@@ -3857,23 +3984,26 @@ function importFromXLS(){
         if(rows.length<2){toast('Excel format xato','err');return;}
         const clsNames=rows[0].slice(1);
         let imported=0;
+        const skippedSubjects=new Set(), skippedClasses=new Set();
         rows.slice(1).forEach(row=>{
           const subName=String(row[0]||'').trim();
           if(!subName) return;
           const subj=DB.subjects.find(s=>s.name.toLowerCase()===subName.toLowerCase());
-          if(!subj) return;
+          if(!subj){ skippedSubjects.add(subName); return; }
           clsNames.forEach((cn,ci)=>{
             const h=parseInt(row[ci+1])||0; if(!h) return;
-            const cls=DB.classes.find(c=>c.name.toLowerCase()===String(cn||'').toLowerCase().trim());
-            if(!cls) return;
+            const clsName=String(cn||'').trim();
+            const cls=DB.classes.find(c=>c.name.toLowerCase()===clsName.toLowerCase());
+            if(!cls){ if(clsName) skippedClasses.add(clsName); return; }
             const k=wlKey(cls.id,subj.id);
             if(!DB.wlMap[k]) DB.wlMap[k]={weeklyHours:0,teacherId:'',isPara:false};
             DB.wlMap[k].weeklyHours=h; imported++;
           });
         });
-        save(); rWorkload();
+        save(); nav('workload');
+        renderImportReport(imported, skippedSubjects, skippedClasses);
         toast(`${imported} ta yuklama Excel dan import qilindi`,'ok');
-        addAudit('Excel import',`${imported} ta yuklama`,'ok');
+        addAudit('Excel import',`${imported} ta yuklama, ${skippedSubjects.size+skippedClasses.size} o'tkazib yuborildi`,'ok');
       }catch(e){toast('Excel xato: '+e.message,'err');}
     };
     fr.readAsArrayBuffer(f); // ← arraybuffer, binary emas
@@ -4031,11 +4161,57 @@ function rAnalytics(){
 }
 
 /* ══════════════════════════════════════════════════════════
+   O'QITUVCHI UCHUN OCHIQ (parolsiz) KO'RINISH
+   ?t=TOKEN bilan ochilsa, admin panelga umuman kirmay,
+   faqat o'sha o'qituvchining haftalik jadvalini ko'rsatamiz.
+══════════════════════════════════════════════════════════ */
+async function loadPublicTeacherView(token){
+  document.body.classList.add('public-view');
+  const el = document.getElementById('public-view-page');
+  el.innerHTML = '<p style="text-align:center;padding:40px;color:var(--g400)">Yuklanmoqda&#8230;</p>';
+  const { data, error } = await sb.rpc('public_teacher_schedule', { token });
+  if (error || !data || data.error){
+    el.innerHTML = '<div class="alert ae" style="margin-top:24px">Havola noto\'g\'ri yoki muddati o\'tgan.</div>';
+    return;
+  }
+  const wd = data.settings?.workDays || [0,1,2,3,4];
+  const pc = data.settings?.periodCount || 8;
+  const me = data.settings?.morEnd || 4;
+  const times = data.settings?.periodTimes || [];
+  const byDayPer = {};
+  (data.entries||[]).forEach(e => { byDayPer[e.day+'_'+e.period] = e; });
+  let html = `<div class="card" style="margin-top:18px">
+    <div class="ch"><span class="ch-t">📅 ${data.teacherName} — haftalik dars jadvali</span></div>
+    <div class="cb" style="overflow-x:auto">
+    <table class="tt" style="min-width:600px">
+      <thead><tr><th>Soat</th>${wd.map(d=>`<th>${ALL_DAYS[d]}</th>`).join('')}</tr></thead>
+      <tbody>`;
+  for (let p=1; p<=pc; p++){
+    if (p===me+1) html += `<tr class="lunch-row"><td colspan="${wd.length+1}">🍽 Tushlik: ${LUNCH.s}–${LUNCH.e}</td></tr>`;
+    html += `<tr><td class="pcell">${p}-soat<small>${times[p-1]?times[p-1].s+'–'+times[p-1].e:''}</small></td>`;
+    wd.forEach(d => {
+      const e = byDayPer[d+'_'+p];
+      html += e
+        ? `<td style="padding:2px"><div class="pv-slot" style="background:${data.teacherColor||'#888'}22;color:${data.teacherColor||'#333'}">${e.subjectName||'?'}${e.isPara?' [2x]':''}<br><span style="font-weight:400;opacity:.75">${e.className||''}</span></div></td>`
+        : `<td style="padding:2px"><div class="pv-empty"></div></td>`;
+    });
+    html += '</tr>';
+  }
+  html += '</tbody></table></div></div>';
+  el.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════════
    ISHGA TUSHIRISH — avval kirish (auth) tekshiriladi,
    faqat shundan keyin ilova (bootApp) yuklanadi
 ══════════════════════════════════════════════════════════ */
 loadDark();
-checkExistingSession();
+const _publicToken = new URLSearchParams(location.search).get('t');
+if (_publicToken){
+  loadPublicTeacherView(_publicToken);
+} else {
+  checkExistingSession();
+}
 </script>
 </body>
 </html>
