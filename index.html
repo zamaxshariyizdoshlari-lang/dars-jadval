@@ -786,7 +786,7 @@ let DB = {
   locks:     new Set(),
   settings: {
     workDays: [0,1,2,3,4],
-    maxPeriods: 7,
+    maxPeriods: 8,
     periodCount: 8,
     morEnd: 4,
     periodTimes: JSON.parse(JSON.stringify(DEF_TIMES))
@@ -926,7 +926,7 @@ function hydrateDB(p){
     wlMap:     d.wlMap     || {},
     timetable: d.timetable || [],
     locks:     new Set(Array.isArray(d.locks) ? d.locks : []),
-    settings:  d.settings  || {workDays:[0,1,2,3,4],maxPeriods:7,periodCount:8,morEnd:4,periodTimes:JSON.parse(JSON.stringify(DEF_TIMES))},
+    settings:  d.settings  || {workDays:[0,1,2,3,4],maxPeriods:8,periodCount:8,morEnd:4,periodTimes:JSON.parse(JSON.stringify(DEF_TIMES))},
     audit:     d.audit     || []
   };
   _nid = p._nid || 1;
@@ -1190,7 +1190,7 @@ function getPC(){ return DB.settings.periodCount || 8; }
 function getME(){ return DB.settings.morEnd || 4; }
 function clsMax(cid){
   const c = DB.classes.find(x=>x.id===cid);
-  return (c && c.maxPerDay && c.maxPerDay>0) ? c.maxPerDay : DB.settings.maxPeriods || 7;
+  return (c && c.maxPerDay && c.maxPerDay>0) ? c.maxPerDay : DB.settings.maxPeriods || 8;
 }
 function pTime(p){
   const t = DB.settings.periodTimes[p-1];
@@ -2096,7 +2096,7 @@ function resetAll(){
   DB = {
     subjects:[], teachers:[], classes:[], wlMap:{}, timetable:[],
     locks: new Set(),
-    settings: {workDays:[0,1,2,3,4],maxPeriods:7,periodCount:8,morEnd:4,
+    settings: {workDays:[0,1,2,3,4],maxPeriods:8,periodCount:8,morEnd:4,
                periodTimes:JSON.parse(JSON.stringify(DEF_TIMES))},
     audit: []
   };
