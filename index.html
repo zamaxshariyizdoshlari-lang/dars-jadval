@@ -393,21 +393,31 @@ body.public-view #public-view-page{display:block}
 .auth-features{list-style:none;display:flex;flex-direction:column;gap:13px}
 .auth-features li{font-size:12.5px;color:rgba(255,255,255,.78);display:flex;align-items:center;gap:10px}
 .auth-features li b{width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.08);display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;flex-shrink:0}
-.auth-form-panel{flex:1;display:flex;align-items:center;justify-content:center;background:var(--g50);padding:32px;min-width:0}
-.auth-card{background:#fff;width:100%;max-width:360px;padding:30px 28px;border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.auth-card h2{font-size:22px;font-weight:800;color:var(--br);margin-bottom:5px;letter-spacing:-.01em}
-.auth-card .auth-sub{font-size:12px;color:var(--g400);margin-bottom:24px}
-.auth-field{margin-bottom:14px}
-.auth-input-wrap{position:relative;display:flex;align-items:center}
-.auth-input-wrap svg{position:absolute;left:11px;width:15px;height:15px;color:var(--g400);pointer-events:none;z-index:1}
-.auth-input-wrap input{padding-left:34px!important}
-.auth-submit-btn{width:100%;justify-content:center;margin-top:6px;padding:10px 14px!important}
-.auth-toggle{margin-top:20px;font-size:11.5px;color:var(--g400);text-align:center}
-.auth-toggle a{color:var(--or);font-weight:600;text-decoration:none}
+.auth-form-panel{flex:1;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 75% 15%,#3a1600 0%,#1c0b00 55%,#0c0500 100%);padding:32px;min-width:0;overflow:hidden}
+.auth-form-panel::before{content:'';position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(255,110,0,.28),transparent 70%);top:-120px;right:-100px;pointer-events:none}
+.auth-form-panel::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,140,42,.14),transparent 70%);bottom:-100px;left:-80px;pointer-events:none}
+.auth-card{position:relative;z-index:1;background:rgba(255,255,255,.055);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.09);width:100%;max-width:370px;padding:36px 30px;border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.07);animation:authCardIn .5s cubic-bezier(.16,1,.3,1)}
+@keyframes authCardIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.auth-card h2{font-size:23px;font-weight:800;color:#fff;margin-bottom:5px;letter-spacing:-.01em}
+.auth-card .auth-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:26px}
+.auth-card .fl{color:rgba(255,255,255,.5)}
+.auth-field{margin-bottom:15px}
+.auth-input-wrap{position:relative;display:flex;align-items:center;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.1);border-radius:14px;transition:border-color .15s,background .15s,box-shadow .15s}
+.auth-input-wrap:focus-within{border-color:var(--or);background:rgba(255,255,255,.08);box-shadow:0 0 0 3px rgba(255,110,0,.14)}
+.auth-input-icon{width:32px;height:32px;border-radius:10px;background:rgba(255,110,0,.16);display:flex;align-items:center;justify-content:center;margin-left:6px;flex-shrink:0}
+.auth-input-icon svg{width:15px;height:15px;color:var(--or2)}
+.auth-input-wrap input{background:transparent!important;border:none!important;color:#fff;padding:12px 12px!important;font-size:13px;box-shadow:none!important}
+.auth-input-wrap input::placeholder{color:rgba(255,255,255,.25)}
+.auth-pass-toggle{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:0 12px;display:flex;align-items:center;flex-shrink:0}
+.auth-pass-toggle:hover{color:rgba(255,255,255,.75)}
+.auth-pass-toggle svg{width:16px;height:16px}
+.auth-forgot{display:block;text-align:right;font-size:11px;color:rgba(255,255,255,.38);margin:7px 2px 0;text-decoration:none;cursor:pointer}
+.auth-forgot:hover{color:var(--or2)}
+.auth-submit-btn{width:100%;justify-content:center;margin-top:20px;padding:12px 14px!important;background:linear-gradient(135deg,var(--or),#ff8c2a)!important;border:none;box-shadow:0 10px 28px rgba(255,110,0,.32);transition:transform .15s,box-shadow .15s;font-size:13.5px}
+.auth-submit-btn:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(255,110,0,.42)}
+.auth-toggle{margin-top:22px;font-size:11.5px;color:rgba(255,255,255,.35);text-align:center}
+.auth-toggle a{color:var(--or2);font-weight:600;text-decoration:none}
 .auth-toggle a:hover{text-decoration:underline}
-body.dark .auth-form-panel{background:var(--dm-bg)}
-body.dark .auth-card{background:var(--dm-card);box-shadow:none;border:1px solid var(--dm-border)}
-body.dark .auth-card h2{color:#e2e8f0}
 @media(max-width:760px){
   .auth-wrap{flex-direction:column}
   .auth-brand{flex:none;padding:34px 26px 30px;min-height:auto}
@@ -451,16 +461,20 @@ body.dark .auth-card h2{color:#e2e8f0}
           <div class="auth-field">
             <label class="fl">Email</label>
             <div class="auth-input-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span class="auth-input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
               <input type="email" id="auth-email" required autocomplete="username" placeholder="email@maktab.uz">
             </div>
           </div>
           <div class="auth-field">
             <label class="fl">Parol</label>
             <div class="auth-input-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span class="auth-input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
               <input type="password" id="auth-pass" required minlength="6" autocomplete="current-password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
+              <button type="button" class="auth-pass-toggle" id="auth-pass-toggle-btn" onclick="togglePassVisibility()" tabindex="-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
             </div>
+            <a class="auth-forgot" onclick="handleForgotPassword();return false">Parolni unutdingizmi?</a>
           </div>
           <button type="submit" class="btn b-or b-xl auth-submit-btn" id="auth-submit-btn">Kirish</button>
         </form>
@@ -904,6 +918,23 @@ function toggleAuthMode(){
 function setAuthMsg(msg, type){
   const el = document.getElementById('auth-msg');
   el.innerHTML = msg ? `<div class="alert ${type==='err'?'ae':type==='ok'?'as':'ai'}" style="margin-bottom:10px;text-align:left">${msg}</div>` : '';
+}
+function togglePassVisibility(){
+  const inp = document.getElementById('auth-pass');
+  const btn = document.getElementById('auth-pass-toggle-btn');
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  btn.innerHTML = showing
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.9 18.9 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+}
+async function handleForgotPassword(){
+  const email = document.getElementById('auth-email').value.trim();
+  if (!email){ setAuthMsg('Avval email manzilingizni kiriting', 'err'); return; }
+  setAuthMsg('Yuborilmoqda&#8230;', 'ok');
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  if (error){ setAuthMsg(translateAuthError(error.message), 'err'); return; }
+  setAuthMsg(`Parolni tiklash havolasi <b>${email}</b> ga yuborildi — pochtangizni tekshiring.`, 'ok');
 }
 function translateAuthError(msg){
   if (/Invalid login credentials/i.test(msg)) return 'Email yoki parol noto\'g\'ri';
@@ -1442,29 +1473,9 @@ function findAllConflicts(){
       });
     }
   });
-  // 4. Kunlik cap buzilgan
-  const capMap = {};
-  DB.timetable.forEach(e => {
-    const key = `${e.subjectId}_${e.classId}_${e.day}`;
-    if (!capMap[key]) capMap[key] = [];
-    capMap[key].push(e);
-  });
-  Object.entries(capMap).forEach(([key, ents]) => {
-    const [sid, cid, dayStr] = key.split('_');
-    const w = DB.wlMap[wlKey(cid, sid)];
-    if (!w) return;
-    const cap = dailyCap(w.weeklyHours, w.isPara);
-    if (ents.length > cap){
-      const s = DB.subjects.find(x=>x.id===sid);
-      const cls = DB.classes.find(x=>x.id===cid);
-      conflicts.push({
-        type: 'daily_cap',
-        msg: `${s?.name||'?'} ${cls?.name||'?'}da ${ALL_DAYS[parseInt(dayStr)]}da ${ents.length} soat (limit: ${cap})`,
-        classId: cid, day: parseInt(dayStr), subjectId: sid,
-        severity: 'error'
-      });
-    }
-  });
+  // 4. Kunlik fan cap'i ("Para") faqat avtomatik generatsiyaning ketma-ket
+  //    joylashtirish tendensiyasi — admin qo'lda buni oshirib qo'yishi mumkin,
+  //    shu sabab bu mojaro sifatida hisoblanmaydi.
   // 5. O'qituvchi haftalik limit oshgan
   DB.teachers.forEach(t => {
     const assigned = Object.values(DB.wlMap).filter(w=>w.teacherId===t.id).reduce((a,w)=>a+w.weeklyHours,0);
@@ -2864,7 +2875,7 @@ function openSlot(evt, cid, day, period){
       const t    = DB.teachers.find(x=>x.id===w.teacherId);
       const placed= DB.timetable.filter(e=>e.subjectId===w.sid&&e.classId===cid).length;
       const rem   = w.weeklyHours-placed;
-      const cap   = dailyCap(w.weeklyHours, w.isPara);
+      const cap   = clsMax(cid); // qo'lda qo'yishda faqat sinfning umumiy kunlik limiti hisobga olinadi
       const dc    = subjDayCount(w.sid, cid, day);
       const busy  = t && tBusy(t.id, day, period, cid);
       const blk   = t && isBlocked(t.id, day, period);
@@ -2909,9 +2920,8 @@ function placeEntry(subjectId, teacherId){
   if(teacherId && tBusy(teacherId,day,period,cid)){ toast('O\'qituvchi bu vaqtda band!','err'); closePop(); return; }
   if(teacherId && isBlocked(teacherId,day,period)){ toast('Bu vaqt bloklangan!','err'); closePop(); return; }
   if(teacherId && parallelConflict(cid,teacherId,day,period)){ toast('Parallel sinfda ham bu o\'qituvchi bor!','err'); closePop(); return; }
-  const w=DB.wlMap[wlKey(cid,subjectId)];
-  const cap=w?dailyCap(w.weeklyHours,w.isPara):1;
-  if(subjDayCount(subjectId,cid,day)>=cap){ toast('Kun limiti to\'ldi!','err'); closePop(); return; }
+  const cap=clsMax(cid); // qo'lda qo'yishda faqat sinfning umumiy kunlik limiti hisobga olinadi
+  if(subjDayCount(subjectId,cid,day)>=cap){ toast('Sinfning kunlik limiti to\'ldi!','err'); closePop(); return; }
   saveSnapshot(`Dars qo'lda joylashtirildi`);
   DB.timetable=DB.timetable.filter(e=>!(e.classId===cid&&e.day===day&&e.period===period));
   DB.timetable.push({classId:cid, day, period, subjectId, teacherId, isPara:false});
