@@ -1366,7 +1366,7 @@ function prefOK(sid, p){
 function dailyCap(wh, isPara){
   if (wh <= 3) return 1;
   if (!isPara) return 1;
-  return 2; // Para: faqat 2 ketma-ket soat
+  return Infinity; // Para: kunlik son cheklanmaydi — 3-4 ketma-ket soat ham joylashtirilishi mumkin, faqat sinfning umumiy kunlik limiti chegaralaydi
 }
 
 /* ── Jadval qidirish funksiyalari ── */
@@ -2948,6 +2948,112 @@ function runGen(){
   }, 30);
 }
 
+/* ── Slot yaroqliligini tekshiramiz — doGen VA doPartialGen ikkalasida ham
+   ishlatiladi, shuning uchun global (umumiy) qilib e'lon qilingan ── */
+function slotValid(task, d, p){
+  const{sid,tid,cid,wh,isPara,double}=task;
+  const cm=clsMax(cid), pc=getPC(), me=getME();
+  if(p>cm) return false;
+  if(double && (p+1>cm || p+1>pc)) return false;
+  // Para tushlik osha o'tmasin
+  if(double && p===me) return false;
+  // Shift (ertalab/tushdan keyin) — afzallik, qattiq shart emas: agar o'z
+  // qismida joy qolmasa, boshqa qismga ham qo'yiladi (scoreSlot orqali
+  // afzal qism birinchi urinilaveradi)
+  if(isBlocked(tid,d,p)) return false;
+  if(double && isBlocked(tid,d,p+1)) return false;
+  if(isLocked(cid,d,p)) return false;  // qulflangan katak
+  if(double && isLocked(cid,d,p+1)) return false;
+  if(getEntry(cid,d,p)) return false;
+  if(double && getEntry(cid,d,p+1)) return false;
+  // Kunlik sinf yuklanish limiti
+  const dl=dayLoad(cid,d);
+  if(dl>=(double?cm-1:cm)) return false;
+  // Kunlik fan limiti
+  const cap=dailyCap(wh,isPara);
+  const dc=subjDayCount(sid,cid,d);
+  if(dc+(double?2:1)>cap) return false;
+  // Parallel sinf tekshiruvi
+  if(parallelConflict(cid,tid,d,p)) return false;
+  if(double && parallelConflict(cid,tid,d,p+1)) return false;
+  return true;
+}
+
+/* ── Reshuffle: boshqa slot bo'shatish ──
+   Teacher X uchun (day,period) slot kerak, lekin u yerda Teacher Y bor.
+   Teacher Y'ning darsini boshqa joyga ko'chirishga harakat qilamiz.    */
+function reshuffle(tid, d, p, excCid){
+  const wd=getWD(), pc=getPC();
+  const blocker=DB.timetable.find(e=>e.teacherId===tid&&e.day===d&&e.period===p&&e.classId!==excCid);
+  if(!blocker) return false;
+  if(isLocked(blocker.classId, blocker.day, blocker.period)) return false; // qulflangan — ko'chirib bo'lmaydi
+  const bw=DB.wlMap[wlKey(blocker.classId, blocker.subjectId)];
+  if(!bw) return false;
+  // 1-urinish: o'z shift'i (mor/aft) ichida joy qidiramiz;
+  // topilmasa, 2-urinishda shift shartini bo'shatamiz (bo'sh joy bo'lsa ham qo'yiladi)
+  for(const strictShift of [true, false]){
+    for(const nd of wd){
+      for(let np=1; np<=pc; np++){
+        if(nd===d && np===p) continue;
+        if(isLocked(blocker.classId,nd,np)) continue;
+        if(getEntry(blocker.classId,nd,np)) continue;
+        if(isBlocked(blocker.teacherId,nd,np)) continue;
+        if(tBusy(blocker.teacherId,nd,np,blocker.classId)) continue;
+        const bcm=clsMax(blocker.classId);
+        if(np>bcm) continue;
+        if(strictShift && !shiftOK(blocker.subjectId,np)) continue;
+        const bdl=dayLoad(blocker.classId,nd);
+        if(bdl>=bcm) continue;
+        const cap2=dailyCap(bw.weeklyHours,bw.isPara);
+        const dc2=subjDayCount(blocker.subjectId,blocker.classId,nd);
+        if(dc2+1>cap2) continue;
+        if(parallelConflict(blocker.classId,blocker.teacherId,nd,np)) continue;
+        // Ko'chiramiz
+        DB.timetable[DB.timetable.indexOf(blocker)]={...blocker, day:nd, period:np};
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/* ── Slot bahosi (qanchalik yaxshi) ──
+   Manfiy = yaxshi, musbat = yomon.
+   Asosiy fanlar ertalab, gap minimizatsiya, pacing hisobi.   */
+function scoreSlot(task, d, p){
+  const{sid,tid}=task;
+  const me=getME();
+  let sc=0;
+  const subj=DB.subjects.find(x=>x.id===sid);
+  // Asosiy fanlar uchun ertalab bonus
+  if(subj?.priority==='core' && p<=3) sc-=12;
+  if(subj?.priority==='core' && p===me+1) sc+=10; // Tushlikdan keyin darhol — yomon
+  // Afzal vaqt bonusi
+  if(!prefOK(sid,p)) sc+=8;
+  // Shift (mor/aft) — kuchli afzallik: o'z qismidagi joylar tugamaguncha
+  // boshqa qismga o'tilmaydi, lekin joy qolmasa ham fan joylashmay qolmaydi
+  if(!shiftOK(sid,p)) sc+=100;
+  // Pacing tekshiruvi
+  const t=DB.teachers.find(x=>x.id===tid);
+  if(t?.pacing==='alt'){
+    const used=tDaysSet(tid);
+    if(used.has(d-1)||used.has(d+1)) sc+=7; // Kunora = ketma-ket kunlardan qochish
+  }
+  if(t?.pacing==='cons'){
+    const used=tDaysSet(tid);
+    if(used.size>0 && !used.has(d)) sc+=5; // Ketma-ket = yangi kun qo'shishdan qochish
+  }
+  // Gap minimizatsiya: o'qituvchi shu kunda boshqa dars bormi?
+  const tl=DB.timetable.filter(e=>e.teacherId===tid&&e.day===d);
+  if(tl.length>0){
+    const minP=Math.min(...tl.map(e=>e.period));
+    const maxP=Math.max(...tl.map(e=>e.period));
+    if(p>minP && p<maxP) sc-=5; // Bo'shliqni to'ldirish — yaxshi
+    if(p<minP-1 || p>maxP+1) sc+=6; // Yangi bo'shliq yaratish — yomon
+  }
+  return sc;
+}
+
 function doGen(){
   const wd=getWD(), pc=getPC(), me=getME();
   // Faqat qulflanmagan darslarni o'chiramiz
@@ -2974,101 +3080,6 @@ function doGen(){
       for(let i=0;i<rem;i++)    tasks.push({sid,tid:w.teacherId,cid,wh:w.weeklyHours,isPara:w.isPara,double:false});
     });
     return tasks;
-  }
-
-  /* ── Slot yaroqliligini tekshiramiz ── */
-  function slotValid(task, d, p){
-    const{sid,tid,cid,wh,isPara,double}=task;
-    const cm=clsMax(cid);
-    if(p>cm) return false;
-    if(double && (p+1>cm || p+1>pc)) return false;
-    // Para tushlik osha o'tmasin
-    if(double && p===me) return false;
-    if(!shiftOK(sid,p)) return false;
-    if(double && !shiftOK(sid,p+1)) return false;
-    if(isBlocked(tid,d,p)) return false;
-    if(double && isBlocked(tid,d,p+1)) return false;
-    if(isLocked(cid,d,p)) return false;  // qulflangan katak
-    if(double && isLocked(cid,d,p+1)) return false;
-    if(getEntry(cid,d,p)) return false;
-    if(double && getEntry(cid,d,p+1)) return false;
-    // Kunlik sinf yuklanish limiti
-    const dl=dayLoad(cid,d);
-    if(dl>=(double?cm-1:cm)) return false;
-    // Kunlik fan limiti
-    const cap=dailyCap(wh,isPara);
-    const dc=subjDayCount(sid,cid,d);
-    if(dc+(double?2:1)>cap) return false;
-    // Parallel sinf tekshiruvi
-    if(parallelConflict(cid,tid,d,p)) return false;
-    if(double && parallelConflict(cid,tid,d,p+1)) return false;
-    return true;
-  }
-
-  /* ── Reshuffle: boshqa slot bo'shatish ──
-     Teacher X uchun (day,period) slot kerak, lekin u yerda Teacher Y bor.
-     Teacher Y'ning darsini boshqa joyga ko'chirishga harakat qilamiz.    */
-  function reshuffle(tid, d, p, excCid){
-    const blocker=DB.timetable.find(e=>e.teacherId===tid&&e.day===d&&e.period===p&&e.classId!==excCid);
-    if(!blocker) return false;
-    if(isLocked(blocker.classId, blocker.day, blocker.period)) return false; // qulflangan — ko'chirib bo'lmaydi
-    const bw=DB.wlMap[wlKey(blocker.classId, blocker.subjectId)];
-    if(!bw) return false;
-    for(const nd of wd){
-      for(let np=1; np<=pc; np++){
-        if(nd===d && np===p) continue;
-        if(isLocked(blocker.classId,nd,np)) continue;
-        if(getEntry(blocker.classId,nd,np)) continue;
-        if(isBlocked(blocker.teacherId,nd,np)) continue;
-        if(tBusy(blocker.teacherId,nd,np,blocker.classId)) continue;
-        const bcm=clsMax(blocker.classId);
-        if(np>bcm) continue;
-        if(!shiftOK(blocker.subjectId,np)) continue;
-        const bdl=dayLoad(blocker.classId,nd);
-        if(bdl>=bcm) continue;
-        const cap2=dailyCap(bw.weeklyHours,bw.isPara);
-        const dc2=subjDayCount(blocker.subjectId,blocker.classId,nd);
-        if(dc2+1>cap2) continue;
-        if(parallelConflict(blocker.classId,blocker.teacherId,nd,np)) continue;
-        // Ko'chiramiz
-        DB.timetable[DB.timetable.indexOf(blocker)]={...blocker, day:nd, period:np};
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /* ── Slot bahosi (qanchalik yaxshi) ──
-     Manfiy = yaxshi, musbat = yomon.
-     Asosiy fanlar ertalab, gap minimizatsiya, pacing hisobi.   */
-  function scoreSlot(task, d, p){
-    const{sid,tid}=task;
-    let sc=0;
-    const subj=DB.subjects.find(x=>x.id===sid);
-    // Asosiy fanlar uchun ertalab bonus
-    if(subj?.priority==='core' && p<=3) sc-=12;
-    if(subj?.priority==='core' && p===me+1) sc+=10; // Tushlikdan keyin darhol — yomon
-    // Afzal vaqt bonusi
-    if(!prefOK(sid,p)) sc+=8;
-    // Pacing tekshiruvi
-    const t=DB.teachers.find(x=>x.id===tid);
-    if(t?.pacing==='alt'){
-      const used=tDaysSet(tid);
-      if(used.has(d-1)||used.has(d+1)) sc+=7; // Kunora = ketma-ket kunlardan qochish
-    }
-    if(t?.pacing==='cons'){
-      const used=tDaysSet(tid);
-      if(used.size>0 && !used.has(d)) sc+=5; // Ketma-ket = yangi kun qo'shishdan qochish
-    }
-    // Gap minimizatsiya: o'qituvchi shu kunda boshqa dars bormi?
-    const tl=DB.timetable.filter(e=>e.teacherId===tid&&e.day===d);
-    if(tl.length>0){
-      const minP=Math.min(...tl.map(e=>e.period));
-      const maxP=Math.max(...tl.map(e=>e.period));
-      if(p>minP && p<maxP) sc-=5; // Bo'shliqni to'ldirish — yaxshi
-      if(p<minP-1 || p>maxP+1) sc+=6; // Yangi bo'shliq yaratish — yomon
-    }
-    return sc;
   }
 
   /* ── Vazifani joylashtirish ── */
