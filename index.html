@@ -205,6 +205,11 @@ input[type=color]{width:34px;height:27px;padding:2px;border:1px solid var(--g200
 .s-del{position:absolute;top:1px;right:1px;width:12px;height:12px;border-radius:50%;background:rgba(0,0,0,.2);color:#fff;display:none;align-items:center;justify-content:center;font-size:8px;cursor:pointer}
 .slot:not(.locked):hover .s-del{display:flex}
 .dbl{display:inline-flex;align-items:center;padding:0 3px;border-radius:3px;font-size:8px;font-weight:700;background:rgba(0,0,0,.15);vertical-align:middle;margin-left:2px}
+/* ── Parallel (bir vaqtdagi bir nechta) darslar bitta katakda ── */
+.slot.multi{flex-direction:column;justify-content:flex-start;align-items:stretch;padding:3px;gap:2px;background:var(--g100)!important}
+.slot-sub{border-radius:4px;padding:2px 14px 2px 5px;font-size:8.5px;font-weight:700;line-height:1.25;position:relative;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.slot-sub .s-del{top:50%;right:2px;transform:translateY(-50%);width:11px;height:11px}
+.slot.multi .lock-btn{position:absolute;bottom:1px;right:1px;z-index:1}
 /* ── Qulf tugmasi ── */
 .lock-btn{display:flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:3px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);cursor:pointer;font-size:9px;position:absolute;bottom:2px;right:2px;transition:background .1s;color:#fff;user-select:none;line-height:1}
 .lock-btn:hover{background:rgba(255,255,255,.35)}
@@ -1372,6 +1377,12 @@ function dailyCap(wh, isPara){
 /* ── Jadval qidirish funksiyalari ── */
 function getEntry(cid, day, per){
   return DB.timetable.find(e => e.classId===cid && e.day===day && e.period===per) || null;
+}
+// Bir katakda parallel (bir vaqtdagi) bir nechta dars bo'lishi mumkin — masalan
+// sinf guruhlarga bo'linib, har xil fan o'qiganda. getEntry() faqat birinchisini
+// qaytaradi (eski, bitta-darslik joylar uchun); shu funksiya barchasini beradi.
+function getEntries(cid, day, per){
+  return DB.timetable.filter(e => e.classId===cid && e.day===day && e.period===per);
 }
 function tBusy(tid, day, per, excCid){
   return DB.timetable.some(e =>
@@ -2783,9 +2794,10 @@ function rTTGrid(){
       DB.classes.forEach(cls=>{
         const cm = clsMax(cls.id);
         if(p>cm){ html+=`<td><div class="slot lim">limit</div></td>`; return; }
-        const e  = getEntry(cls.id, di, p);
+        const entries = getEntries(cls.id, di, p);
         const lk = isLocked(cls.id, di, p);
-        if(e){
+        if(entries.length===1){
+          const e = entries[0];
           const t  = DB.teachers.find(x=>x.id===e.teacherId);
           const s2 = DB.subjects.find(x=>x.id===e.subjectId);
           const bg = t?.color || s2?.color || '#888';
@@ -2797,7 +2809,26 @@ function rTTGrid(){
               onclick="openSlot(event,'${cls.id}',${di},${p})">
               <span class="s-sub">${s2?.name||'?'}${e.isPara?'<span class="dbl">2x</span>':''}</span>
               <span class="s-tch">${t?.name||'?'}</span>
-              ${!lk?`<span class="s-del" onclick="event.stopPropagation();rmEntry('${cls.id}',${di},${p})">✕</span>`:''}
+              ${!lk?`<span class="s-del" onclick="event.stopPropagation();rmEntry('${cls.id}',${di},${p},'${e.subjectId}')">✕</span>`:''}
+              <span class="lock-btn ${lk?'locked-icon':''}"
+                onclick="event.stopPropagation();toggleLock('${cls.id}',${di},${p})">${lk?'🔒':'🔓'}</span>
+            </div>
+          </td>`;
+        } else if(entries.length>1){
+          // Parallel darslar — sinf guruhlarga bo'linib, bir vaqtda har xil fan
+          const hasCon = !lk && entries.some(e=>DB.timetable.some(x=>x.teacherId===e.teacherId&&x.day===di&&x.period===p&&x.classId!==cls.id));
+          html+=`<td style="padding:1px">
+            <div class="slot fill multi${lk?' locked':''}${hasCon?' conf':''}"
+              onclick="openSlot(event,'${cls.id}',${di},${p})">
+              ${entries.map(e=>{
+                const t=DB.teachers.find(x=>x.id===e.teacherId);
+                const s2=DB.subjects.find(x=>x.id===e.subjectId);
+                const bg=t?.color||s2?.color||'#888';
+                return `<div class="slot-sub" style="background:${bg};color:${contrast(bg)}">
+                  ${s2?.name||'?'} · ${t?.name||'?'}
+                  ${!lk?`<span class="s-del" onclick="event.stopPropagation();rmEntry('${cls.id}',${di},${p},'${e.subjectId}')">✕</span>`:''}
+                </div>`;
+              }).join('')}
               <span class="lock-btn ${lk?'locked-icon':''}"
                 onclick="event.stopPropagation();toggleLock('${cls.id}',${di},${p})">${lk?'🔒':'🔓'}</span>
             </div>
@@ -2837,15 +2868,19 @@ function toggleLock(cid, day, p){
   }
   save(); rTTGrid();
 }
-function rmEntry(cid, day, p){
+function rmEntry(cid, day, p, subjectId){
   if(isLocked(cid,day,p)){ toast('🔒 Katak qulflangan!','err'); return; }
+  // subjectId berilsa — faqat o'sha (parallel) darsni, bo'lmasa — katakdagi hammasini o'chiramiz
+  const toRemove = subjectId
+    ? DB.timetable.filter(e=>e.classId===cid&&e.day===day&&e.period===p&&e.subjectId===subjectId)
+    : DB.timetable.filter(e=>e.classId===cid&&e.day===day&&e.period===p);
+  if(!toRemove.length) return;
   saveSnapshot(`Dars o'chirildi: ${ALL_DAYS[day]} ${p}-soat`);
-  const e=getEntry(cid,day,p);
-  if(e){
+  toRemove.forEach(e=>{
     const s=DB.subjects.find(x=>x.id===e.subjectId);
     addAudit('Dars o\'chirildi', `${s?.name||'?'} — ${ALL_DAYS[day]} ${p}-soat`, 'warn');
-  }
-  DB.timetable=DB.timetable.filter(e=>!(e.classId===cid&&e.day===day&&e.period===p));
+  });
+  DB.timetable=DB.timetable.filter(e=>!toRemove.includes(e));
   save(); rTTGrid();
   if(CUR==='view') rView();
 }
@@ -2860,12 +2895,30 @@ function openSlot(evt, cid, day, period){
   popCtx={cid,day,period};
   const pop=document.getElementById('pop');
   const cls=DB.classes.find(c=>c.id===cid);
+  const existing=getEntries(cid,day,period);
   // Bu sinf uchun barcha yuklamalar
   const cwls=Object.entries(DB.wlMap)
     .filter(([k])=>k.startsWith(cid+'_'))
     .map(([k,w])=>({...w, k, sid:k.substring(cid.length+1)}));
   if(!cwls.length){ toast('Bu sinf uchun yuklama yo\'q','warn'); return; }
   let h=`<h4>📅 ${ALL_DAYS[day]} · ${period}-soat${pTime(period)?' ('+pTime(period)+')':''} – ${cls?.name||''}</h4>`;
+  if(existing.length){
+    h+=`<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--g400);margin:4px 0 2px;letter-spacing:.06em">Joylashtirilgan${existing.length>1?' (parallel)':''}</div>`;
+    existing.forEach(e=>{
+      const s=DB.subjects.find(x=>x.id===e.subjectId);
+      const t=DB.teachers.find(x=>x.id===e.teacherId);
+      h+=`<div class="popt" style="cursor:default">
+        <span class="dot" style="background:${s?.color||'#888'}"></span>
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          <b>${s?.name||'?'}</b>
+          <span style="font-size:10px;color:var(--g400)"> ${t?.name||'—'}</span>
+        </span>
+        <span onclick="rmEntry('${cid}',${day},${period},'${e.subjectId}');closePop()" style="cursor:pointer;color:var(--red);font-size:12px;padding:0 3px">✕</span>
+      </div>`;
+    });
+    h+=`<div class="popt-sep"></div>
+    <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--g400);margin:4px 0 2px;letter-spacing:.06em">&#43; Parallel qo&#700;shish</div>`;
+  }
   ['core','elec','fill'].forEach(pri=>{
     const pw=cwls.filter(w=>DB.subjects.find(s=>s.id===w.sid)?.priority===pri);
     if(!pw.length) return;
@@ -2873,6 +2926,8 @@ function openSlot(evt, cid, day, period){
     pw.forEach(w=>{
       const subj = DB.subjects.find(x=>x.id===w.sid);
       const t    = DB.teachers.find(x=>x.id===w.teacherId);
+      const already = existing.some(e=>e.subjectId===w.sid);
+      const teacherTaken = t && existing.some(e=>e.teacherId===t.id);
       const placed= DB.timetable.filter(e=>e.subjectId===w.sid&&e.classId===cid).length;
       const rem   = w.weeklyHours-placed;
       const cap   = clsMax(cid); // qo'lda qo'yishda faqat sinfning umumiy kunlik limiti hisobga olinadi
@@ -2882,8 +2937,8 @@ function openSlot(evt, cid, day, period){
       const parCon= t && parallelConflict(cid, t.id, day, period);
       const ovCap = dc>=cap;
       const shWrn = !shiftOK(w.sid, period);
-      const dis   = busy || blk || rem<=0 || ovCap || parCon;
-      const why   = busy?'(band)': blk?'(blok)': rem<=0?'(to\'ldi)': ovCap?'(kun limiti)': parCon?'(parallel)': '';
+      const dis   = already || teacherTaken || busy || blk || rem<=0 || ovCap || parCon;
+      const why   = already?'(qo\'yilgan)': teacherTaken?'(ustoz band)': busy?'(band)': blk?'(blok)': rem<=0?'(to\'ldi)': ovCap?'(kun limiti)': parCon?'(parallel)': '';
       h+=`<div class="popt ${dis?'dis':''}" onclick="placeEntry('${w.sid}','${t?.id||''}')">
         <span class="dot" style="background:${subj?.color||'#888'}"></span>
         <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
@@ -2896,9 +2951,6 @@ function openSlot(evt, cid, day, period){
       </div>`;
     });
   });
-  const cur=getEntry(cid,day,period);
-  if(cur) h+=`<div class="popt-sep"></div>
-    <div class="popt" onclick="rmEntry('${cid}',${day},${period});closePop()" style="color:var(--red)">✕ O'chirish</div>`;
   pop.innerHTML=h; pop.style.display='block';
   document.getElementById('pop-bg').style.display='block';
   const r=evt.target.getBoundingClientRect();
@@ -2916,18 +2968,21 @@ function placeEntry(subjectId, teacherId){
   if(!popCtx) return;
   const{cid,day,period}=popCtx;
   if(isLocked(cid,day,period)){ toast('🔒 Qulflangan!','err'); closePop(); return; }
+  const existing=getEntries(cid,day,period);
   // Tekshiruvlar
+  if(existing.some(e=>e.subjectId===subjectId)){ toast('Bu fan allaqachon shu darsda bor!','err'); closePop(); return; }
+  if(teacherId && existing.some(e=>e.teacherId===teacherId)){ toast('Bu o\'qituvchi shu darsda allaqachon band!','err'); closePop(); return; }
   if(teacherId && tBusy(teacherId,day,period,cid)){ toast('O\'qituvchi bu vaqtda band!','err'); closePop(); return; }
   if(teacherId && isBlocked(teacherId,day,period)){ toast('Bu vaqt bloklangan!','err'); closePop(); return; }
   if(teacherId && parallelConflict(cid,teacherId,day,period)){ toast('Parallel sinfda ham bu o\'qituvchi bor!','err'); closePop(); return; }
   const cap=clsMax(cid); // qo'lda qo'yishda faqat sinfning umumiy kunlik limiti hisobga olinadi
   if(subjDayCount(subjectId,cid,day)>=cap){ toast('Sinfning kunlik limiti to\'ldi!','err'); closePop(); return; }
   saveSnapshot(`Dars qo'lda joylashtirildi`);
-  DB.timetable=DB.timetable.filter(e=>!(e.classId===cid&&e.day===day&&e.period===period));
+  // Mavjud darslarni saqlab qolamiz — yangisi ularga parallel qo'shiladi
   DB.timetable.push({classId:cid, day, period, subjectId, teacherId, isPara:false});
   const s=DB.subjects.find(x=>x.id===subjectId);
-  addAudit('Dars qo\'lda joylashtirildi', `${s?.name||'?'} — ${ALL_DAYS[day]} ${period}-soat`, 'ok');
-  save(); closePop(); rTTGrid(); updateConflictBadge(); toast('Joylashtirildi','ok');
+  addAudit('Dars qo\'lda joylashtirildi', `${s?.name||'?'} — ${ALL_DAYS[day]} ${period}-soat${existing.length?' (parallel)':''}`, 'ok');
+  save(); closePop(); rTTGrid(); updateConflictBadge(); toast(existing.length?'Parallel qo\'shildi':'Joylashtirildi','ok');
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -3033,6 +3088,10 @@ function scoreSlot(task, d, p){
   // Shift (mor/aft) — kuchli afzallik: o'z qismidagi joylar tugamaguncha
   // boshqa qismga o'tilmaydi, lekin joy qolmasa ham fan joylashmay qolmaydi
   if(!shiftOK(sid,p)) sc+=100;
+  // Haftaning kunlariga teng taqsimlash: shu fan bu kunda qancha ko'p bo'lsa
+  // (masalan Para tufayli bir necha marta), shuncha kam afzal — boshqa,
+  // hali bu fan yo'q kunlarga birinchi navbatda joylashtirishga harakat qilinadi
+  sc += 20 * subjDayCount(sid, task.cid, d);
   // Pacing tekshiruvi
   const t=DB.teachers.find(x=>x.id===tid);
   if(t?.pacing==='alt'){
@@ -3246,8 +3305,9 @@ function rView(){
 
 // Jadval katak HTML generatori (View va Master uchun qayta ishlatiladi)
 function slotBlock(cid, di, p){
-  const e=getEntry(cid,di,p);
-  if(e){
+  const entries=getEntries(cid,di,p);
+  if(entries.length===1){
+    const e=entries[0];
     const t=DB.teachers.find(x=>x.id===e.teacherId);
     const s=DB.subjects.find(x=>x.id===e.subjectId);
     const bg=t?.color||s?.color||'#888';
@@ -3258,6 +3318,18 @@ function slotBlock(cid, di, p){
         ${s?.name||'?'}${e.isPara?'<span class="dbl">2x</span>':''}${lk?' 🔒':''}
       </div>
       <div style="font-size:9.5px;opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t?.name||''}</div>
+    </div></td>`;
+  }
+  if(entries.length>1){
+    const lk=isLocked(cid,di,p);
+    return `<td style="padding:1px"><div style="border-radius:5px;padding:2px;min-height:40px;background:var(--g100);display:flex;flex-direction:column;gap:2px">
+      ${entries.map(e=>{
+        const t=DB.teachers.find(x=>x.id===e.teacherId);
+        const s=DB.subjects.find(x=>x.id===e.subjectId);
+        const bg=t?.color||s?.color||'#888';
+        return `<div style="background:${bg};color:${contrast(bg)};border-radius:4px;padding:1px 4px;font-size:9px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s?.name||'?'} · ${t?.name||''}</div>`;
+      }).join('')}
+      ${lk?'<div style="font-size:8px;color:var(--g400)">🔒</div>':''}
     </div></td>`;
   }
   return `<td><div style="min-height:40px;background:var(--g50);border-radius:5px;border:1px dashed var(--g200)"></div></td>`;
@@ -3421,11 +3493,14 @@ function expXLS(){
         if(p===me+1) rows.push(['— TUSHLIK —',`${LUNCH.s}–${LUNCH.e}`,...wd.map(()=>'')]);
         const row=[`${p}-soat`, pTime(p)];
         wd.forEach(di=>{
-          const e=getEntry(c.id,di,p);
-          if(e){
-            const s=DB.subjects.find(x=>x.id===e.subjectId);
-            const t=DB.teachers.find(x=>x.id===e.teacherId);
-            row.push(`${s?.name||'?'} (${t?.name||'?'})${e.isPara?' [2x]':''}${isLocked(c.id,di,p)?' [🔒]':''}`);
+          const ents=getEntries(c.id,di,p);
+          if(ents.length){
+            const txt=ents.map(e=>{
+              const s=DB.subjects.find(x=>x.id===e.subjectId);
+              const t=DB.teachers.find(x=>x.id===e.teacherId);
+              return `${s?.name||'?'} (${t?.name||'?'})${e.isPara?' [2x]':''}`;
+            }).join(' + ');
+            row.push(`${txt}${isLocked(c.id,di,p)?' [🔒]':''}`);
           } else row.push('');
         });
         rows.push(row);
@@ -4086,15 +4161,17 @@ function printAllClasses(){
       if(p===me+1) printHtml+=`<tr><td class="lunch" colspan="${wd.length+1}">🍽 Tushlik: ${LUNCH.s} – ${LUNCH.e}</td></tr>`;
       printHtml+=`<tr><td class="pcell">${p}-soat<br><small style="font-weight:400;font-size:9px">${pTime(p)}</small></td>`;
       wd.forEach(di=>{
-        const e=getEntry(cls.id,di,p);
-        if(e){
-          const t=DB.teachers.find(x=>x.id===e.teacherId);
-          const s=DB.subjects.find(x=>x.id===e.subjectId);
-          const bg=t?.color||s?.color||'#888';
-          printHtml+=`<td><div class="slot" style="background:${bg};color:${contrast(bg)}">
-            ${s?.name||'?'}${e.isPara?' [2x]':''}<br>
-            <span style="font-size:9px;opacity:.75">${t?.name||''}</span>
-          </div></td>`;
+        const ents=getEntries(cls.id,di,p);
+        if(ents.length){
+          printHtml+=`<td>${ents.map(e=>{
+            const t=DB.teachers.find(x=>x.id===e.teacherId);
+            const s=DB.subjects.find(x=>x.id===e.subjectId);
+            const bg=t?.color||s?.color||'#888';
+            return `<div class="slot" style="background:${bg};color:${contrast(bg)};margin-bottom:2px">
+              ${s?.name||'?'}${e.isPara?' [2x]':''}<br>
+              <span style="font-size:9px;opacity:.75">${t?.name||''}</span>
+            </div>`;
+          }).join('')}</td>`;
         } else printHtml+=`<td class="empty-slot"></td>`;
       });
       printHtml+='</tr>';
