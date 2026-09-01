@@ -3457,11 +3457,20 @@ async function expPDF(){
   toast('PDF tayyorlanmoqda…');
   try{
     const c=await html2canvas(el,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
-    const img=c.toDataURL('image/png');
     const{jsPDF}=window.jspdf;
     const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'mm',format:'a4'});
-    const w=pdf.internal.pageSize.getWidth(), h=c.height*w/c.width;
-    pdf.addImage(img,'PNG',0,0,w,h);
+    const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
+    const pxPerMm=c.width/pageW, pageHpx=Math.floor(pageH*pxPerMm);
+    let renderedH=0, pageIdx=0;
+    while(renderedH<c.height){
+      const sliceH=Math.min(pageHpx, c.height-renderedH);
+      const slice=document.createElement('canvas');
+      slice.width=c.width; slice.height=sliceH;
+      slice.getContext('2d').drawImage(c, 0,renderedH,c.width,sliceH, 0,0,c.width,sliceH);
+      if(pageIdx>0) pdf.addPage();
+      pdf.addImage(slice.toDataURL('image/png'),'PNG',0,0,pageW,sliceH/pxPerMm);
+      renderedH+=sliceH; pageIdx++;
+    }
     pdf.save('zamaxshariy-jadval.pdf');
     addAudit('PDF eksport qilindi', vmMode+' ko\'rinish', 'ok');
     toast('PDF saqlandi','ok');
