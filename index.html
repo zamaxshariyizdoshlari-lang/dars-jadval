@@ -882,6 +882,10 @@ const MAX_UNDO = 30;  // maksimal undo bosqichi
 
 function uid(){ return 'u' + (Date.now() % 99999999) + (++_nid); }
 function wlKey(cid, sid){ return cid + '_' + sid; }
+function classCompare(a, b){
+  return a.name.localeCompare(b.name, undefined, {numeric:true, sensitivity:'base'});
+}
+function sortClasses(){ DB.classes.sort(classCompare); }
 
 /* ══════════════════════════════════════════════════════════
    SUPABASE — bulutli backend (auth + saqlash + audit)
@@ -1043,6 +1047,7 @@ function hydrateDB(p){
   DB.classes.forEach(c => {
     if (!c.parallelIds) c.parallelIds = [];
   });
+  sortClasses();
   DB.subjects.forEach(s => {
     if (s.prefPMin === undefined) s.prefPMin = null;
     if (s.prefPMax === undefined) s.prefPMax = null;
@@ -2184,6 +2189,7 @@ function impJSON(inp){
       DB={...p.DB, locks:new Set(Array.isArray(p.DB.locks)?p.DB.locks:[])};
       _nid=p._nid||1;
       _history=[]; _future=[];
+      sortClasses();
       const summary=`${DB.subjects.length} fan, ${DB.teachers.length} o'qituvchi, ${DB.classes.length} sinf, ${DB.timetable.length} dars`;
       save(); nav(CUR);
       toast(`Yuklandi: ${summary}`,'ok');
@@ -2619,6 +2625,7 @@ function saveClass(){
   const obj  = {id:id||uid(), name, maxPerDay:mp, parallelIds:pars};
   if(id){ DB.classes[DB.classes.findIndex(x=>x.id===id)]=obj; }
   else DB.classes.push(obj);
+  sortClasses();
   // Parallel sinflarni ham yangilaymiz
   pars.forEach(pid=>{
     const pc2=DB.classes.find(x=>x.id===pid);
