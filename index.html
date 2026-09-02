@@ -2944,7 +2944,10 @@ function openSlot(evt, cid, day, period){
       const parCon= t && parallelConflict(cid, t.id, day, period);
       const ovCap = dc>=cap;
       const shWrn = !shiftOK(w.sid, period);
-      const dis   = already || teacherTaken || busy || blk || rem<=0 || ovCap || parCon;
+      // Faqat aynan shu fan shu darsda takror bo'lsa bloklanadi — qolgan holatlarda
+      // (o'qituvchi band, blok, limit, parallel) ziddiyat bo'lsa ham tasdiqlab qo'yish mumkin
+      const dis   = already;
+      const warn  = teacherTaken || busy || blk || rem<=0 || ovCap || parCon;
       const why   = already?'(qo\'yilgan)': teacherTaken?'(ustoz band)': busy?'(band)': blk?'(blok)': rem<=0?'(to\'ldi)': ovCap?'(kun limiti)': parCon?'(parallel)': '';
       h+=`<div class="popt ${dis?'dis':''}" onclick="placeEntry('${w.sid}','${t?.id||''}')">
         <span class="dot" style="background:${subj?.color||'#888'}"></span>
@@ -2954,7 +2957,9 @@ function openSlot(evt, cid, day, period){
         </span>
         ${dis
           ? `<span style="font-size:9.5px;color:var(--red)">${why}</span>`
-          : `<span style="font-size:9.5px;color:var(--g400)">${rem}h${shWrn?' ⚠️':''}</span>`}
+          : warn
+            ? `<span style="font-size:9.5px;color:#F59E0B">&#9888; ${why}</span>`
+            : `<span style="font-size:9.5px;color:var(--g400)">${rem}h${shWrn?' ⚠️':''}</span>`}
       </div>`;
     });
   });
@@ -2971,25 +2976,32 @@ function closePop(){
   document.getElementById('pop-bg').style.display='none';
   popCtx=null;
 }
-function placeEntry(subjectId, teacherId){
+async function placeEntry(subjectId, teacherId){
   if(!popCtx) return;
   const{cid,day,period}=popCtx;
   if(isLocked(cid,day,period)){ toast('🔒 Qulflangan!','err'); closePop(); return; }
   const existing=getEntries(cid,day,period);
-  // Tekshiruvlar
+  // Faqat aynan shu fan shu darsda takror bo'lsa qat'iy bloklanadi
   if(existing.some(e=>e.subjectId===subjectId)){ toast('Bu fan allaqachon shu darsda bor!','err'); closePop(); return; }
-  if(teacherId && existing.some(e=>e.teacherId===teacherId)){ toast('Bu o\'qituvchi shu darsda allaqachon band!','err'); closePop(); return; }
-  if(teacherId && tBusy(teacherId,day,period,cid)){ toast('O\'qituvchi bu vaqtda band!','err'); closePop(); return; }
-  if(teacherId && isBlocked(teacherId,day,period)){ toast('Bu vaqt bloklangan!','err'); closePop(); return; }
-  if(teacherId && parallelConflict(cid,teacherId,day,period)){ toast('Parallel sinfda ham bu o\'qituvchi bor!','err'); closePop(); return; }
+  // Qolgan ziddiyatlar — admin xohlasa baribir joylashtirishi mumkin (masalan, bir fan
+  // bir vaqtning o'zida bir necha sinfga o'qituvchi tomonidan birlashtirilib o'tilsa)
+  const reasons=[];
+  if(teacherId && existing.some(e=>e.teacherId===teacherId)) reasons.push('Bu o\'qituvchi shu darsda allaqachon band');
+  if(teacherId && tBusy(teacherId,day,period,cid)) reasons.push('O\'qituvchi shu vaqtda boshqa sinfda band');
+  if(teacherId && isBlocked(teacherId,day,period)) reasons.push('Bu vaqt o\'qituvchi uchun bloklangan');
+  if(teacherId && parallelConflict(cid,teacherId,day,period)) reasons.push('Parallel sinfda ham shu o\'qituvchi bor');
   const cap=clsMax(cid); // qo'lda qo'yishda faqat sinfning umumiy kunlik limiti hisobga olinadi
-  if(subjDayCount(subjectId,cid,day)>=cap){ toast('Sinfning kunlik limiti to\'ldi!','err'); closePop(); return; }
+  if(subjDayCount(subjectId,cid,day)>=cap) reasons.push('Sinfning kunlik limiti to\'ldi');
+  if(reasons.length){
+    const ok=await customConfirm(`Ziddiyat aniqlandi:<br>• ${reasons.join('<br>• ')}<br><br>Baribir joylashtirilsinmi?`, {okLabel:'Ha, joylashtirish'});
+    if(!ok){ closePop(); return; }
+  }
   saveSnapshot(`Dars qo'lda joylashtirildi`);
   // Mavjud darslarni saqlab qolamiz — yangisi ularga parallel qo'shiladi
   DB.timetable.push({classId:cid, day, period, subjectId, teacherId, isPara:false});
   const s=DB.subjects.find(x=>x.id===subjectId);
-  addAudit('Dars qo\'lda joylashtirildi', `${s?.name||'?'} — ${ALL_DAYS[day]} ${period}-soat${existing.length?' (parallel)':''}`, 'ok');
-  save(); closePop(); rTTGrid(); updateConflictBadge(); toast(existing.length?'Parallel qo\'shildi':'Joylashtirildi','ok');
+  addAudit('Dars qo\'lda joylashtirildi', `${s?.name||'?'} — ${ALL_DAYS[day]} ${period}-soat${existing.length?' (parallel)':''}${reasons.length?' ⚠ ziddiyatli':''}`, reasons.length?'warn':'ok');
+  save(); closePop(); rTTGrid(); updateConflictBadge(); toast(existing.length?'Parallel qo\'shildi':'Joylashtirildi', reasons.length?'warn':'ok');
 }
 
 /* ══════════════════════════════════════════════════════════
