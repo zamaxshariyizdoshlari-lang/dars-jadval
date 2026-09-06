@@ -625,6 +625,7 @@ body.public-view #public-view-page{display:block}
           <button class="btn b-pur b-sm" onclick="openPartialGen()" title="Faqat tanlangan sinflar/fanlar">&#9889; Tanlangan</button>
           <button class="btn b-blu b-sm" onclick="openGenLog()" title="Generatsiya tarixi">&#128202;</button>
           <button class="btn b-teal b-sm" onclick="openCompare()" title="Sinflarni solishtirish">&#8644;</button>
+          <button class="btn b-yel b-sm" onclick="lockAllMenu(event)" title="Hammasini qulflash / ochish">&#128274;</button>
           <button class="btn b-red" onclick="clearTT(event)">&#128465;</button>
         </div>
       </div>
@@ -3293,6 +3294,47 @@ async function doClearTT(mode){
     addAudit('Jadval tozalandi', `${before - DB.timetable.length} ta (qulflanmagan darslar)`, 'warn');
   }
   save(); rTTGrid(); rDash(); updateConflictBadge(); toast('Tozalandi','warn');
+}
+
+/* Hammasini qulflash / ochish */
+function lockAllMenu(evt){
+  const placedN = new Set(DB.timetable.map(e=>lockKey(e.classId,e.day,e.period))).size;
+  const pop = document.getElementById('pop');
+  pop.innerHTML = `<h4>&#128274; Qulflash</h4>
+    <div class="popt ${placedN?'':'dis'}" onclick="closePop();doLockAll(true)">
+      &#128274; <span style="flex:1">Barcha darslarni qulflash</span>
+      ${placedN ? `<span style="font-size:9px;color:var(--g400)">${placedN} katak</span>` : ''}
+    </div>
+    <div class="popt ${DB.locks.size?'':'dis'}" onclick="closePop();doLockAll(false)">
+      &#128275; <span style="flex:1">Barcha qulflarni ochish</span>
+      ${DB.locks.size ? `<span style="font-size:9px;color:var(--g400)">${DB.locks.size} katak</span>` : ''}
+    </div>`;
+  pop.style.display='block';
+  document.getElementById('pop-bg').style.display='block';
+  const r=evt.target.closest('button').getBoundingClientRect();
+  let top=r.bottom+4, left=r.left;
+  if(top+140>window.innerHeight) top=r.top-140;
+  if(left+235>window.innerWidth) left=window.innerWidth-239;
+  pop.style.top=Math.max(4,top)+'px'; pop.style.left=Math.max(4,left)+'px';
+}
+async function doLockAll(lock){
+  if (lock){
+    if (!DB.timetable.length){ toast('Jadval bo\'sh','warn'); return; }
+    if(!await customConfirm('Joylashtirilgan barcha darslar qulflansinmi? Generatsiya va tozalashda bu kataklar tegilmay qoladi.', {danger:false, okLabel:'Qulflash'})) return;
+    saveSnapshot('Barcha darslar qulflandi');
+    DB.timetable.forEach(e=>DB.locks.add(lockKey(e.classId,e.day,e.period)));
+    addAudit('Barcha darslar qulflandi', `${DB.locks.size} katak`, 'ok');
+    toast('🔒 Barcha darslar qulflandi','ok');
+  } else {
+    if (!DB.locks.size){ toast('Qulflangan katak yo\'q','warn'); return; }
+    if(!await customConfirm('Barcha qulflar ochilsinmi?', {okLabel:'Ochish'})) return;
+    saveSnapshot('Barcha qulflar ochildi');
+    const n = DB.locks.size;
+    DB.locks = new Set();
+    addAudit('Barcha qulflar ochildi', `${n} katak`, 'warn');
+    toast('🔓 Barcha qulflar ochildi','warn');
+  }
+  save(); rTTGrid(); updateStatusBar();
 }
 
 /* ══════════════════════════════════════════════════════════
