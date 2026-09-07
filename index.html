@@ -652,6 +652,7 @@ body.public-view #public-view-page{display:block}
       <div class="row" style="margin-bottom:12px" id="print-hide">
         <button class="btn b-br" onclick="expPDF()">&#128196; PDF</button>
         <button class="btn b-grn" onclick="expXLS()">&#128202; Excel</button>
+        <button class="btn b-pur" onclick="openXLSTemplateModal()" title="Boshqa tizimga import qilish uchun shablon formatida">&#128202; Excel (shablon)</button>
         <button class="btn b-yel" onclick="printView()">&#128424; Chop</button>
         <button class="btn b-blu" onclick="expViewJSON()">&#128190; JSON</button>
       </div>
@@ -720,6 +721,23 @@ body.public-view #public-view-page{display:block}
       <button class="btn b-or" onclick="saveClass()">Saqlash</button>
     </div>
     <input type="hidden" id="c-eid"/>
+  </div>
+</div>
+<!-- Shablon bo'yicha Excel eksport modali -->
+<div class="ov off" id="m-xlstpl">
+  <div class="modal" style="max-width:400px">
+    <div class="mh"><h3>Excel (shablon) eksport</h3><button class="mc" onclick="closeM('m-xlstpl')">&#10005;</button></div>
+    <div class="mb">
+      <p style="font-size:11.5px;color:var(--g500);margin-bottom:10px">Har bir dars alohida qatorda: Fan, Sinf, Bo&#700;lim, O&#700;qituvchi, Kun, Soat, sana oralig&#700;i. Boshqa tizimga import qilish uchun.</p>
+      <div class="fg" style="gap:9px">
+        <div><label class="fl">Boshlanish sanasi *</label><input id="xlstpl-start" type="date"/></div>
+        <div><label class="fl">Tugash sanasi *</label><input id="xlstpl-end" type="date"/></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-gh" onclick="closeM('m-xlstpl')">Bekor</button>
+      <button class="btn b-or" onclick="expXLSTemplate()">&#128190; Yuklab olish</button>
+    </div>
   </div>
 </div>
 <!-- Fan modal -->
@@ -1358,6 +1376,11 @@ function clsMax(cid){
 function pTime(p){
   const t = DB.settings.periodTimes[p-1];
   return (t && t.s && t.e) ? t.s + '\u2013' + t.e : '';
+}
+// Sinf nomini raqam + bo'limga ajratadi: "5A" -> {num:'5', letter:'A'}, "10-B" -> {num:'10', letter:'B'}
+function splitClassName(name){
+  const m = String(name||'').trim().match(/^(\d+)\s*-?\s*(.*)$/);
+  return m ? {num:m[1], letter:m[2].trim()} : {num:String(name||''), letter:''};
 }
 // Shift tekshiruvi
 function shiftOK(sid, p){
@@ -3601,6 +3624,44 @@ function expXLS(){
   }
   XLSX.writeFile(wb,'zamaxshariy-jadval.xlsx');
   addAudit('Excel eksport qilindi', vmMode+' ko\'rinish', 'ok');
+  toast('Excel saqlandi','ok');
+}
+
+/* ── Boshqa tizimga import qilish uchun shablon formatidagi Excel eksport ──
+   Ustunlar: Fan, Sinf, Bo'lim, O'qituvchi, Kun, Soat, Boshlanish sanasi, Tugash sanasi */
+function openXLSTemplateModal(){
+  if(!DB.timetable.length){ toast('Jadval bo\'sh','warn'); return; }
+  const sEl=document.getElementById('xlstpl-start'), eEl=document.getElementById('xlstpl-end');
+  if(DB.settings.xlsTplStart) sEl.value=DB.settings.xlsTplStart;
+  else if(!sEl.value) sEl.value=new Date().toISOString().slice(0,10);
+  if(DB.settings.xlsTplEnd) eEl.value=DB.settings.xlsTplEnd;
+  else if(!eEl.value){
+    const d=new Date(sEl.value); d.setMonth(d.getMonth()+3);
+    eEl.value=d.toISOString().slice(0,10);
+  }
+  openM('m-xlstpl');
+}
+function expXLSTemplate(){
+  const start=document.getElementById('xlstpl-start').value;
+  const end  =document.getElementById('xlstpl-end').value;
+  if(!start||!end){ toast('Sanalarni kiriting','err'); return; }
+  if(end<start){ toast('Tugash sanasi boshlanish sanasidan oldin bo\'lishi mumkin emas','err'); return; }
+  DB.settings.xlsTplStart=start; DB.settings.xlsTplEnd=end; save();
+  const rows=[['Fan','Sinf',"Bo'lim","O'qituvchi",'Kun','Soat','Boshlanish sanasi','Tugash sanasi']];
+  [...DB.timetable].sort((a,b)=>a.day-b.day||a.period-b.period).forEach(e=>{
+    const s=DB.subjects.find(x=>x.id===e.subjectId);
+    const t=DB.teachers.find(x=>x.id===e.teacherId);
+    const c=DB.classes.find(x=>x.id===e.classId);
+    const {num,letter}=splitClassName(c?.name);
+    rows.push([s?.name||'', /^\d+$/.test(num)?Number(num):num, letter, t?.name||'', ALL_DAYS[e.day]||'', e.period, start, end]);
+  });
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:16},{wch:6},{wch:8},{wch:22},{wch:12},{wch:6},{wch:16},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Dars jadvali');
+  XLSX.writeFile(wb,'dars-jadvali-shablon.xlsx');
+  addAudit('Excel (shablon) eksport qilindi', `${rows.length-1} dars`, 'ok');
+  closeM('m-xlstpl');
   toast('Excel saqlandi','ok');
 }
 
