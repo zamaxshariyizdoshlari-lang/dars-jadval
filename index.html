@@ -1084,6 +1084,7 @@ function load(){
   } catch(e){ console.warn('Ma\'lumot yuklashda xato:', e); }
 }
 let _initialLoadDone = false;
+let _cloudEmpty = false;
 let _intentionalWipe = false;
 function queueCloudSave(){
   if (!_sbUser || !_initialLoadDone) return; // bulutdan birinchi yuklash tugamaguncha hech narsa jo'natmaymiz
@@ -1116,6 +1117,7 @@ async function loadFromCloud(){
     try { localStorage.setItem('zi6', JSON.stringify({ DB: data, _nid })); } catch(e){}
     return true;
   }
+  _cloudEmpty = true;
   return false;
 }
 async function bootApp(){
@@ -1131,6 +1133,11 @@ async function bootApp(){
   const refreshed = await loadFromCloud();
   _initialLoadDone = true; // shu nuqtadan keyingina bulutga saqlash yoqiladi (poyga holatidan himoya)
   if (refreshed) rerenderCurrent();
+  // Bulut bo'sh, lekin bu qurilmada ma'lumot bor — birinchi marta bulutga yuklaymiz
+  if (_cloudEmpty && (DB.subjects.length || DB.teachers.length || DB.classes.length)){
+    toast('Ma\'lumotlar bulutga yuklanmoqda…', 'ok');
+    queueCloudSave();
+  }
   subscribeRealtime();
 }
 
