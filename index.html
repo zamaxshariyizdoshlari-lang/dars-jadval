@@ -326,7 +326,6 @@ input[type=color]{width:34px;height:27px;padding:2px;border:1px solid var(--g200
   .sb.mob-open{transform:translateX(0)}
   .main{margin-left:0}
   .fg2,.fg3,.fg4{grid-template-columns:1fr}
-  .mob-overlay{display:block!important}
 }
 .mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199}
 /* ── Mobil menu tugmasi ── */
@@ -1242,6 +1241,8 @@ function renderGroupTabs(p){
 }
 
 function nav(p){
+  const mobSb = document.querySelector('.sb');
+  if (mobSb && mobSb.classList.contains('mob-open')) toggleMobSidebar();
   document.querySelectorAll('.page').forEach(e => e.classList.remove('on'));
   document.querySelectorAll('.sbi[data-p]').forEach(e => e.classList.remove('on'));
   document.getElementById('page-' + p)?.classList.add('on');
