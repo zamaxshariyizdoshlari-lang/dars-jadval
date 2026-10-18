@@ -3541,9 +3541,23 @@ async function expPDF(){
   if(!el){ toast('Ko\'rinishni tanlang','warn'); return; }
   toast('PDF tayyorlanmoqda…');
   try{
-    const c=await html2canvas(el,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false});
+    // Keng jadvallar ichki scroll (overflow) tufayli kesilmasligi uchun to'liq kenglikni o'lchaymiz
+    let fullW=el.scrollWidth;
+    el.querySelectorAll('*').forEach(n=>{ if(n.scrollWidth>fullW) fullW=n.scrollWidth; });
+    const c=await html2canvas(el,{
+      scale:2,backgroundColor:'#fff',useCORS:true,logging:false,
+      width:fullW, windowWidth:fullW+40,
+      onclone:(doc)=>{
+        const root=doc.getElementById('vx');
+        root.style.width=fullW+'px'; root.style.overflow='visible';
+        root.querySelectorAll('*').forEach(n=>{
+          const o=getComputedStyle(n).overflowX;
+          if(o==='auto'||o==='scroll'||o==='hidden'){ n.style.overflow='visible'; n.style.maxWidth='none'; }
+        });
+      }
+    });
     const{jsPDF}=window.jspdf;
-    const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'mm',format:'a4'});
+    const pdf=new jsPDF({orientation:c.width>c.height||fullW>900?'l':'p',unit:'mm',format:'a4'});
     const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
     const pxPerMm=c.width/pageW, pageHpx=Math.floor(pageH*pxPerMm);
     let renderedH=0, pageIdx=0;
