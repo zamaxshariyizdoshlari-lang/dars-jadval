@@ -419,6 +419,14 @@ body.public-view #public-view-page{display:block}
 .auth-forgot:hover{color:var(--or2)}
 .auth-submit-btn{width:100%;justify-content:center;margin-top:20px;padding:12px 14px!important;background:linear-gradient(135deg,var(--or),#ff8c2a)!important;border:none;box-shadow:0 10px 28px rgba(255,110,0,.32);transition:transform .15s,box-shadow .15s;font-size:13.5px}
 .auth-submit-btn:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(255,110,0,.42)}
+.auth-demo-btn{width:100%;justify-content:center;margin-top:12px;padding:11px 14px!important;font-size:13px;color:#fff!important;background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.18)!important}
+.auth-demo-btn:hover{background:rgba(255,255,255,.14)!important}
+.auth-demo-note{font-size:10.5px;color:rgba(255,255,255,.35);text-align:center;margin-top:7px}
+#demo-bar{display:none}
+body.demo #demo-bar{display:flex;position:fixed;top:0;left:0;right:0;z-index:9998;align-items:center;justify-content:center;gap:10px;padding:5px 10px;background:#F59E0B;color:#3a1600;font-size:11.5px;font-weight:700}
+body.demo #demo-bar button{background:#3a1600;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer}
+body.demo .sb{top:28px}
+body.demo .main{padding-top:28px}
 .auth-toggle{margin-top:22px;font-size:11.5px;color:rgba(255,255,255,.35);text-align:center}
 .auth-toggle a{color:var(--or2);font-weight:600;text-decoration:none}
 .auth-toggle a:hover{text-decoration:underline}
@@ -438,6 +446,7 @@ body.public-view #public-view-page{display:block}
 </style>
 </head>
 <body>
+<div id="demo-bar">&#127922; DEMO rejim &#8212; o&#700;zgarishlar saqlanmaydi, haqiqiy ma&#700;lumotga tegilmaydi <button onclick="exitDemo()">Chiqish</button></div>
 <!-- ══════════════════════════════════════════════════════
      KIRISH DARVOZASI — faqat ro'yxatdan o'tgan admin kira oladi
 ══════════════════════════════════════════════════════ -->
@@ -482,6 +491,8 @@ body.public-view #public-view-page{display:block}
           </div>
           <button type="submit" class="btn b-or b-xl auth-submit-btn" id="auth-submit-btn">Kirish</button>
         </form>
+        <button type="button" class="btn b-gh b-xl auth-demo-btn" onclick="startDemo()">&#127922; Demo rejimda sinab ko&#700;rish</button>
+        <p class="auth-demo-note">Login kerak emas. Namunaviy ma&#700;lumotlar bilan ishlaydi, hech narsa saqlanmaydi.</p>
         <p class="auth-toggle" id="auth-toggle-wrap">
           Birinchi marta kirasizmi? <a href="#" onclick="toggleAuthMode();return false">Ro&#700;yxatdan o&#700;tish</a>
         </p>
@@ -1010,6 +1021,7 @@ async function onAuthed(user){
   bootApp();
 }
 async function signOutAdmin(){
+  if (_demo){ location.reload(); return; }
   if (_realtimeCh) sb.removeChannel(_realtimeCh);
   await sb.auth.signOut();
   location.reload();
@@ -1072,9 +1084,26 @@ function hydrateDB(p){
   });
 }
 function save(){
+  if (_demo) return; // demo rejimda hech narsa saqlanmaydi (na brauzerga, na bulutga)
   try { localStorage.setItem('zi6', dbSerialize()); } catch(e){}
   queueCloudSave();
 }
+/* ── Demo rejim: kirishsiz, haqiqiy ma'lumotga tegmasdan sinab ko'rish ── */
+let _demo = false;
+async function startDemo(){
+  _demo = true;
+  document.body.classList.add('authed','demo');
+  document.getElementById('sb-user-email').textContent = 'Demo rejim';
+  setSync('connecting');
+  const sy = document.getElementById('sb-sync');
+  if (sy){ sy.innerHTML = '&#9679; Demo (saqlanmaydi)'; sy.style.color = '#FBBF24'; }
+  loadSearchHistory();
+  updateUndoButtons(); updateConflictBadge(); startSessionTimer(); updateStatusBar();
+  await seedDemo();
+  try { doGen(); } catch(e){ console.error(e); }
+  nav('timetable');
+}
+function exitDemo(){ location.reload(); }
 function load(){
   // Lokal keshdan tezkor yuklash (oflayn/tezkor render uchun)
   try {
